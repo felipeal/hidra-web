@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2021", "DOM"],
+    "strict": true,
+    "strictNullChecks": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "allowJs": true,
+    "checkJs": true,
+    "jsx": "react",
+    "outDir": "build",
+    "esModuleInterop": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "**/node_modules/*"]
+}
