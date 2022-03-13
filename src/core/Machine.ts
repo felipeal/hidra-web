@@ -37,12 +37,14 @@ enum MachineErrorCode {
 }
 
 class MachineError extends Error {
+
+  errorCode: MachineErrorCode;
+
   constructor(errorCode: MachineErrorCode) {
     super();
     this.errorCode = errorCode;
   }
 
-  errorCode: MachineErrorCode;
 }
 
 export abstract class Machine {
@@ -419,10 +421,13 @@ export abstract class Machine {
 
   //#region Assembler
 
-  public assemble(sourceCode: string): void {
+  // Returns an array of error messages on failure
+  public assemble(sourceCode: string): string[] {
     this.running = false;
     this.buildSuccessful = false;
     this.firstErrorLine = -1;
+
+    const errorMessages: string[] = [];
 
     //////////////////////////////////////////////////
     // Regular expressions
@@ -517,7 +522,7 @@ export abstract class Machine {
           if (this.firstErrorLine === -1) {
             this.firstErrorLine = lineNumber;
           }
-          this.emitError(lineNumber, error.errorCode);
+          errorMessages.push(this.buildError(lineNumber, error.errorCode));
         } else {
           throw error;
         }
@@ -525,7 +530,7 @@ export abstract class Machine {
     }
 
     if (this.firstErrorLine >= 0) {
-      return; // Error(s) found, abort compilation
+      return errorMessages; // Error(s) found, abort compilation
     }
 
     //////////////////////////////////////////////////
@@ -555,7 +560,7 @@ export abstract class Machine {
           if (this.firstErrorLine === -1) {
             this.firstErrorLine = lineNumber;
           }
-          this.emitError(lineNumber, error.errorCode);
+          errorMessages.push(this.buildError(lineNumber, error.errorCode));
         } else {
           throw error;
         }
@@ -563,13 +568,15 @@ export abstract class Machine {
     }
 
     if (this.firstErrorLine >= 0) {
-      return; // Error(s) found, abort compilation
+      return errorMessages; // Error(s) found, abort compilation
     }
 
     this.buildSuccessful = true;
 
     this.copyAssemblerMemoryToMemory();
     this.clearAfterBuild();
+
+    return [];
   }
 
   // Mnemonic must be lowercase
@@ -584,7 +591,7 @@ export abstract class Machine {
         throw new MachineError(MachineErrorCode.WRONG_NUMBER_OF_ARGUMENTS);
       }
       if (!this.isValidOrg(argumentList[0])) {
-        throw MachineErrorCode.INVALID_ADDRESS;
+        throw new MachineError(MachineErrorCode.INVALID_ADDRESS);
       }
 
       this.PC.setValue(this.stringToInt(argumentList[0]));
@@ -693,7 +700,7 @@ export abstract class Machine {
     }
   }
 
-  public emitError(lineNumber: number, errorCode: MachineErrorCode): void {
+  public buildError(lineNumber: number, errorCode: MachineErrorCode): string {
     let errorString = "";
     errorString += "Linha " + String(lineNumber + 1) + ": ";
 
@@ -716,7 +723,7 @@ export abstract class Machine {
       errorString += errorMessages.get(MachineErrorCode.UNDEFINED_ERROR);
     }
 
-    console.log(`buildErrorDetected("${errorString}")`); // FIXME
+    return errorString;
   }
 
   public clearAssemblerData(): void {
