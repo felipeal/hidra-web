@@ -1,0 +1,112 @@
+@import 'codemirror/lib/codemirror.css';
+@import 'codemirror/theme/material.css';
+
+/*******************************************************************************
+ * General
+ ******************************************************************************/
+
+html, body {
+  margin: 0;
+}
+
+textarea {
+  margin: 0;
+}
+
+select {
+  background-color: #eee;
+  border: none;
+  padding: 8px;
+}
+
+input {
+  font-size: 16px;
+  padding: 4px;
+  border: none;
+}
+
+/*******************************************************************************
+ * Buttons
+ ******************************************************************************/
+
+button {
+  background-color: #eee;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #ddd;
+}
+
+button:active {
+  background-color: #aaa;
+}
+
+/*******************************************************************************
+ * Tables
+ ******************************************************************************/
+
+table {
+  border: 1px solid rgb(103, 103, 116);
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  border-collapse: collapse;
+}
+
+th {
+  padding: 4px;
+  font-weight: unset;
+  background-color: #eee;
+  padding-left: 8px;
+  padding-right: 8px;
+  position: sticky;
+  top: 0;
+}
+
+/* Remove double borders */
+table tr:first-child th {
+  border-top: 0;
+}
+table tr:last-child td {
+  border-bottom: 0;
+}
+table tr td:first-child,
+table tr th:first-child {
+  border-left: 0;
+}
+table tr td:last-child,
+table tr th:last-child {
+  border-right: 0;
+}
+
+/*******************************************************************************
+ * Code Editor
+ ******************************************************************************/
+
+ .react-codemirror2, .CodeMirror {
+  height: 100%;
+}
+
+.cm-hidra-instruction {
+  font-weight: bold;
+  color: purple;
+}
+
+.cm-hidra-directive {
+  font-weight: bold;
+  color: blue;
+}
+
+.cm-hidra-comment {
+  font-style: italic;
+  color: green;
+}
+
+.CodeMirror * {
+  font-size: 1rem;
+}

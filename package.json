@@ -39,6 +39,7 @@
     ]
   },
   "devDependencies": {
+    "@types/codemirror": "^5.60.5",
     "jest-watch-typeahead": "^0.6.5"
   }
 }
