@@ -6,9 +6,9 @@ export default function InstructionsRow({ address, machine }: { address: number,
   const [instructionString, setInstructionString] = useState(String(machine.getInstructionString(address)));
   const [isCurrentPos, setIsCurrentPos] = useState(machine.getPCValue() === address);
 
-
   useEffect(() => {
     // Restore values on machine change
+    setValue(String(machine.getMemoryValue(address)));
     setInstructionString(machine.getInstructionString(address));
     setIsCurrentPos(machine.getPCValue() === address);
 
