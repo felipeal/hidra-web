@@ -453,12 +453,12 @@ export abstract class Machine {
     // Strip comments and extra spaces
     for (let lineNumber = 0; lineNumber < sourceLines.length; lineNumber++) {
       // Convert literal quotes to special symbol
-      sourceLines[lineNumber].replaceAll("''''", "'" + Machine.QUOTE_SYMBOL); // '''' . 'QUOTE_SYMBOL
-      sourceLines[lineNumber].replaceAll("'''", Machine.QUOTE_SYMBOL); // ''' . QUOTE_SYMBOL
+      sourceLines[lineNumber] = sourceLines[lineNumber].replaceAll("''''", "'" + Machine.QUOTE_SYMBOL); // '''' . 'QUOTE_SYMBOL
+      sourceLines[lineNumber] = sourceLines[lineNumber].replaceAll("'''", Machine.QUOTE_SYMBOL); // ''' . QUOTE_SYMBOL
 
       // Remove comments
       if (matchComments.exactMatch(sourceLines[lineNumber])) {
-        sourceLines[lineNumber].replaceAll(matchComments.cap(1), "");
+        sourceLines[lineNumber] = sourceLines[lineNumber].replaceAll(matchComments.cap(1), "");
       }
 
       // Trim whitespace
@@ -844,11 +844,11 @@ export abstract class Machine {
     // TODO: Untested
 
     while (currentMatch) { // While there are arguments
-      const argument = currentMatch[1];
+      let argument = currentMatch[1];
 
       // Ascii string
       if (argument.includes("'")) {
-        argument.replaceAll("'", "");
+        argument = argument.replaceAll("'", "");
         for (const c of argument.split("")) {
           finalArgumentList.push(`'${c}'`); // Char between single quotes
         }
