@@ -584,7 +584,7 @@ export abstract class Machine {
     const whitespace = new QRegExp("\\s+");
 
     if (mnemonic === "org") {
-      const argumentList = args.trim().split(whitespace);
+      const argumentList = args.trim().split(whitespace).filter(argument => /\S/.test(argument)); // Filters out empty strings
       const numberOfArguments = argumentList.length;
 
       if (numberOfArguments !== 1) {
@@ -652,7 +652,7 @@ export abstract class Machine {
   public buildInstruction(instruction: Instruction, args: string): void {
     const whitespace = new QRegExp("\\s+");
 
-    const argumentList = args.trim().split(whitespace);
+    const argumentList = args.split(whitespace).filter(argument => /\S/.test(argument)); // Filters out empty strings
     const instructionArguments = instruction.getArguments(); let isImmediate = false;
     let registerBitCode = 0b00000000;
     let addressingModeBitCode = 0b00000000;
