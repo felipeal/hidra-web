@@ -8,6 +8,7 @@ export class Queops extends Machine {
 
   constructor() {
     super();
+    this.name = "Queops";
     this.identifier = "QPS";
 
     //////////////////////////////////////////////////

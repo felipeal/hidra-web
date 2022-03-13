@@ -8,6 +8,7 @@ export class Cromag extends Machine {
 
   constructor() {
     super();
+    this.name = "Cromag";
     this.identifier = "CRM"; // TODO: Confirmar c/Weber
 
     //////////////////////////////////////////////////

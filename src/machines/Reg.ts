@@ -8,6 +8,7 @@ export class Reg extends Machine {
 
   constructor() {
     super();
+    this.name = "REG";
     this.identifier = "REG";
 
     //////////////////////////////////////////////////

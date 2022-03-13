@@ -8,6 +8,7 @@ export class Ramses extends Machine {
 
   constructor() {
     super();
+    this.name = "Ramses";
     this.identifier = "RMS";
 
     //////////////////////////////////////////////////

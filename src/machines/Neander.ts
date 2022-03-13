@@ -8,6 +8,7 @@ export class Neander extends Machine {
 
   constructor() {
     super();
+    this.name = "Neander";
     this.identifier = "NDR";
 
     //////////////////////////////////////////////////

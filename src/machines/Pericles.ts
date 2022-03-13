@@ -8,6 +8,7 @@ export class Pericles extends Machine {
 
   constructor() {
     super();
+    this.name = "Pericles";
     this.identifier = "PRC";
 
     this.littleEndian = true;

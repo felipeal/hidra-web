@@ -9,6 +9,7 @@ export class Volta extends Machine {
 
   constructor() {
     super();
+    this.name = "Volta";
     this.identifier = "VLT"; // TODO: Confirmar identificador
 
     //////////////////////////////////////////////////

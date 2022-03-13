@@ -8,6 +8,7 @@ export class Pitagoras extends Machine {
 
   constructor() {
     super();
+    this.name = "Pitagoras";
     this.identifier = "PTG"; // TODO: Confirmar c/Weber
 
     //////////////////////////////////////////////////

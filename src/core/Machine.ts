@@ -54,6 +54,7 @@ export abstract class Machine {
   static readonly QUOTE_SYMBOL = "¢";
 
   // Properties
+  name!: string; // TODO: Remove !
   identifier!: string; // TODO: Remove !
   registers: Register[] = [];
   PC!: Register; // TODO: Remove !
