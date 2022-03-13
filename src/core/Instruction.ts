@@ -21,13 +21,13 @@ export enum InstructionCode {
 
 export class Instruction {
 
-  readonly numBytes: number;
-  readonly bitPattern: string;
-  readonly byteRegExp: QRegExp;
-  readonly mnemonic: string;
-  readonly assemblyFormat: string;
-  readonly arguments: string[];
-  readonly instructionCode: InstructionCode;
+  private readonly numBytes: number;
+  private readonly bitPattern: string;
+  private readonly byteRegExp: QRegExp;
+  private readonly mnemonic: string;
+  private readonly assemblyFormat: string;
+  private readonly arguments: string[];
+  private readonly instructionCode: InstructionCode;
 
   constructor(numBytes: number, bitPattern: string, instructionCode: InstructionCode, assemblyFormat: string) {
     this.numBytes = numBytes; // 0 if variable

@@ -9,10 +9,10 @@ export class AddressingMode {
 
   static readonly NO_PATTERN = "";
 
-  bitPattern: string;
-  addressingModeCode: AddressingModeCode;
-  assemblyPattern: string;
-  assemblyRegExp: QRegExp;
+  private readonly bitPattern: string;
+  private readonly addressingModeCode: AddressingModeCode;
+  private readonly assemblyPattern: string;
+  private readonly assemblyRegExp: QRegExp;
 
   constructor(bitPattern: string, addressingModeCode: AddressingModeCode, assemblyPattern: string) {
     this.bitPattern = bitPattern;

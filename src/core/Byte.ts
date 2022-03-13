@@ -1,6 +1,6 @@
 export class Byte {
 
-  value: number;
+  private value: number;
 
   constructor(value = 0) {
     this.value = (value & 0xFF); // TODO: Review

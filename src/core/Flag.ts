@@ -4,6 +4,11 @@ export enum FlagCode {
 
 export class Flag {
 
+  private readonly flagCode: FlagCode;
+  private readonly name: string;
+  private value: boolean;
+  private readonly defaultValue: boolean;
+
   constructor(flagCode: FlagCode, name: string, defaultValue = false) {
     this.flagCode = flagCode;
     this.name = name;
@@ -31,8 +36,4 @@ export class Flag {
     this.value = this.defaultValue;
   }
 
-  flagCode: FlagCode;
-  name: string;
-  value: boolean;
-  defaultValue: boolean;
 }

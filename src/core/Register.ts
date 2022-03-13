@@ -5,13 +5,13 @@ export class Register {
 
   static NO_BIT_CODE = -1;
 
-  name: string;
-  bitPattern: string; // Empty string if not directly accessible
+  private readonly name: string;
+  private readonly bitPattern: string; // Empty string if not directly accessible
 
-  value: number;
-  numOfBits: number;
-  valueMask: number;
-  isDataFlag: boolean;
+  private value: number;
+  private readonly numOfBits: number;
+  private readonly valueMask: number;
+  private readonly isDataFlag: boolean;
 
   constructor(name: string, bitPattern: string, numOfBits: number, isData = true) {
     this.name = name;
