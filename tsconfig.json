@@ -2,8 +2,6 @@
   "compilerOptions": {
     "lib": ["ES2021", "DOM"],
     "strict": true,
-    "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
     "allowJs": true,
     "checkJs": true,
     "jsx": "react",
