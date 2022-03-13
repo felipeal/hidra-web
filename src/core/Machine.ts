@@ -433,14 +433,6 @@ export abstract class Machine {
     // Regular expressions
     //////////////////////////////////////////////////
 
-    // Regular expression to capture comments
-    const CHARS_EXCEPT_QUOTE_SEMICOLON = "[^';]*";
-    const STRING = "(?:'[^']*')";
-    const COMMENT = "(;.*)$";
-
-    const commentsPattern = "^(?:" + CHARS_EXCEPT_QUOTE_SEMICOLON + STRING + "?)*" + COMMENT;
-    const matchComments = new QRegExp(commentsPattern);
-
     const validLabel = new QRegExp("[a-z_][a-z0-9_]*"); // Validates label names (must start with a letter/underline, may have numbers)
     const whitespace = new QRegExp("\\s+");
 
@@ -457,9 +449,7 @@ export abstract class Machine {
       sourceLines[lineNumber] = sourceLines[lineNumber].replaceAll("'''", Machine.QUOTE_SYMBOL); // ''' . QUOTE_SYMBOL
 
       // Remove comments
-      if (matchComments.exactMatch(sourceLines[lineNumber])) {
-        sourceLines[lineNumber] = sourceLines[lineNumber].replaceAll(matchComments.cap(1), "");
-      }
+      sourceLines[lineNumber] = this.removeComment(sourceLines[lineNumber]);
 
       // Trim whitespace
       sourceLines[lineNumber] = sourceLines[lineNumber].trim();
@@ -577,6 +567,18 @@ export abstract class Machine {
     this.clearAfterBuild();
 
     return [];
+  }
+
+  public removeComment(line: string) {
+    let isInsideString = false;
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] === "'") {
+        isInsideString = !isInsideString;
+      } else if (line[i] === ";" && !isInsideString) {
+        return line.slice(0, i);
+      }
+    }
+    return line;
   }
 
   // Mnemonic must be lowercase
