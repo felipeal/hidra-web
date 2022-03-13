@@ -321,48 +321,48 @@ export class Volta extends Machine {
   }
 
   public generateDescriptions(): void {
-    this.descriptions["nop"] = "Nenhuma operação.";
+    this.descriptions.set("nop", "Nenhuma operação.");
 
     // Arithmetic and logic (two operands)
-    this.descriptions["add"] = "Desempilha A e B, empilha B + A.";
-    this.descriptions["sub"] = "Desempilha A e B, empilha B - A.";
-    this.descriptions["and"] = "Desempilha A e B, empilha resultado do 'e' lógico entre seus bits.";
-    this.descriptions["or"] = "Desempilha A e B, empilha resultado do 'ou' lógico entre seus bits.";
+    this.descriptions.set("add", "Desempilha A e B, empilha B + A.");
+    this.descriptions.set("sub", "Desempilha A e B, empilha B - A.");
+    this.descriptions.set("and", "Desempilha A e B, empilha resultado do 'e' lógico entre seus bits.");
+    this.descriptions.set("or", "Desempilha A e B, empilha resultado do 'ou' lógico entre seus bits.");
 
     // Arithmetic and logic (one operand)
-    this.descriptions["clr"] = "Zera o valor no topo da pilha.";
-    this.descriptions["not"] = "Inverte (complementa) o valor dos bits do topo da pilha.";
-    this.descriptions["neg"] = "Troca o sinal do valor em complemento de 2 do topo da pilha entre positivo e negativo.";
-    this.descriptions["inc"] = "Incrementa em uma unidade o topo da pilha.";
-    this.descriptions["dec"] = "Decrementa de uma unidade o topo da pilha.";
-    this.descriptions["asr"] = "Realiza shift aritmético dos bits do topo da pilha para a direita, mantendo seu sinal em complemento de dois (bit mais significativo).";
-    this.descriptions["asl"] = "Realiza shift aritmético dos bits do topo da pilha para a esquerda, preenchendo com zero o bit menos significativo.";
-    this.descriptions["ror"] = "Realiza rotação para a direita dos bits do topo da pilha.";
-    this.descriptions["rol"] = "Realiza rotação para a esquerda dos bits do topo da pilha.";
+    this.descriptions.set("clr", "Zera o valor no topo da pilha.");
+    this.descriptions.set("not", "Inverte (complementa) o valor dos bits do topo da pilha.");
+    this.descriptions.set("neg", "Troca o sinal do valor em complemento de 2 do topo da pilha entre positivo e negativo.");
+    this.descriptions.set("inc", "Incrementa em uma unidade o topo da pilha.");
+    this.descriptions.set("dec", "Decrementa de uma unidade o topo da pilha.");
+    this.descriptions.set("asr", "Realiza shift aritmético dos bits do topo da pilha para a direita, mantendo seu sinal em complemento de dois (bit mais significativo).");
+    this.descriptions.set("asl", "Realiza shift aritmético dos bits do topo da pilha para a esquerda, preenchendo com zero o bit menos significativo.");
+    this.descriptions.set("ror", "Realiza rotação para a direita dos bits do topo da pilha.");
+    this.descriptions.set("rol", "Realiza rotação para a esquerda dos bits do topo da pilha.");
 
     // Conditionals (one operand)
-    this.descriptions["sz"] = "Retira o topo da pilha e pula a próxima instrução se for igual a zero (skip on zero).";
-    this.descriptions["snz"] = "Retira o topo da pilha e pula a próxima instrução se for diferente de zero (skip on not zero).";
-    this.descriptions["spl"] = "Retira o topo da pilha e pula a próxima instrução se for positivo (skip on plus).";
-    this.descriptions["smi"] = "Retira o topo da pilha e pula a próxima instrução se for negativo (skip on minus).";
-    this.descriptions["spz"] = "Retira o topo da pilha e pula a próxima instrução se for maior ou igual a zero (skip on plus/zero).";
-    this.descriptions["smz"] = "Retira o topo da pilha e pula a próxima instrução se for menor ou igual a zero (skip on minus/zero).";
+    this.descriptions.set("sz", "Retira o topo da pilha e pula a próxima instrução se for igual a zero (skip on zero).");
+    this.descriptions.set("snz", "Retira o topo da pilha e pula a próxima instrução se for diferente de zero (skip on not zero).");
+    this.descriptions.set("spl", "Retira o topo da pilha e pula a próxima instrução se for positivo (skip on plus).");
+    this.descriptions.set("smi", "Retira o topo da pilha e pula a próxima instrução se for negativo (skip on minus).");
+    this.descriptions.set("spz", "Retira o topo da pilha e pula a próxima instrução se for maior ou igual a zero (skip on plus/zero).");
+    this.descriptions.set("smz", "Retira o topo da pilha e pula a próxima instrução se for menor ou igual a zero (skip on minus/zero).");
 
     // Conditionals (two operands)
-    this.descriptions["seq"] = "Retira A e B da pilha e pula a próxima instrução se B = A (skip if equal).";
-    this.descriptions["sne"] = "Retira A e B da pilha e pula a próxima instrução se B ≠ A (skip if not equal).";
-    this.descriptions["sgr"] = "Retira A e B da pilha e pula a próxima instrução se B &gt; A (skip if greater than).";
-    this.descriptions["sls"] = "Retira A e B da pilha e pula a próxima instrução se B &lt; A (skip if less than).";
-    this.descriptions["sge"] = "Retira A e B da pilha e pula a próxima instrução se B ≥ A (skip if greater than/equal to).";
-    this.descriptions["sle"] = "Retira A e B da pilha e pula a próxima instrução se B ≤ A (skip if less than/equal to).";
+    this.descriptions.set("seq", "Retira A e B da pilha e pula a próxima instrução se B = A (skip if equal).");
+    this.descriptions.set("sne", "Retira A e B da pilha e pula a próxima instrução se B ≠ A (skip if not equal).");
+    this.descriptions.set("sgr", "Retira A e B da pilha e pula a próxima instrução se B &gt; A (skip if greater than).");
+    this.descriptions.set("sls", "Retira A e B da pilha e pula a próxima instrução se B &lt; A (skip if less than).");
+    this.descriptions.set("sge", "Retira A e B da pilha e pula a próxima instrução se B ≥ A (skip if greater than/equal to).");
+    this.descriptions.set("sle", "Retira A e B da pilha e pula a próxima instrução se B ≤ A (skip if less than/equal to).");
 
     // Others
-    this.descriptions["rts"] = "Desvia para o endereço indicado pelo topo da pilha, desempilhando-o (retorno de sub-rotina).";
-    this.descriptions["psh a"] = "Empilha o valor do endereço de memória 'a'.";
-    this.descriptions["pop a"] = "Desempilha o topo da pilha, armazenando-o no endereço de memória 'a'.";
-    this.descriptions["jmp a"] = "Desvia a execução para o endereço 'a' (desvio incondicional).";
-    this.descriptions["jsr a"] = "Empilha PC e desvia para o endereço 'a' (desvio para sub-rotina).";
-    this.descriptions["hlt"] = "Termina a execução.";
+    this.descriptions.set("rts", "Desvia para o endereço indicado pelo topo da pilha, desempilhando-o (retorno de sub-rotina).");
+    this.descriptions.set("psh a", "Empilha o valor do endereço de memória 'a'.");
+    this.descriptions.set("pop a", "Desempilha o topo da pilha, armazenando-o no endereço de memória 'a'.");
+    this.descriptions.set("jmp a", "Desvia a execução para o endereço 'a' (desvio incondicional).");
+    this.descriptions.set("jsr a", "Empilha PC e desvia para o endereço 'a' (desvio para sub-rotina).");
+    this.descriptions.set("hlt", "Termina a execução.");
   }
 
   //////////////////////////////////////////////////

@@ -698,22 +698,22 @@ export abstract class Machine {
     errorString += "Linha " + String(lineNumber + 1) + ": ";
 
     const errorMessages: Map<MachineErrorCode, string> = new Map();
-    errorMessages[MachineErrorCode.WRONG_NUMBER_OF_ARGUMENTS] = "Número de argumentos inválido.";
-    errorMessages[MachineErrorCode.INVALID_INSTRUCTION] = "Mnemônico inválido.";
-    errorMessages[MachineErrorCode.INVALID_ADDRESS] = "Endereço inválido.";
-    errorMessages[MachineErrorCode.INVALID_VALUE] = "Valor inválido.";
-    errorMessages[MachineErrorCode.INVALID_STRING] = "String inválido.";
-    errorMessages[MachineErrorCode.INVALID_LABEL] = "Label inválido.";
-    errorMessages[MachineErrorCode.INVALID_ARGUMENT] = "Argumento inválido.";
-    errorMessages[MachineErrorCode.DUPLICATE_LABEL] = "Label já definido.";
-    errorMessages[MachineErrorCode.MEMORY_OVERLAP] = "Sobreposição de memória.";
-    errorMessages[MachineErrorCode.NOT_IMPLEMENTED] = "Funcionalidade não implementada.";
-    errorMessages[MachineErrorCode.UNDEFINED_ERROR] = "Erro indefinido.";
+    errorMessages.set(MachineErrorCode.WRONG_NUMBER_OF_ARGUMENTS, "Número de argumentos inválido.");
+    errorMessages.set(MachineErrorCode.INVALID_INSTRUCTION, "Mnemônico inválido.");
+    errorMessages.set(MachineErrorCode.INVALID_ADDRESS, "Endereço inválido.");
+    errorMessages.set(MachineErrorCode.INVALID_VALUE, "Valor inválido.");
+    errorMessages.set(MachineErrorCode.INVALID_STRING, "String inválido.");
+    errorMessages.set(MachineErrorCode.INVALID_LABEL, "Label inválido.");
+    errorMessages.set(MachineErrorCode.INVALID_ARGUMENT, "Argumento inválido.");
+    errorMessages.set(MachineErrorCode.DUPLICATE_LABEL, "Label já definido.");
+    errorMessages.set(MachineErrorCode.MEMORY_OVERLAP, "Sobreposição de memória.");
+    errorMessages.set(MachineErrorCode.NOT_IMPLEMENTED, "Funcionalidade não implementada.");
+    errorMessages.set(MachineErrorCode.UNDEFINED_ERROR, "Erro indefinido.");
 
     if (errorMessages.has(errorCode)) {
-      errorString += errorMessages[errorCode];
+      errorString += errorMessages.get(errorCode);
     } else {
-      errorString += errorMessages[MachineErrorCode.UNDEFINED_ERROR];
+      errorString += errorMessages.get(MachineErrorCode.UNDEFINED_ERROR);
     }
 
     console.log(`buildErrorDetected("${errorString}")`); // FIXME
@@ -1559,58 +1559,58 @@ export abstract class Machine {
 
   public generateDescriptions(): void {
     // Neander
-    this.descriptions["nop"] = "Nenhuma operação.";
-    this.descriptions["sta a"] = "Armazena o valor do acumulador no endereço 'a'.";
-    this.descriptions["lda a"] = "Carrega o valor no endereço 'a' para o acumulador.";
-    this.descriptions["add a"] = "Adiciona o valor no endereço 'a' ao acumulador.";
-    this.descriptions["or a"] = "Realiza um 'ou' lógico entre cada bit de 'a' e o bit correspondente no acumulador.";
-    this.descriptions["and a"] = "Realiza um 'e' lógico entre cada bit de 'a' e o bit correspondente no acumulador.";
-    this.descriptions["not"] = "Inverte (complementa) o valor dos bits do acumulador.";
-    this.descriptions["jmp a"] = "Desvia a execução para o endereço 'a' (desvio incondicional).";
-    this.descriptions["jn a"] = "Se a flag N estiver ativada (acumulador negativo), desvia a execução para o endereço 'a'.";
-    this.descriptions["jz a"] = "Se a flag Z estiver ativada (acumulador zerado), desvia a execução para o endereço 'a'.";
-    this.descriptions["hlt"] = "Termina a execução.";
+    this.descriptions.set("nop", "Nenhuma operação.");
+    this.descriptions.set("sta a", "Armazena o valor do acumulador no endereço 'a'.");
+    this.descriptions.set("lda a", "Carrega o valor no endereço 'a' para o acumulador.");
+    this.descriptions.set("add a", "Adiciona o valor no endereço 'a' ao acumulador.");
+    this.descriptions.set("or a", "Realiza um 'ou' lógico entre cada bit de 'a' e o bit correspondente no acumulador.");
+    this.descriptions.set("and a", "Realiza um 'e' lógico entre cada bit de 'a' e o bit correspondente no acumulador.");
+    this.descriptions.set("not", "Inverte (complementa) o valor dos bits do acumulador.");
+    this.descriptions.set("jmp a", "Desvia a execução para o endereço 'a' (desvio incondicional).");
+    this.descriptions.set("jn a", "Se a flag N estiver ativada (acumulador negativo), desvia a execução para o endereço 'a'.");
+    this.descriptions.set("jz a", "Se a flag Z estiver ativada (acumulador zerado), desvia a execução para o endereço 'a'.");
+    this.descriptions.set("hlt", "Termina a execução.");
 
     // Ahmes
-    this.descriptions["sub a"] = "Subtrai o valor no endereço 'a' do acumulador.";
-    this.descriptions["jp a"] = "Se a flag N estiver desativada (acumulador positivo ou zero), desvia a execução para o endereço 'a'.";
-    this.descriptions["jv a"] = "Se a flag V estiver ativada (overflow), desvia a execução para o endereço 'a'.";
-    this.descriptions["jnv a"] = "Se a flag V estiver desativada (not overflow), desvia a execução para o endereço 'a'.";
-    this.descriptions["jnz a"] = "Se a flag Z estiver desativada (acumulador diferente de zero), desvia a execução para o endereço 'a'.";
-    this.descriptions["jc a"] = "Se a flag C estiver ativada (carry), desvia a execução para o endereço 'a'.";
-    this.descriptions["jnc a"] = "Se a flag C estiver desativada (not carry), desvia a execução para o endereço 'a'.";
+    this.descriptions.set("sub a", "Subtrai o valor no endereço 'a' do acumulador.");
+    this.descriptions.set("jp a", "Se a flag N estiver desativada (acumulador positivo ou zero), desvia a execução para o endereço 'a'.");
+    this.descriptions.set("jv a", "Se a flag V estiver ativada (overflow), desvia a execução para o endereço 'a'.");
+    this.descriptions.set("jnv a", "Se a flag V estiver desativada (not overflow), desvia a execução para o endereço 'a'.");
+    this.descriptions.set("jnz a", "Se a flag Z estiver desativada (acumulador diferente de zero), desvia a execução para o endereço 'a'.");
+    this.descriptions.set("jc a", "Se a flag C estiver ativada (carry), desvia a execução para o endereço 'a'.");
+    this.descriptions.set("jnc a", "Se a flag C estiver desativada (not carry), desvia a execução para o endereço 'a'.");
 
     if (this.hasFlag(FlagCode.BORROW)) {
-      this.descriptions["jb a"] = "Se a flag B estiver ativada (borrow), desvia a execução para o endereço 'a'.";
+      this.descriptions.set("jb a", "Se a flag B estiver ativada (borrow), desvia a execução para o endereço 'a'.");
     } else {
-      this.descriptions["jb a"] = "Se a flag C estiver desativada (borrow), desvia a execução para o endereço 'a'.";
+      this.descriptions.set("jb a", "Se a flag C estiver desativada (borrow), desvia a execução para o endereço 'a'.");
     }
 
-    this.descriptions["jnb a"] = "Se a flag B estiver desativada (not borrow), desvia a execução para o endereço 'a'.";
-    this.descriptions["shr"] = "Realiza shift lógico dos bits do acumulador para a direita, passando o estado do bit menos significativo para a flag C (carry) e preenchendo o bit mais significativo com 0.";
-    this.descriptions["shl"] = "Realiza shift lógico dos bits do acumulador para a esquerda, passando o estado do bit mais significativo para a flag C (carry) e preenchendo o bit menos significativo com 0.";
-    this.descriptions["ror"] = "Realiza rotação para a esquerda dos bits do acumulador, incluindo a flag C (carry) como um bit.";
-    this.descriptions["rol"] = "Realiza rotação para a direita dos bits do acumulador, incluindo a flag C (carry) como um bit.";
+    this.descriptions.set("jnb a", "Se a flag B estiver desativada (not borrow), desvia a execução para o endereço 'a'.");
+    this.descriptions.set("shr", "Realiza shift lógico dos bits do acumulador para a direita, passando o estado do bit menos significativo para a flag C (carry) e preenchendo o bit mais significativo com 0.");
+    this.descriptions.set("shl", "Realiza shift lógico dos bits do acumulador para a esquerda, passando o estado do bit mais significativo para a flag C (carry) e preenchendo o bit menos significativo com 0.");
+    this.descriptions.set("ror", "Realiza rotação para a esquerda dos bits do acumulador, incluindo a flag C (carry) como um bit.");
+    this.descriptions.set("rol", "Realiza rotação para a direita dos bits do acumulador, incluindo a flag C (carry) como um bit.");
 
     // Ramses
-    this.descriptions["str r a"] = "Armazena o valor do registrador 'r' no endereço 'a'.";
-    this.descriptions["ldr r a"] = "Carrega o valor no endereço 'a' para o registrador 'r'.";
-    this.descriptions["add r a"] = "Adiciona o valor no endereço 'a' ao registrador 'r'.";
-    this.descriptions["or r a"] = "Realiza um 'ou' lógico entre cada bit de 'a' e o bit correspondente no registrador 'r'.";
-    this.descriptions["and r a"] = "Realiza um 'e' lógico entre cada bit de 'a' e o bit correspondente no registrador 'r'.";
-    this.descriptions["not r"] = "Inverte (complementa) o valor dos bits do registrador 'r'.";
-    this.descriptions["sub r a"] = "Subtrai o valor no endereço 'a' do registrador 'r'.";
-    this.descriptions["jsr a"] = "Desvia para subrotina, armazenando o valor atual de PC em 'a' e desviando a execução para o endereço 'a' + 1.";
-    this.descriptions["neg r"] = "Troca o sinal do valor em complemento de 2 do registrador 'r' entre positivo e negativo.";
-    this.descriptions["shr r"] = "Realiza shift lógico dos bits do registrador 'r' para a direita, passando o estado do bit menos significativo para a flag C (carry) e preenchendo o bit mais significativo com 0.";
+    this.descriptions.set("str r a", "Armazena o valor do registrador 'r' no endereço 'a'.");
+    this.descriptions.set("ldr r a", "Carrega o valor no endereço 'a' para o registrador 'r'.");
+    this.descriptions.set("add r a", "Adiciona o valor no endereço 'a' ao registrador 'r'.");
+    this.descriptions.set("or r a", "Realiza um 'ou' lógico entre cada bit de 'a' e o bit correspondente no registrador 'r'.");
+    this.descriptions.set("and r a", "Realiza um 'e' lógico entre cada bit de 'a' e o bit correspondente no registrador 'r'.");
+    this.descriptions.set("not r", "Inverte (complementa) o valor dos bits do registrador 'r'.");
+    this.descriptions.set("sub r a", "Subtrai o valor no endereço 'a' do registrador 'r'.");
+    this.descriptions.set("jsr a", "Desvia para subrotina, armazenando o valor atual de PC em 'a' e desviando a execução para o endereço 'a' + 1.");
+    this.descriptions.set("neg r", "Troca o sinal do valor em complemento de 2 do registrador 'r' entre positivo e negativo.");
+    this.descriptions.set("shr r", "Realiza shift lógico dos bits do registrador 'r' para a direita, passando o estado do bit menos significativo para a flag C (carry) e preenchendo o bit mais significativo com 0.");
 
     // Pitagoras
-    this.descriptions["jd a"] = "Se a flag Z estiver desativada (acumulador diferente de zero), desvia a execução para o endereço 'a'.";
+    this.descriptions.set("jd a", "Se a flag Z estiver desativada (acumulador diferente de zero), desvia a execução para o endereço 'a'.");
 
     // REG
-    this.descriptions["inc r"] = "Incrementa o registrador 'r' em uma unidade.";
-    this.descriptions["dec r"] = "Decrementa o registrador 'r' de uma unidade.";
-    this.descriptions["if r a0 a1"] = "Se o registrador 'r' for igual a zero (if zero), desvia a execução para o endereço 'a0'. Se for diferente de zero, desvia para 'a1'.";
+    this.descriptions.set("inc r", "Incrementa o registrador 'r' em uma unidade.");
+    this.descriptions.set("dec r", "Decrementa o registrador 'r' de uma unidade.");
+    this.descriptions.set("if r a0 a1", "Se o registrador 'r' for igual a zero (if zero), desvia a execução para o endereço 'a0'. Se for diferente de zero, desvia para 'a1'.");
   }
 
   public getDescription(assemblyFormat: string): string {
