@@ -779,10 +779,10 @@ export abstract class Machine {
 
     if (valueString.toLowerCase().startsWith("h")) {
       value = parseInt(valueString.slice(1), 16); // Remove "h"
-      ok = /$[0-9A-Fa-f]+^/.test(valueString.slice(1)) && !isNaN(value);
+      ok = /^[0-9A-Fa-f]+$/.test(valueString.slice(1)) && !isNaN(value);
     } else {
       value = parseInt(valueString, 10);
-      ok = /$-?[0-9]+^/.test(valueString.slice(1)) && !isNaN(value);
+      ok = /^-?\d+$/.test(valueString) && !isNaN(value);
     }
 
     // Returns true if conversion ok and value between min and max
