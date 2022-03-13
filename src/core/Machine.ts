@@ -448,7 +448,7 @@ export abstract class Machine {
     // Simplify source code
     //////////////////////////////////////////////////
 
-    const sourceLines = sourceCode.split("\n"); // Split source code to individual lines
+    const sourceLines = sourceCode.split(/\r?\n/); // Split source code to individual lines
 
     // Strip comments and extra spaces
     for (let lineNumber = 0; lineNumber < sourceLines.length; lineNumber++) {
