@@ -18,7 +18,7 @@ export class AddressingMode {
     this.bitPattern = bitPattern;
     this.addressingModeCode = addressingModeCode;
     this.assemblyPattern = assemblyPattern;
-    this.assemblyRegExp = new QRegExp(assemblyPattern);
+    this.assemblyRegExp = new QRegExp(assemblyPattern, "i");
   }
 
   public getBitPattern(): string {

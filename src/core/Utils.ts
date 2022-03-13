@@ -8,10 +8,6 @@ export class QRegExp extends RegExp {
 
   private lastMatch: RegExpMatchArray|null = null;
 
-  constructor(pattern: string) {
-    super(pattern, "i"); // Always case insensitive
-  }
-
   exactMatch(str: string): boolean {
     this.lastMatch = str.match(this);
     return Boolean(str === this.lastMatch?.[0]);
