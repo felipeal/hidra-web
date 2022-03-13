@@ -23,7 +23,7 @@
   ],
   "rules": {
     "indent": [
-      "error",
+      "warn",
       2,
       {
         "SwitchCase": 1,
@@ -47,8 +47,20 @@
       "error",
       "1tbs"
     ],
-    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-    "@typescript-eslint/no-non-null-assertion": ["off"],
-    "no-multiple-empty-lines": "error"
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "no-multiple-empty-lines": "error",
+    "react/prop-types": "off",
+    "no-debugger":"warn",
+    "comma-dangle": "warn",
+    "space-before-blocks": "warn",
+    "keyword-spacing": "warn",
+    "space-before-function-paren": ["warn", {
+      "named": "never",
+      "anonymous": "always",
+      "asyncArrow": "always"
+    }],
+    "eol-last": "warn"
   }
 }
