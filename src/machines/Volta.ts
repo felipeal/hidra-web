@@ -7,6 +7,13 @@ import { Q_ASSERT } from "../core/Utils";
 
 export class Volta extends Machine {
 
+  SP: Register;
+
+  stack: Byte[] = [];
+  stackChanged: boolean[] = [];
+
+  stackMask!: number; // TODO: Remove !
+
   constructor() {
     super();
     this.name = "Volta";
@@ -20,7 +27,7 @@ export class Volta extends Machine {
     this.registers.push(new Register("SP", "", 6, false));
 
     this.PC = this.registers[0];
-    this.SP = this.registers[this.registers.length - 1];
+    this.SP = this.registers[1];
 
     //////////////////////////////////////////////////
     // Initialize memory and stack
@@ -119,8 +126,7 @@ export class Volta extends Machine {
       //////////////////////////////////////////////////
 
       case InstructionCode.VOLTA_CLR:
-        this.setStackValue(this.SP.getValue(), 0); // Replace top of stack
-        this.accessCount++; // Count single access
+        this.writeStackValue(this.SP.getValue(), 0); // Replace top of stack, counts single access
         break;
 
       case InstructionCode.VOLTA_NOT:
@@ -307,7 +313,8 @@ export class Volta extends Machine {
       default: // NOP etc.
         break;
     }
-    this.instructionCount++;
+
+    this.incrementInstructionCount();
   }
 
   public skipNextInstruction(): void {
@@ -375,16 +382,24 @@ export class Volta extends Machine {
   }
 
   public stackPush(value: number): void {
-    this.accessCount++;
-    this.SP.incrementValue();
-    this.setStackValue(this.SP.getValue(), value);
+    this.setSPValue(this.getSPValue() + 1);
+    this.writeStackValue(this.SP.getValue(), value);
   }
 
   public stackPop(): number {
-    this.accessCount++;
-    const value = this.getStackValue(this.SP.getValue());
-    this.SP.setValue(this.SP.getValue() - 1); // Decrement SP
+    const value = this.readStackValue(this.SP.getValue());
+    this.setSPValue(this.SP.getValue() - 1); // Decrement SP
     return value;
+  }
+
+  public readStackValue(address: number): number {
+    this.incrementAccessCount();
+    return this.getStackValue(address);
+  }
+
+  public writeStackValue(address: number, value: number): void {
+    this.incrementAccessCount();
+    this.setStackValue(address, value);
   }
 
   //////////////////////////////////////////////////
@@ -404,7 +419,12 @@ export class Volta extends Machine {
   }
 
   public setStackValue(address: number, value: number): void {
-    this.stack[address & this.stackMask].setValue(value & 0xFF);
+    const validAddress = address & this.stackMask;
+    const validValue = value & 0xFF;
+
+    const oldValue = this.stack[validAddress].getValue();
+    this.stack[validAddress].setValue(validValue);
+    this.publishEvent(`STACK.${validAddress}`, validValue, oldValue);
   }
 
   public clearStack(): void {
@@ -417,6 +437,12 @@ export class Volta extends Machine {
     return this.SP.getValue();
   }
 
+  public setSPValue(value: number) {
+    const oldValue = this.SP.getValue();
+    this.SP.setValue(value);
+    this.publishEvent("REG.SP", this.SP.getValue(), oldValue);
+  }
+
   public clear(): void {
     this.clearStack();
     super.clear();
@@ -426,12 +452,5 @@ export class Volta extends Machine {
     this.clearStack();
     super.clearAfterBuild();
   }
-
-  SP: Register;
-
-  stack: Byte[] = [];
-  stackChanged: boolean[] = [];
-
-  stackMask!: number; // TODO: Remove !
 
 }

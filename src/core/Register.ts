@@ -58,10 +58,6 @@ export class Register {
     this.value = value & this.valueMask;
   }
 
-  public incrementValue(): void {
-    this.setValue(this.value + 1);
-  }
-
   public matchByte(byte: number): boolean {
     const bitPatternRegExp = new QRegExp(this.bitPattern);
     return bitPatternRegExp.exactMatch(Conversion.valueToString(byte));

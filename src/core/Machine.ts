@@ -47,6 +47,8 @@ class MachineError extends Error {
 
 }
 
+type EventCallback = ((newValue: unknown, oldValue?: unknown) => void);
+
 export abstract class Machine {
 
   // Constants
@@ -79,6 +81,7 @@ export abstract class Machine {
   instructionCount: number;
   accessCount: number;
   memoryMask!: number; // TODO: Remove !
+  eventSubscriptions: Record<string, EventCallback[]> = {};
 
   constructor() {
     this.littleEndian = false;
@@ -349,7 +352,7 @@ export abstract class Machine {
         break;
     }
 
-    this.instructionCount++;
+    this.incrementInstructionCount();
   }
 
   public extractAddressingModeCode(fetchedValue: number): AddressingModeCode {
@@ -375,11 +378,7 @@ export abstract class Machine {
   }
 
   public setOverflow(state: boolean): void {
-    for (const flag of this.flags) {
-      if (flag.getFlagCode() === FlagCode.OVERFLOW_FLAG) {
-        flag.setValue(state);
-      }
-    }
+    this.setFlagValueByFlagCode(FlagCode.OVERFLOW_FLAG, state);
   }
 
   public setCarry(state: boolean | number): void {
@@ -461,7 +460,7 @@ export abstract class Machine {
     //////////////////////////////////////////////////
 
     this.clearAssemblerData();
-    this.PC.setValue(0);
+    this.setPCValue(0);
 
     for (let lineNumber = 0; lineNumber < sourceLines.length; lineNumber++) {
       try {
@@ -482,7 +481,7 @@ export abstract class Machine {
           }
 
           this.labelPCMap.set(labelName.toLowerCase(), this.PC.getValue()); // Add to map
-          this.addressCorrespondingLabel[this.PC.getValue()] = labelName;
+          this.setAddressCorrespondingLabel(this.PC.getValue(), labelName);
           sourceLines[lineNumber] = sourceLines[lineNumber].replaceAll(labelName + ":", "").trim(); // Remove label from sourceLines
         }
 
@@ -529,7 +528,7 @@ export abstract class Machine {
     //////////////////////////////////////////////////
 
     this.sourceLineCorrespondingAddress = new Array(sourceLines.length).fill(-1);
-    this.PC.setValue(0);
+    this.setPCValue(0);
 
     for (let lineNumber = 0; lineNumber < sourceLines.length; lineNumber++) {
       try {
@@ -597,7 +596,7 @@ export abstract class Machine {
         throw new MachineError(MachineErrorCode.INVALID_ADDRESS);
       }
 
-      this.PC.setValue(this.stringToInt(argumentList[0]));
+      this.setPCValue(this.stringToInt(argumentList[0]));
     } else if (new QRegExp("db|dw|dab|daw").exactMatch(mnemonic)) {
       const argumentList = this.splitArguments(args);
 
@@ -734,7 +733,7 @@ export abstract class Machine {
       this.assemblerMemory[i].setValue(0);
       this.reserved[i] = false;
       this.addressCorrespondingSourceLine[i] = -1;
-      this.addressCorrespondingLabel[i] = "";
+      this.setAddressCorrespondingLabel(i, "");
     }
 
     this.sourceLineCorrespondingAddress = [];
@@ -948,13 +947,13 @@ export abstract class Machine {
 
   // Increments accessCount
   public memoryRead(address: number): number {
-    this.accessCount++;
+    this.incrementAccessCount();
     return this.getMemoryValue(address);
   }
 
   // Increments accessCount
   public memoryWrite(address: number, value: number): void {
-    this.accessCount++;
+    this.incrementAccessCount();
     this.setMemoryValue(address, value);
   }
 
@@ -1268,8 +1267,12 @@ export abstract class Machine {
   }
 
   public setMemoryValue(address: number, value: number): void {
-    this.memory[address & this.memoryMask].setValue(value);
-    this.changed[address & this.memoryMask] = true;
+    const validAddress = address & this.memoryMask;
+    const validValue = value & 0xFF; // TODO: Review memoryMask vs addressMask (also in C++)
+
+    this.memory[validAddress].setValue(validValue);
+    this.changed[validAddress] = true;
+    this.publishEvent(`MEM.${address}`, validValue);
   }
 
   // Has byte changed last look-up
@@ -1294,10 +1297,13 @@ export abstract class Machine {
 
   public setInstructionString(address: number, value: string): void {
     this.instructionStrings[address & this.memoryMask] = value;
+    this.publishEvent(`INS.${address}`, value);
   }
 
   public clearInstructionStrings(): void {
-    this.instructionStrings = new Array(this.getMemorySize()).fill("");
+    for (let i = 0; i < this.instructionStrings.length; i++) {
+      this.setInstructionString(i, "");
+    }
   }
 
   public getNumberOfFlags(): number {
@@ -1324,22 +1330,14 @@ export abstract class Machine {
 
   public setFlagValueById(id: number, value: boolean): void {
     this.flags[id].setValue(value);
-  }
-
-  public hasFlag(flagCode: FlagCode): boolean {
-    for (const flag of this.flags) {
-      if (flag.getFlagCode() === flagCode) {
-        return true;
-      }
-    }
-
-    return false;
+    this.publishEvent(`FLAG.${this.flags[id].getName()}`, value);
   }
 
   public setFlagValueByName(flagName: string, value: boolean): void {
     for (const flag of this.flags) {
       if (flag.getName() === flagName) {
         flag.setValue(value);
+        this.publishEvent(`FLAG.${flag.getName()}`, value);
         return;
       }
     }
@@ -1351,14 +1349,26 @@ export abstract class Machine {
     for (const flag of this.flags) {
       if (flag.getFlagCode() === flagCode) {
         flag.setValue(value);
+        this.publishEvent(`FLAG.${flag.getName()}`, value);
       }
     }
   }
 
   public clearFlags(): void {
-    for (let i = 0; i < this.flags.length; i++) {
-      this.flags[i].resetValue();
+    for (const flag of this.flags) {
+      flag.resetValue();
+      this.publishEvent(`FLAG.${flag.getName()}`, flag.getValue());
     }
+  }
+
+  public hasFlag(flagCode: FlagCode): boolean { // TODO: Use get by flag code
+    for (const flag of this.flags) {
+      if (flag.getFlagCode() === flagCode) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   public getNumberOfRegisters(): number {
@@ -1419,7 +1429,9 @@ export abstract class Machine {
   }
 
   public setRegisterValueById(id: number, value: number): void {
+    const oldValue = this.registers[id].getValue();
     this.registers[id].setValue(value);
+    this.publishEvent(`REG.${this.registers[id].getName()}`, value, oldValue);
   }
 
   public setRegisterValueByName(registerName: string, value: number): void {
@@ -1429,7 +1441,9 @@ export abstract class Machine {
 
     for (const register of this.registers) {
       if (register.getName().toLowerCase() === registerName.toLowerCase()) {
+        const oldValue = register.getValue();
         register.setValue(value);
+        this.publishEvent(`REG.${registerName}`, value, oldValue);
         return;
       }
     }
@@ -1442,9 +1456,15 @@ export abstract class Machine {
   }
 
   public clearRegisters(): void {
-    for (let i = 0; i < this.registers.length; i++) {
-      this.registers[i].setValue(0);
+    for (const register of this.registers) {
+      const oldValue = register.getValue();
+      register.setValue(0);
+      this.publishEvent(`REG.${register.getName()}`, 0, oldValue);
     }
+  }
+
+  public getPCName(): string {
+    return this.PC.getName();
   }
 
   public getPCValue(): number {
@@ -1452,11 +1472,13 @@ export abstract class Machine {
   }
 
   public setPCValue(value: number): void {
+    const oldValue = this.PC.getValue();
     this.PC.setValue(value);
+    this.publishEvent(`REG.${this.PC.getName()}`, value, oldValue);
   }
 
   public incrementPCValue(units = 1): void {
-    this.PC.setValue(this.PC.getValue() + units);
+    this.setPCValue(this.PC.getValue() + units);
   }
 
   public getPCCorrespondingSourceLine(): number {
@@ -1473,6 +1495,11 @@ export abstract class Machine {
 
   public getAddressCorrespondingLabel(address: number): string {
     return (this.buildSuccessful) ? this.addressCorrespondingLabel[address] : "";
+  }
+
+  public setAddressCorrespondingLabel(address: number, label: string): void {
+    this.addressCorrespondingLabel[address] = label;
+    this.publishEvent(`LABEL.${address}`, label);
   }
 
   public getInstructions(): Instruction[] {
@@ -1537,13 +1564,25 @@ export abstract class Machine {
     return this.instructionCount;
   }
 
+  public incrementInstructionCount() {
+    this.instructionCount++;
+    this.publishEvent("INS.COUNT", this.instructionCount);
+  }
+
   public getAccessCount(): number {
     return this.accessCount;
+  }
+
+  public incrementAccessCount() {
+    this.accessCount++;
+    this.publishEvent("ACC.COUNT", this.accessCount);
   }
 
   public clearCounters(): void {
     this.instructionCount = 0;
     this.accessCount = 0;
+    this.publishEvent("INS.COUNT", this.instructionCount);
+    this.publishEvent("ACC.COUNT", this.accessCount);
   }
 
   public clear(): void {
@@ -1676,5 +1715,18 @@ export abstract class Machine {
   }
 
   //#endregion
+
+  //////////////////////////////////////////////////
+  // Listeners
+  //////////////////////////////////////////////////
+
+  public subscribeToEvent(event: string, callback: EventCallback) {
+    this.eventSubscriptions[event] = this.eventSubscriptions[event] || [];
+    this.eventSubscriptions[event].push(callback);
+  }
+
+  protected publishEvent(event: string, newValue: unknown, oldValue?: unknown) {
+    this.eventSubscriptions[event]?.forEach(callback => callback(newValue, oldValue));
+  }
 
 }
