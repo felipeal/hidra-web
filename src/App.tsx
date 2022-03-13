@@ -23,6 +23,7 @@ import { Pitagoras } from "./machines/Pitagoras";
 import { Pericles } from "./machines/Pericles";
 import { Reg } from "./machines/Reg";
 import { Volta } from "./machines/Volta";
+import { Texts } from "./core/Texts";
 
 // Global pointer required for CodeMirror persistence between live-reloads
 declare global {
@@ -200,7 +201,7 @@ function App() {
             <div style={{ display: "flex", justifyContent: "center", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px" }}>
               {machine.getAddressingModes().map((addressingMode, index) => {
                 return <div style={{ width: "40px", marginLeft: "8px", fontFamily: "monospace" }} key={index}>
-                  {machine.getAddressingModeDescription(addressingMode.getAddressingModeCode()).acronym}
+                  {Texts.getAddressingModeDescription(addressingMode.getAddressingModeCode()).acronym}
                 </div>;
               })}
             </div>

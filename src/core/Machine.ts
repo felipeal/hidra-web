@@ -1,51 +1,12 @@
-/*
-
-TODO:
-thrown Errors
-.exec()
-
-*/
-
-import { Register } from "./Register";
+import { MachineState } from "./MachineState";
+import { MachineError, MachineErrorCode, FileErrorCode } from "./Errors";
 import { FlagCode } from "./Flag";
+import { Register } from "./Register";
 import { Instruction, InstructionCode } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
-import { Conversion } from "./Conversion";
 import { QRegExp } from "./Utils";
-import { MachineState } from "./MachineState";
-
-enum FileErrorCode {
-  NO_ERROR = 0,
-  INPUT_OUTPUT,
-  INCORRECT_SIZE,
-  INVALID_IDENTIFIER,
-}
-
-enum MachineErrorCode {
-  NO_ERROR = 0,
-  WRONG_NUMBER_OF_ARGUMENTS,
-  INVALID_INSTRUCTION,
-  INVALID_ADDRESS,
-  INVALID_VALUE,
-  INVALID_STRING,
-  INVALID_LABEL,
-  INVALID_ARGUMENT,
-  DUPLICATE_LABEL,
-  MEMORY_OVERLAP,
-  NOT_IMPLEMENTED,
-  UNDEFINED_ERROR,
-}
-
-class MachineError extends Error {
-
-  errorCode: MachineErrorCode;
-
-  constructor(errorCode: MachineErrorCode) {
-    super();
-    this.errorCode = errorCode;
-  }
-
-}
+import { Conversion } from "./Conversion";
+import { Texts } from "./Texts";
 
 export abstract class Machine extends MachineState {
 
@@ -473,7 +434,7 @@ export abstract class Machine extends MachineState {
           if (this.firstErrorLine === -1) {
             this.firstErrorLine = lineNumber;
           }
-          errorMessages.push(this.buildError(lineNumber, error.errorCode));
+          errorMessages.push(Texts.buildErrorMessage(lineNumber, error.errorCode));
         } else {
           throw error;
         }
@@ -511,7 +472,7 @@ export abstract class Machine extends MachineState {
           if (this.firstErrorLine === -1) {
             this.firstErrorLine = lineNumber;
           }
-          errorMessages.push(this.buildError(lineNumber, error.errorCode));
+          errorMessages.push(Texts.buildErrorMessage(lineNumber, error.errorCode));
         } else {
           throw error;
         }
@@ -661,32 +622,6 @@ export abstract class Machine extends MachineState {
       this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instructionArguments.indexOf("a0")], false));
       this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instructionArguments.indexOf("a1")], false));
     }
-  }
-
-  public buildError(lineNumber: number, errorCode: MachineErrorCode): string {
-    let errorString = "";
-    errorString += "Linha " + String(lineNumber + 1) + ": ";
-
-    const errorMessages: Map<MachineErrorCode, string> = new Map();
-    errorMessages.set(MachineErrorCode.WRONG_NUMBER_OF_ARGUMENTS, "Número de argumentos inválido.");
-    errorMessages.set(MachineErrorCode.INVALID_INSTRUCTION, "Mnemônico inválido.");
-    errorMessages.set(MachineErrorCode.INVALID_ADDRESS, "Endereço inválido.");
-    errorMessages.set(MachineErrorCode.INVALID_VALUE, "Valor inválido.");
-    errorMessages.set(MachineErrorCode.INVALID_STRING, "String inválido.");
-    errorMessages.set(MachineErrorCode.INVALID_LABEL, "Label inválido.");
-    errorMessages.set(MachineErrorCode.INVALID_ARGUMENT, "Argumento inválido.");
-    errorMessages.set(MachineErrorCode.DUPLICATE_LABEL, "Label já definido.");
-    errorMessages.set(MachineErrorCode.MEMORY_OVERLAP, "Sobreposição de memória.");
-    errorMessages.set(MachineErrorCode.NOT_IMPLEMENTED, "Funcionalidade não implementada.");
-    errorMessages.set(MachineErrorCode.UNDEFINED_ERROR, "Erro indefinido.");
-
-    if (errorMessages.has(errorCode)) {
-      errorString += errorMessages.get(errorCode);
-    } else {
-      errorString += errorMessages.get(MachineErrorCode.UNDEFINED_ERROR);
-    }
-
-    return errorString;
   }
 
   // Increments PC
