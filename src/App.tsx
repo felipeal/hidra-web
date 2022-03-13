@@ -57,7 +57,7 @@ function App() {
           </tr>
         </thead>
         <tbody>
-          {machine.memory.map((value, address) => {
+          {machine.getMemory().map((value, address) => {
             return <InstructionsRow key={address} address={address} machine={machine} />;
           })}
         </tbody>
@@ -73,7 +73,7 @@ function App() {
           </tr>
         </thead>
         <tbody>
-          {machine.memory.map((value, address) => {
+          {machine.getMemory().map((value, address) => {
             return <DataRow key={address} address={address} machine={machine} />;
           })}
         </tbody>
@@ -89,8 +89,8 @@ function App() {
           </tr>
         </thead>
         <tbody>
-          {machine.stack.map((value, index) => {
-            return <StackRow key={index} address={machine.stack.length - 1 - index} voltaMachine={machine} />;
+          {machine.getStack().map((value, index) => {
+            return <StackRow key={index} address={machine.getStack().length - 1 - index} voltaMachine={machine} />;
           })}
         </tbody>
       </table>}
@@ -98,7 +98,7 @@ function App() {
       {/* Machine area */}
       <div style={{ width: "360px", display: "flex", flexDirection: "column", gap: "16px" }}>
         {/* Machine select */}
-        <select value={machine.name} onChange={(event: ChangeEvent<HTMLSelectElement>) => {
+        <select value={machine.getName()} onChange={(event: ChangeEvent<HTMLSelectElement>) => {
           clearTimeout(timeout);
           switch (event.target.value) {
             case "Neander": return setMachine(new Neander());
@@ -127,7 +127,7 @@ function App() {
         <fieldset style={{ paddingTop: "16px", paddingBottom: "16px" }}>
           <legend>Flags</legend>
           <div style={{ display: "flex", justifyContent: "center", gap: "16px" }}>
-            {machine.flags.map((flag, index) => {
+            {machine.getFlags().map((flag, index) => {
               return <FlagWidget key={index} name={flag.getName()} machine={machine} />;
             })}
           </div>
@@ -137,7 +137,7 @@ function App() {
         <fieldset style={{ paddingTop: "32px", paddingBottom: "32px" }}>
           <legend>Registers</legend>
           <div style={{ display: "grid", justifyContent: "center", gridTemplateColumns: "112px 112px", justifyItems: "center", gap: "16px", flexWrap: "wrap" }}>
-            {machine.registers.map((register, index) => {
+            {machine.getRegisters().map((register, index) => {
               return <RegisterWidget key={index} name={register.getName()} machine={machine} />;
             })}
           </div>
@@ -185,7 +185,7 @@ function App() {
         <fieldset>
           <legend>Instructions</legend>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px" }}>
-            {machine.instructions.map((instruction, index) => {
+            {machine.getInstructions().map((instruction, index) => {
               return <div style={{ width: "40px", marginLeft: "8px", fontFamily: "monospace" }} key={index}>
                 {instruction.getMnemonic().toUpperCase()}
               </div>;
@@ -194,11 +194,11 @@ function App() {
         </fieldset>
 
         {/* Addressing modes */}
-        {(machine.addressingModes.length > 1) && (
+        {(machine.getAddressingModes().length > 1) && (
           <fieldset>
             <legend>Addressing modes</legend>
             <div style={{ display: "flex", justifyContent: "center", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px" }}>
-              {machine.addressingModes.map((addressingMode, index) => {
+              {machine.getAddressingModes().map((addressingMode, index) => {
                 return <div style={{ width: "40px", marginLeft: "8px", fontFamily: "monospace" }} key={index}>
                   {machine.getAddressingModeDescription(addressingMode.getAddressingModeCode()).acronym}
                 </div>;

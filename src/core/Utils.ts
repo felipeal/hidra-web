@@ -19,3 +19,11 @@ export class QRegExp extends RegExp {
   }
 
 }
+
+export function validateSize(size: number): void {
+  while (((size % 2) === 0) && size > 1) { // While value is even and greater than one
+    size /= 2;
+  }
+
+  Q_ASSERT((size === 1), "Memory/Stack sizes must be powers of two for the masks to work.");
+}

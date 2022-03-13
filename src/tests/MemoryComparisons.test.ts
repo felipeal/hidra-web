@@ -54,7 +54,7 @@ describe("Memory Comparisons", () => {
 
     // Test build
     const [expectedMemoryBeforeRunning, expectedIdentifier] = readMachineBinary(filePath.replace(/\..*/, ".build.mem"));
-    expect(machine.identifier).toStrictEqual(expectedIdentifier);
+    expect(machine.getIdentifier()).toStrictEqual(expectedIdentifier);
     expect(errorMessages).toStrictEqual([]);
     expect(machine.getBuildSuccessful()).toBe(true);
     for (let i = 0; i < 256; i++) {
@@ -76,8 +76,8 @@ describe("Memory Comparisons", () => {
     for (let i = 0; i < 256; i++) {
       expect(`MEM[${i}] = ${machine.getMemoryValue(i)}`).toBe(`MEM[${i}] = ${expectedMemoryAfterRunning[i]}`);
     }
-    expect(machine.instructionCount).toBe(instructions);
-    expect(machine.accessCount).toBe(accesses! - extraAccesses!);
+    expect(machine.getInstructionCount()).toBe(instructions);
+    expect(machine.getAccessCount()).toBe(accesses! - extraAccesses!);
   });
 
 });

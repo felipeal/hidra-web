@@ -3,84 +3,69 @@ import { Register } from "../core/Register";
 import { Instruction, InstructionCode } from "../core/Instruction";
 import { AddressingMode, AddressingModeCode } from "../core/AddressingMode";
 import { Byte } from "../core/Byte";
-import { Q_ASSERT } from "../core/Utils";
+import { validateSize } from "../core/Utils";
 
 export class Volta extends Machine {
 
-  SP: Register;
+  private stack: Byte[] = [];
+  private stackChanged: boolean[] = [];
 
-  stack: Byte[] = [];
-  stackChanged: boolean[] = [];
-
-  stackMask!: number; // TODO: Remove !
+  private stackMask!: number; // TODO: Remove !
 
   constructor() {
-    super();
-    this.name = "Volta";
-    this.identifier = "VLT"; // TODO: Confirmar identificador
+    super({
+      name: "Volta",
+      identifier: "VLT", // Note: Not confirmed
+      memorySize: 256,
+      flags: [
+      ],
+      registers: [
+        new Register("PC", "", 8, false),
+        new Register("SP", "", 6, false)
+      ],
+      instructions: [
+        new Instruction(1, "00000000", InstructionCode.VOLTA_NOP, "nop"),
+        new Instruction(1, "00010001", InstructionCode.VOLTA_ADD, "add"),
+        new Instruction(1, "00010010", InstructionCode.VOLTA_SUB, "sub"),
+        new Instruction(1, "00010011", InstructionCode.VOLTA_AND, "and"),
+        new Instruction(1, "00010100", InstructionCode.VOLTA_OR, "or"),
+        new Instruction(1, "00100001", InstructionCode.VOLTA_CLR, "clr"),
+        new Instruction(1, "00100010", InstructionCode.VOLTA_NOT, "not"),
+        new Instruction(1, "00100011", InstructionCode.VOLTA_NEG, "neg"),
+        new Instruction(1, "00100100", InstructionCode.VOLTA_INC, "inc"),
+        new Instruction(1, "00100101", InstructionCode.VOLTA_DEC, "dec"),
+        new Instruction(1, "00110001", InstructionCode.VOLTA_ASR, "asr"),
+        new Instruction(1, "00110010", InstructionCode.VOLTA_ASL, "asl"),
+        new Instruction(1, "00110011", InstructionCode.VOLTA_ROR, "ror"),
+        new Instruction(1, "00110100", InstructionCode.VOLTA_ROL, "rol"),
+        new Instruction(1, "01000001", InstructionCode.VOLTA_SZ, "sz"),
+        new Instruction(1, "01000010", InstructionCode.VOLTA_SNZ, "snz"),
+        new Instruction(1, "01000011", InstructionCode.VOLTA_SPL, "spl"),
+        new Instruction(1, "01000100", InstructionCode.VOLTA_SMI, "smi"),
+        new Instruction(1, "01000101", InstructionCode.VOLTA_SPZ, "spz"),
+        new Instruction(1, "01000110", InstructionCode.VOLTA_SMZ, "smz"),
+        new Instruction(1, "01010001", InstructionCode.VOLTA_SEQ, "seq"),
+        new Instruction(1, "01010010", InstructionCode.VOLTA_SNE, "sne"),
+        new Instruction(1, "01010011", InstructionCode.VOLTA_SGR, "sgr"),
+        new Instruction(1, "01010100", InstructionCode.VOLTA_SLS, "sls"),
+        new Instruction(1, "01010101", InstructionCode.VOLTA_SGE, "sge"),
+        new Instruction(1, "01010110", InstructionCode.VOLTA_SLE, "sle"),
+        new Instruction(1, "01100110", InstructionCode.VOLTA_RTS, "rts"),
+        new Instruction(2, "011100..", InstructionCode.VOLTA_PSH, "psh a"),
+        new Instruction(2, "100000..", InstructionCode.VOLTA_POP, "pop a"),
+        new Instruction(2, "100100..", InstructionCode.VOLTA_JMP, "jmp a"),
+        new Instruction(2, "101000..", InstructionCode.VOLTA_JSR, "jsr a"),
+        new Instruction(1, "1111....", InstructionCode.VOLTA_HLT, "hlt")
+      ],
+      addressingModes: [
+        new AddressingMode("......00", AddressingModeCode.DIRECT, AddressingMode.NO_PATTERN),
+        new AddressingMode("......01", AddressingModeCode.INDIRECT, "(.*),i"),
+        new AddressingMode("......10", AddressingModeCode.IMMEDIATE, "#(.*)"),
+        new AddressingMode("......11", AddressingModeCode.INDEXED_BY_PC, "(.*),pc")
+      ]
+    });
 
-    //////////////////////////////////////////////////
-    // Initialize registers
-    //////////////////////////////////////////////////
-
-    this.registers.push(new Register("PC", "", 8, false));
-    this.registers.push(new Register("SP", "", 6, false));
-
-    this.PC = this.registers[0];
-    this.SP = this.registers[1];
-
-    //////////////////////////////////////////////////
-    // Initialize memory and stack
-    //////////////////////////////////////////////////
-
-    this.setMemorySize(256);
     this.setStackSize(64);
-
-    //////////////////////////////////////////////////
-    // Initialize instructions
-    //////////////////////////////////////////////////
-
-    this.instructions.push(new Instruction(1, "00000000", InstructionCode.VOLTA_NOP, "nop"));
-    this.instructions.push(new Instruction(1, "00010001", InstructionCode.VOLTA_ADD, "add"));
-    this.instructions.push(new Instruction(1, "00010010", InstructionCode.VOLTA_SUB, "sub"));
-    this.instructions.push(new Instruction(1, "00010011", InstructionCode.VOLTA_AND, "and"));
-    this.instructions.push(new Instruction(1, "00010100", InstructionCode.VOLTA_OR, "or"));
-    this.instructions.push(new Instruction(1, "00100001", InstructionCode.VOLTA_CLR, "clr"));
-    this.instructions.push(new Instruction(1, "00100010", InstructionCode.VOLTA_NOT, "not"));
-    this.instructions.push(new Instruction(1, "00100011", InstructionCode.VOLTA_NEG, "neg"));
-    this.instructions.push(new Instruction(1, "00100100", InstructionCode.VOLTA_INC, "inc"));
-    this.instructions.push(new Instruction(1, "00100101", InstructionCode.VOLTA_DEC, "dec"));
-    this.instructions.push(new Instruction(1, "00110001", InstructionCode.VOLTA_ASR, "asr"));
-    this.instructions.push(new Instruction(1, "00110010", InstructionCode.VOLTA_ASL, "asl"));
-    this.instructions.push(new Instruction(1, "00110011", InstructionCode.VOLTA_ROR, "ror"));
-    this.instructions.push(new Instruction(1, "00110100", InstructionCode.VOLTA_ROL, "rol"));
-    this.instructions.push(new Instruction(1, "01000001", InstructionCode.VOLTA_SZ, "sz"));
-    this.instructions.push(new Instruction(1, "01000010", InstructionCode.VOLTA_SNZ, "snz"));
-    this.instructions.push(new Instruction(1, "01000011", InstructionCode.VOLTA_SPL, "spl"));
-    this.instructions.push(new Instruction(1, "01000100", InstructionCode.VOLTA_SMI, "smi"));
-    this.instructions.push(new Instruction(1, "01000101", InstructionCode.VOLTA_SPZ, "spz"));
-    this.instructions.push(new Instruction(1, "01000110", InstructionCode.VOLTA_SMZ, "smz"));
-    this.instructions.push(new Instruction(1, "01010001", InstructionCode.VOLTA_SEQ, "seq"));
-    this.instructions.push(new Instruction(1, "01010010", InstructionCode.VOLTA_SNE, "sne"));
-    this.instructions.push(new Instruction(1, "01010011", InstructionCode.VOLTA_SGR, "sgr"));
-    this.instructions.push(new Instruction(1, "01010100", InstructionCode.VOLTA_SLS, "sls"));
-    this.instructions.push(new Instruction(1, "01010101", InstructionCode.VOLTA_SGE, "sge"));
-    this.instructions.push(new Instruction(1, "01010110", InstructionCode.VOLTA_SLE, "sle"));
-    this.instructions.push(new Instruction(1, "01100110", InstructionCode.VOLTA_RTS, "rts"));
-    this.instructions.push(new Instruction(2, "011100..", InstructionCode.VOLTA_PSH, "psh a"));
-    this.instructions.push(new Instruction(2, "100000..", InstructionCode.VOLTA_POP, "pop a"));
-    this.instructions.push(new Instruction(2, "100100..", InstructionCode.VOLTA_JMP, "jmp a"));
-    this.instructions.push(new Instruction(2, "101000..", InstructionCode.VOLTA_JSR, "jsr a"));
-    this.instructions.push(new Instruction(1, "1111....", InstructionCode.VOLTA_HLT, "hlt"));
-
-    //////////////////////////////////////////////////
-    // Initialize addressing modes
-    //////////////////////////////////////////////////
-
-    this.addressingModes.push(new AddressingMode("......00", AddressingModeCode.DIRECT, AddressingMode.NO_PATTERN));
-    this.addressingModes.push(new AddressingMode("......01", AddressingModeCode.INDIRECT, "(.*),i"));
-    this.addressingModes.push(new AddressingMode("......10", AddressingModeCode.IMMEDIATE, "#(.*)"));
-    this.addressingModes.push(new AddressingMode("......11", AddressingModeCode.INDEXED_BY_PC, "(.*),pc"));
   }
 
   public executeInstruction(instruction: Instruction, addressingModeCode: AddressingModeCode, _registerName: string, immediateAddress: number): void {
@@ -126,7 +111,7 @@ export class Volta extends Machine {
       //////////////////////////////////////////////////
 
       case InstructionCode.VOLTA_CLR:
-        this.writeStackValue(this.SP.getValue(), 0); // Replace top of stack, counts single access
+        this.writeStackValue(this.getSPValue(), 0); // Replace top of stack, counts single access
         break;
 
       case InstructionCode.VOLTA_NOT:
@@ -383,12 +368,12 @@ export class Volta extends Machine {
 
   public stackPush(value: number): void {
     this.setSPValue(this.getSPValue() + 1);
-    this.writeStackValue(this.SP.getValue(), value);
+    this.writeStackValue(this.getSPValue(), value);
   }
 
   public stackPop(): number {
-    const value = this.readStackValue(this.SP.getValue());
-    this.setSPValue(this.SP.getValue() - 1); // Decrement SP
+    const value = this.readStackValue(this.getSPValue());
+    this.setSPValue(this.getSPValue() - 1); // Decrement SP
     return value;
   }
 
@@ -403,15 +388,20 @@ export class Volta extends Machine {
   }
 
   //////////////////////////////////////////////////
-  // Getters/setters, clear
+  // Accessors
   //////////////////////////////////////////////////
 
   public setStackSize(size: number): void {
+    validateSize(size);
+
     new Array(size).fill(null).forEach(() => this.stack.push(new Byte()));
     this.stackChanged = new Array(size).fill(true);
 
-    Q_ASSERT(this.isPowerOfTwo(size), "Invalid stack size."); // Size must be a power of two for the mask to work
     this.stackMask = (size - 1);
+  }
+
+  public getStack(): ReadonlyArray<Byte> {
+    return this.stack;
   }
 
   public getStackValue(address: number): number {
@@ -434,13 +424,11 @@ export class Volta extends Machine {
   }
 
   public getSPValue(): number {
-    return this.SP.getValue();
+    return this.getRegisterValueByName("SP");
   }
 
   public setSPValue(value: number) {
-    const oldValue = this.SP.getValue();
-    this.SP.setValue(value);
-    this.publishEvent("REG.SP", this.SP.getValue(), oldValue);
+    this.setRegisterValueByName("SP", value);
   }
 
   public clear(): void {

@@ -7,66 +7,48 @@ import { AddressingMode, AddressingModeCode } from "../core/AddressingMode";
 export class Pericles extends Machine {
 
   constructor() {
-    super();
-    this.name = "Pericles";
-    this.identifier = "PRC";
+    super({
+      name: "Pericles",
+      identifier: "PRC",
+      memorySize: 4096,
+      flags: [
+        new Flag(FlagCode.NEGATIVE, "N"),
+        new Flag(FlagCode.ZERO, "Z", true),
+        new Flag(FlagCode.CARRY, "C")
+      ],
+      registers: [
+        new Register("A", "....00..", 8),
+        new Register("B", "....01..", 8),
+        new Register("X", "....10..", 8),
+        new Register("PC", "", 12, false)
+      ],
+      instructions: [
+        new Instruction(1, "0000....", InstructionCode.NOP, "nop"),
+        new Instruction(0, "0001....", InstructionCode.STR, "str r a"),
+        new Instruction(0, "0010....", InstructionCode.LDR, "ldr r a"),
+        new Instruction(0, "0011....", InstructionCode.ADD, "add r a"),
+        new Instruction(0, "0100....", InstructionCode.OR, "or r a"),
+        new Instruction(0, "0101....", InstructionCode.AND, "and r a"),
+        new Instruction(1, "0110....", InstructionCode.NOT, "not r"),
+        new Instruction(0, "0111....", InstructionCode.SUB, "sub r a"),
+        new Instruction(0, "1000....", InstructionCode.JMP, "jmp a"),
+        new Instruction(0, "1001....", InstructionCode.JN, "jn a"),
+        new Instruction(0, "1010....", InstructionCode.JZ, "jz a"),
+        new Instruction(0, "1011....", InstructionCode.JC, "jc a"),
+        new Instruction(0, "1100....", InstructionCode.JSR, "jsr a"),
+        new Instruction(1, "1101....", InstructionCode.NEG, "neg r"),
+        new Instruction(1, "1110....", InstructionCode.SHR, "shr r"),
+        new Instruction(1, "1111....", InstructionCode.HLT, "hlt")
+      ],
+      addressingModes: [
+        new AddressingMode("......00", AddressingModeCode.DIRECT, AddressingMode.NO_PATTERN),
+        new AddressingMode("......01", AddressingModeCode.INDIRECT, "(.*),i"),
+        new AddressingMode("......10", AddressingModeCode.IMMEDIATE, "#(.*)"),
+        new AddressingMode("......11", AddressingModeCode.INDEXED_BY_X, "(.*),x")
+      ]
+    });
 
     this.littleEndian = true;
-
-    //////////////////////////////////////////////////
-    // Initialize registers
-    //////////////////////////////////////////////////
-
-    this.registers.push(new Register("A", "....00..", 8));
-    this.registers.push(new Register("B", "....01..", 8));
-    this.registers.push(new Register("X", "....10..", 8));
-    this.registers.push(new Register("PC", "", 12, false));
-
-    this.PC = this.registers[this.registers.length - 1];
-
-    //////////////////////////////////////////////////
-    // Initialize memory
-    //////////////////////////////////////////////////
-
-    this.setMemorySize(4096);
-
-    //////////////////////////////////////////////////
-    // Initialize flags
-    //////////////////////////////////////////////////
-
-    this.flags.push(new Flag(FlagCode.NEGATIVE, "N"));
-    this.flags.push(new Flag(FlagCode.ZERO, "Z", true));
-    this.flags.push(new Flag(FlagCode.CARRY, "C"));
-
-    //////////////////////////////////////////////////
-    // Initialize instructions
-    //////////////////////////////////////////////////
-
-    this.instructions.push(new Instruction(1, "0000....", InstructionCode.NOP, "nop"));
-    this.instructions.push(new Instruction(0, "0001....", InstructionCode.STR, "str r a"));
-    this.instructions.push(new Instruction(0, "0010....", InstructionCode.LDR, "ldr r a"));
-    this.instructions.push(new Instruction(0, "0011....", InstructionCode.ADD, "add r a"));
-    this.instructions.push(new Instruction(0, "0100....", InstructionCode.OR, "or r a"));
-    this.instructions.push(new Instruction(0, "0101....", InstructionCode.AND, "and r a"));
-    this.instructions.push(new Instruction(1, "0110....", InstructionCode.NOT, "not r"));
-    this.instructions.push(new Instruction(0, "0111....", InstructionCode.SUB, "sub r a"));
-    this.instructions.push(new Instruction(0, "1000....", InstructionCode.JMP, "jmp a"));
-    this.instructions.push(new Instruction(0, "1001....", InstructionCode.JN, "jn a"));
-    this.instructions.push(new Instruction(0, "1010....", InstructionCode.JZ, "jz a"));
-    this.instructions.push(new Instruction(0, "1011....", InstructionCode.JC, "jc a"));
-    this.instructions.push(new Instruction(0, "1100....", InstructionCode.JSR, "jsr a"));
-    this.instructions.push(new Instruction(1, "1101....", InstructionCode.NEG, "neg r"));
-    this.instructions.push(new Instruction(1, "1110....", InstructionCode.SHR, "shr r"));
-    this.instructions.push(new Instruction(1, "1111....", InstructionCode.HLT, "hlt"));
-
-    //////////////////////////////////////////////////
-    // Initialize addressing modes
-    //////////////////////////////////////////////////
-
-    this.addressingModes.push(new AddressingMode("......00", AddressingModeCode.DIRECT, AddressingMode.NO_PATTERN));
-    this.addressingModes.push(new AddressingMode("......01", AddressingModeCode.INDIRECT, "(.*),i"));
-    this.addressingModes.push(new AddressingMode("......10", AddressingModeCode.IMMEDIATE, "#(.*)"));
-    this.addressingModes.push(new AddressingMode("......11", AddressingModeCode.INDEXED_BY_X, "(.*),x"));
   }
 
   // Returns number of bytes reserved
@@ -113,7 +95,7 @@ export class Pericles extends Machine {
   }
 
   public getNextOperandAddress(): { intermediateAddress: number, intermediateAddress2: number, finalOperandAddress: number } {
-    const fetchedValue = this.getMemoryValue(this.PC.getValue());
+    const fetchedValue = this.getMemoryValue(this.getPCValue());
     const instruction = this.getInstructionFromValue(fetchedValue);
     const addressingModeCode = this.extractAddressingModeCode(fetchedValue);
 
@@ -125,7 +107,7 @@ export class Pericles extends Machine {
       return { intermediateAddress, intermediateAddress2, finalOperandAddress };
     }
 
-    const immediateAddress = this.PC.getValue() + 1;
+    const immediateAddress = this.getPCValue() + 1;
 
     switch (addressingModeCode) {
       case AddressingModeCode.DIRECT:
@@ -153,7 +135,7 @@ export class Pericles extends Machine {
     return { intermediateAddress, intermediateAddress2, finalOperandAddress };
   }
 
-  public generateArgumentsString(address: number, instruction: Instruction, addressingModeCode: AddressingModeCode): { argument: string, argumentsSize: number} {
+  public generateArgumentsString(address: number, instruction: Instruction, addressingModeCode: AddressingModeCode): { argument: string, argumentsSize: number } {
     const addressingModePattern = this.getAddressingModePattern(addressingModeCode);
 
     // Calculate size of argument

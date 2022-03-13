@@ -10,8 +10,8 @@ function arrayContains(array: string[], needle: string): boolean {
 
 function defineCodeMirrorMode(machine: Machine) {
   // @ts-ignore
-  codemirror.defineMode(machine.identifier, () => {
-    const instructions = machine.instructions.map(instruction => instruction.getMnemonic());
+  codemirror.defineMode(machine.getName(), () => {
+    const instructions = machine.getInstructions().map(instruction => instruction.getMnemonic());
     const directives = ["db", "dab", "dw", "daw", "org"]; // TODO: Move directives
 
     return {
@@ -48,6 +48,6 @@ export default function CodeEditor({ machine }: { machine: Machine }) {
   defineCodeMirrorMode(machine);
 
   return (
-    <CodeMirror options={{ mode: machine.identifier, lineNumbers: true, lineWrapping: true }} editorDidMount={editor => window.codeMirrorInstance = editor} />
+    <CodeMirror options={{ mode: machine.getName(), lineNumbers: true, lineWrapping: true }} editorDidMount={editor => window.codeMirrorInstance = editor} />
   );
 }
