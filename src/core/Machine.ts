@@ -365,9 +365,9 @@ export abstract class Machine {
   }
 
   public extractRegisterName(fetchedValue: number): string {
-    for (const reg of this.registers) {
-      if (reg.matchByte(fetchedValue)) {
-        return reg.getName();
+    for (const register of this.registers) {
+      if (register.matchByte(fetchedValue)) {
+        return register.getName();
       }
     }
 
@@ -1367,9 +1367,9 @@ export abstract class Machine {
 
   // -1 if no code
   public getRegisterBitCode(registerName: string): number {
-    for (const reg of this.registers) {
-      if (reg.getName().toLowerCase() === registerName.toLowerCase()) {
-        return reg.getBitCode();
+    for (const register of this.registers) {
+      if (register.getName().toLowerCase() === registerName.toLowerCase()) {
+        return register.getBitCode();
       }
     }
 
@@ -1387,8 +1387,8 @@ export abstract class Machine {
   }
 
   public hasRegister(registerName: string): boolean {
-    for (const reg of this.registers) {
-      if (reg.getName().toLowerCase() === registerName.toLowerCase()) {
+    for (const register of this.registers) {
+      if (register.getName().toLowerCase() === registerName.toLowerCase()) {
         return true;
       }
     }
@@ -1409,9 +1409,9 @@ export abstract class Machine {
       return 0;
     }
 
-    for (const reg of this.registers) {
-      if (reg.getName().toLowerCase() === registerName.toLowerCase()) {
-        return reg.getValue();
+    for (const register of this.registers) {
+      if (register.getName().toLowerCase() === registerName.toLowerCase()) {
+        return register.getValue();
       }
     }
 
@@ -1427,9 +1427,9 @@ export abstract class Machine {
       return;
     }
 
-    for (const reg of this.registers) {
-      if (reg.getName().toLowerCase() === registerName.toLowerCase()) {
-        reg.setValue(value);
+    for (const register of this.registers) {
+      if (register.getName().toLowerCase() === registerName.toLowerCase()) {
+        register.setValue(value);
         return;
       }
     }
