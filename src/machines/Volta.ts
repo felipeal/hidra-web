@@ -407,7 +407,7 @@ export class Volta extends Machine {
   //////////////////////////////////////////////////
 
   public setStackSize(size: number): void {
-    this.stack = new Array(size).map(() => new Byte());
+    new Array(size).fill(null).forEach(() => this.stack.push(new Byte()));
     this.stackChanged = new Array(size).fill(true);
 
     Q_ASSERT(this.isPowerOfTwo(size), "Invalid stack size."); // Size must be a power of two for the mask to work
