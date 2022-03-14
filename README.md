@@ -2,7 +2,7 @@
 
 Este projeto é uma versão do [Hidra](https://github.com/petcomputacaoufrgs/hidracpp) para ambiente web.
 
-O projeto utiliza *TypeScript* para as máquinas e o assembler, criadas com base no código original em C++, e desenvolvidas com isolamento total do framework. A interface utiliza *React* como framework.
+O projeto utiliza TypeScript para as máquinas e o assembler, criadas com base no código original em C++, e desenvolvidas com isolamento total do framework. A interface utiliza React como framework.
 
 ## Sobre o Hidra
 
