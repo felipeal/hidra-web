@@ -1,4 +1,4 @@
-import { MachineErrorCode } from "./Errors";
+import { AssemblerErrorCode } from "./Errors";
 import { AddressingModeCode } from "./AddressingMode";
 
 interface AddressingModeDescription { acronym: string, name: string, format: string, description: string }
@@ -155,22 +155,22 @@ export class Texts {
     }
   }
 
-  public static buildErrorMessage(lineNumber: number, errorCode: MachineErrorCode) {
+  public static buildErrorMessage(lineNumber: number, errorCode: AssemblerErrorCode) {
     return `Linha ${String(lineNumber + 1)}: ${Texts.getErrorCodeMessage(errorCode)}`;
   }
 
-  private static getErrorCodeMessage(errorCode: MachineErrorCode): string {
+  private static getErrorCodeMessage(errorCode: AssemblerErrorCode): string {
     switch (errorCode) {
-      case MachineErrorCode.WRONG_NUMBER_OF_ARGUMENTS: return "Número de argumentos inválido.";
-      case MachineErrorCode.INVALID_INSTRUCTION: return "Mnemônico inválido.";
-      case MachineErrorCode.INVALID_ADDRESS: return "Endereço inválido.";
-      case MachineErrorCode.INVALID_VALUE: return "Valor inválido.";
-      case MachineErrorCode.INVALID_STRING: return "String inválido.";
-      case MachineErrorCode.INVALID_LABEL: return "Label inválido.";
-      case MachineErrorCode.INVALID_ARGUMENT: return "Argumento inválido.";
-      case MachineErrorCode.DUPLICATE_LABEL: return "Label já definido.";
-      case MachineErrorCode.MEMORY_OVERLAP: return "Sobreposição de memória.";
-      case MachineErrorCode.NOT_IMPLEMENTED: return "Funcionalidade não implementada.";
+      case AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS: return "Número de argumentos inválido.";
+      case AssemblerErrorCode.INVALID_INSTRUCTION: return "Mnemônico inválido.";
+      case AssemblerErrorCode.INVALID_ADDRESS: return "Endereço inválido.";
+      case AssemblerErrorCode.INVALID_VALUE: return "Valor inválido.";
+      case AssemblerErrorCode.INVALID_STRING: return "String inválido.";
+      case AssemblerErrorCode.INVALID_LABEL: return "Label inválido.";
+      case AssemblerErrorCode.INVALID_ARGUMENT: return "Argumento inválido.";
+      case AssemblerErrorCode.DUPLICATE_LABEL: return "Label já definido.";
+      case AssemblerErrorCode.MEMORY_OVERLAP: return "Sobreposição de memória.";
+      case AssemblerErrorCode.NOT_IMPLEMENTED: return "Funcionalidade não implementada.";
 
       default: return "Erro indefinido.";
     }

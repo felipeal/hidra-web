@@ -5,7 +5,7 @@ export enum FileErrorCode {
   INVALID_IDENTIFIER,
 }
 
-export enum MachineErrorCode {
+export enum AssemblerErrorCode {
   NO_ERROR = 0,
   WRONG_NUMBER_OF_ARGUMENTS,
   INVALID_INSTRUCTION,
@@ -19,11 +19,11 @@ export enum MachineErrorCode {
   NOT_IMPLEMENTED
 }
 
-export class MachineError extends Error {
+export class AssemblerError extends Error {
 
-  public readonly errorCode: MachineErrorCode;
+  public readonly errorCode: AssemblerErrorCode;
 
-  constructor(errorCode: MachineErrorCode) {
+  constructor(errorCode: AssemblerErrorCode) {
     super();
     this.errorCode = errorCode;
   }

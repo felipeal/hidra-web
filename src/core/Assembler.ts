@@ -1,4 +1,4 @@
-import { MachineError, MachineErrorCode } from "./Errors";
+import { AssemblerError, AssemblerErrorCode } from "./Errors";
 import { Register } from "./Register";
 import { Instruction } from "./Instruction";
 import { AddressingModeCode } from "./AddressingMode";
@@ -90,10 +90,10 @@ export class Assembler {
 
           // Check for invalid or duplicated label
           if (!validLabel.exactMatch(labelName.toLowerCase())) {
-            throw new MachineError(MachineErrorCode.INVALID_LABEL);
+            throw new AssemblerError(AssemblerErrorCode.INVALID_LABEL);
           }
           if (this.labelPCMap.has(labelName.toLowerCase())) {
-            throw new MachineError(MachineErrorCode.DUPLICATE_LABEL);
+            throw new AssemblerError(AssemblerErrorCode.DUPLICATE_LABEL);
           }
 
           this.labelPCMap.set(labelName.toLowerCase(), this.getPCValue()); // Add to map
@@ -125,7 +125,7 @@ export class Assembler {
           }
         }
       } catch (error: unknown) {
-        if (error instanceof MachineError) {
+        if (error instanceof AssemblerError) {
           if (this.firstErrorLine === -1) {
             this.firstErrorLine = lineNumber;
           }
@@ -163,7 +163,7 @@ export class Assembler {
           }
         }
       } catch (error: unknown) {
-        if (error instanceof MachineError) {
+        if (error instanceof AssemblerError) {
           if (this.firstErrorLine === -1) {
             this.firstErrorLine = lineNumber;
           }
@@ -208,10 +208,10 @@ export class Assembler {
       const numberOfArguments = argumentList.length;
 
       if (numberOfArguments !== 1) {
-        throw new MachineError(MachineErrorCode.WRONG_NUMBER_OF_ARGUMENTS);
+        throw new AssemblerError(AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS);
       }
       if (!this.isValidOrg(argumentList[0])) {
-        throw new MachineError(MachineErrorCode.INVALID_ADDRESS);
+        throw new AssemblerError(AssemblerErrorCode.INVALID_ADDRESS);
       }
 
       this.setPCValue(this.stringToInt(argumentList[0]));
@@ -228,17 +228,17 @@ export class Assembler {
       }
 
       if (!isArray && numberOfArguments > 1) { // Too many arguments
-        throw new MachineError(MachineErrorCode.WRONG_NUMBER_OF_ARGUMENTS);
+        throw new AssemblerError(AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS);
       }
 
       if (isArray && numberOfArguments < 1) { // No arguments
-        throw new MachineError(MachineErrorCode.WRONG_NUMBER_OF_ARGUMENTS);
+        throw new AssemblerError(AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS);
       }
 
       // Memory allocation
       if (argumentList[0][0] === Machine.ALLOCATE_SYMBOL) {
         if (mnemonic !== "dab" && mnemonic !== "daw") {
-          throw new MachineError(MachineErrorCode.INVALID_ARGUMENT);
+          throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
         } else if (reserveOnly) {
           this.reserveAssemblerMemory(Number(argumentList[0].slice(1)) * bytesPerArgument, sourceLine); // TODO: Is this correct?
         } else { // Skip bytes
@@ -265,7 +265,7 @@ export class Assembler {
         }
       }
     } else {
-      throw new MachineError(MachineErrorCode.INVALID_INSTRUCTION);
+      throw new AssemblerError(AssemblerErrorCode.INVALID_INSTRUCTION);
     }
   }
 
@@ -279,7 +279,7 @@ export class Assembler {
 
     // Check if number of arguments is correct:
     if (argumentList.length !== instruction.getNumberOfArguments()) {
-      throw new MachineError(MachineErrorCode.WRONG_NUMBER_OF_ARGUMENTS);
+      throw new AssemblerError(AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS);
     }
 
     // If argumentList contains a register:
@@ -287,7 +287,7 @@ export class Assembler {
       registerBitCode = this.machine.getRegisterBitCode(argumentList[0]);
 
       if (registerBitCode === Register.NO_BIT_CODE) {
-        throw new MachineError(MachineErrorCode.INVALID_ARGUMENT); // Register not found (or invisible)
+        throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT); // Register not found (or invisible)
       }
     }
 
@@ -345,7 +345,7 @@ export class Assembler {
         this.incrementPCValue();
         sizeToReserve--;
       } else {
-        throw new MachineError(MachineErrorCode.MEMORY_OVERLAP); // Memory already reserved
+        throw new AssemblerError(AssemblerErrorCode.MEMORY_OVERLAP); // Memory already reserved
       }
     }
   }
@@ -439,7 +439,7 @@ export class Assembler {
     }
 
     if (totalMatchedLength !== args.length) { // If not fully matched, an error occurred
-      throw new MachineError(MachineErrorCode.INVALID_STRING);
+      throw new AssemblerError(AssemblerErrorCode.INVALID_STRING);
     }
 
     return finalArgumentList;
@@ -470,10 +470,10 @@ export class Assembler {
       const sign = (labelOffset.cap(2) === "+") ? +1 : -1;
 
       if (!this.labelPCMap.has(labelOffset.cap(1))) { // Validate label
-        throw new MachineError(MachineErrorCode.INVALID_LABEL);
+        throw new AssemblerError(AssemblerErrorCode.INVALID_LABEL);
       }
       if (!this.isValidAddress(labelOffset.cap(3))) { // Validate offset
-        throw new MachineError(MachineErrorCode.INVALID_ARGUMENT);
+        throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
       }
 
       // Argument = Label + Offset
@@ -493,13 +493,13 @@ export class Assembler {
       } else if (this.isValidNBytesValue(argument, immediateNumBytes)) { // Immediate hex/dec value
         return this.stringToInt(argument);
       } else {
-        throw new MachineError(MachineErrorCode.INVALID_VALUE);
+        throw new AssemblerError(AssemblerErrorCode.INVALID_VALUE);
       }
     } else {
       if (this.isValidAddress(argument)) { // Address
         return this.stringToInt(argument);
       } else {
-        throw new MachineError(MachineErrorCode.INVALID_ADDRESS);
+        throw new AssemblerError(AssemblerErrorCode.INVALID_ADDRESS);
       }
     }
   }
