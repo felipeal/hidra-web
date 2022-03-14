@@ -285,7 +285,7 @@ export abstract class Machine extends MachineState {
       }
     }
 
-    throw Error("Addressing mode not found.");
+    throw new Error(`Addressing mode not found for fetched value: ${fetchedValue}`);
   }
 
   public extractRegisterName(fetchedValue: number): string {

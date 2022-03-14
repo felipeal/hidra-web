@@ -170,7 +170,7 @@ export abstract class MachineState {
       }
     }
 
-    throw Error("Invalid flag name: ") + flagName;
+    throw new Error(`Invalid flag name: ${flagName}`);
   }
 
   public setFlagValueById(id: number, value: boolean): void {
@@ -187,7 +187,7 @@ export abstract class MachineState {
       }
     }
 
-    throw Error("Invalid flag name: ") + flagName;
+    throw new Error(`Invalid flag name: ${flagName}`);
   }
 
   public setFlagValueByFlagCode(flagCode: FlagCode, value: boolean): void {
@@ -274,7 +274,7 @@ export abstract class MachineState {
       }
     }
 
-    throw Error("Invalid register name: ") + registerName;
+    throw new Error(`Invalid register name: ${registerName}`);
   }
 
   public setRegisterValueById(id: number, value: number): void {
@@ -298,7 +298,7 @@ export abstract class MachineState {
       }
     }
 
-    throw Error("Invalid register name: ") + registerName; // FIXME and similar
+    throw new Error(`Invalid register name: ${registerName}`);
   }
 
   public isRegisterData(id: number): boolean {
@@ -370,7 +370,7 @@ export abstract class MachineState {
       }
     }
 
-    throw Error("Error defining default addressing mode.");
+    throw new Error("No default addressing mode found.");
   }
 
   public getAddressingModeBitCode(addressingModeCode: AddressingModeCode): number {
@@ -380,7 +380,7 @@ export abstract class MachineState {
       }
     }
 
-    throw Error("Invalid addressing mode code.");
+    throw new Error(`Invalid addressing mode code: ${addressingModeCode}`);
   }
 
   public getAddressingModePattern(addressingModeCode: AddressingModeCode): string {
@@ -432,7 +432,7 @@ export abstract class MachineState {
     this.setBreakpoint(-1);
     this.setRunning(false);
 
-    throw new Error("assemblerData must also be cleared"); // TODO: Review
+    throw new Error("Reminder: assemblerData must also be cleared."); // TODO: Untested
   }
 
   public clearAfterBuild(): void {
