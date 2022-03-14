@@ -48,7 +48,7 @@ export abstract class MachineState {
     // Assign settings
     Object.assign(this, settings);
     this.setMemorySize(settings.memorySize);
-    this.littleEndian = settings.littleEndian || false;
+    this.littleEndian = settings.littleEndian ?? false;
 
     this.pc = this.registers.find(register => register.getName() === "PC")!;
     Q_ASSERT(Boolean(this.pc), "Register PC not found.");
@@ -110,11 +110,10 @@ export abstract class MachineState {
 
   public setMemoryValue(address: number, value: number): void {
     const validAddress = address & this.memoryMask;
-    const validValue = value & 0xFF; // TODO: Review memoryMask vs addressMask (also in C++)
 
-    this.memory[validAddress].setValue(validValue);
+    this.memory[validAddress].setValue(value); // TODO: Review memoryMask vs addressMask (also in C++)
     this.changed[validAddress] = true;
-    this.publishEvent(`MEM.${address}`, validValue);
+    this.publishEvent(`MEM.${address}`, this.memory[validAddress].getValue());
   }
 
   // Has byte changed last look-up
@@ -137,9 +136,9 @@ export abstract class MachineState {
     return this.instructionStrings[address & this.memoryMask];
   }
 
-  protected setInstructionString(address: number, value: string): void {
-    this.instructionStrings[address & this.memoryMask] = value;
-    this.publishEvent(`INS.${address}`, value);
+  protected setInstructionString(address: number, str: string): void {
+    this.instructionStrings[address & this.memoryMask] = str;
+    this.publishEvent(`INS.STR.${address}`, str);
   }
 
   public clearInstructionStrings(): void {
@@ -279,9 +278,10 @@ export abstract class MachineState {
   }
 
   public setRegisterValueById(id: number, value: number): void {
-    const oldValue = this.registers[id].getValue();
-    this.registers[id].setValue(value);
-    this.publishEvent(`REG.${this.registers[id].getName()}`, value, oldValue);
+    const register = this.registers[id];
+    const oldValue = register.getValue();
+    register.setValue(value);
+    this.publishEvent(`REG.${register.getName()}`, register.getValue(), oldValue);
   }
 
   public setRegisterValueByName(registerName: string, value: number): void {
@@ -293,7 +293,7 @@ export abstract class MachineState {
       if (register.getName().toLowerCase() === registerName.toLowerCase()) {
         const oldValue = register.getValue();
         register.setValue(value);
-        this.publishEvent(`REG.${registerName}`, value, oldValue);
+        this.publishEvent(`REG.${registerName}`, register.getValue(), oldValue);
         return;
       }
     }
@@ -324,7 +324,7 @@ export abstract class MachineState {
   public setPCValue(value: number): void {
     const oldValue = this.pc.getValue();
     this.pc.setValue(value);
-    this.publishEvent(`REG.${this.pc.getName()}`, value, oldValue);
+    this.publishEvent(`REG.${this.pc.getName()}`, this.pc.getValue(), oldValue);
   }
 
   public incrementPCValue(units = 1): void {
@@ -449,7 +449,7 @@ export abstract class MachineState {
   //////////////////////////////////////////////////
 
   public subscribeToEvent(event: string, callback: EventCallback) {
-    this.eventSubscriptions[event] = this.eventSubscriptions[event] || [];
+    this.eventSubscriptions[event] = this.eventSubscriptions[event] ?? [];
     this.eventSubscriptions[event].push(callback);
   }
 

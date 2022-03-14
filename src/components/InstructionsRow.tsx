@@ -19,7 +19,7 @@ export default function InstructionsRow({ address, machine }: { address: number,
       }
     });
     machine.subscribeToEvent(`MEM.${address}`, (newValue) => setValue(String(newValue)));
-    machine.subscribeToEvent(`INS.${address}`, (newValue) => setInstructionString(newValue as string));
+    machine.subscribeToEvent(`INS.STR.${address}`, (newValue) => setInstructionString(newValue as string));
   }, [machine, address]);
 
   return (
