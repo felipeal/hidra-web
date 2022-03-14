@@ -250,8 +250,14 @@ function App() {
           <legend>Instructions</legend>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px" }}>
             {machine.getInstructions().map((instruction, index) => {
-              return <div style={{ width: "40px", marginLeft: "8px", fontFamily: "monospace" }} key={index}>
-                {instruction.getMnemonic().toUpperCase()}
+              let assemblyFormat = [instruction.getMnemonic().toUpperCase(), ...instruction.getArguments()].join(" ");
+              assemblyFormat = assemblyFormat.replace("a0", "a").replace("a1", "b");
+              const isWide = (assemblyFormat.length > 7); // TODO: Revisit layout
+              return <div style={{
+                width: "56px", whiteSpace: "nowrap", fontFamily: "monospace",
+                marginLeft: (isWide ? "0" : "16px"), marginRight: (isWide ? "16px" : "0")
+              }} key={index}>
+                {assemblyFormat}
               </div>;
             })}
           </div>
@@ -261,10 +267,13 @@ function App() {
         {(machine.getAddressingModes().length > 1) && (
           <fieldset>
             <legend>Addressing modes</legend>
-            <div style={{ display: "flex", justifyContent: "center", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px" }}>
+            <div style={{
+              display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px",
+              justifyContent: (machine.getAddressingModes().length > 2 ? "left" : "center")
+            }}>
               {machine.getAddressingModes().map((addressingMode, index) => {
-                return <div style={{ width: "40px", marginLeft: "8px", fontFamily: "monospace" }} key={index}>
-                  {Texts.getAddressingModeDescription(addressingMode.getAddressingModeCode()).acronym}
+                return <div style={{ width: "56px", marginLeft: "16px", fontFamily: "monospace" }} key={index}>
+                  {addressingMode.getAssemblyPattern().toUpperCase().replace("(.*)", "a") || "a"}
                 </div>;
               })}
             </div>
