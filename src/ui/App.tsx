@@ -159,17 +159,19 @@ function App() {
         </select>
 
         {/* Flags */}
-        <fieldset style={{ paddingTop: "16px", paddingBottom: "16px" }}>
-          <legend>Flags</legend>
-          <div style={{ display: "flex", justifyContent: "center", gap: "16px" }}>
-            {machine.getFlags().map((flag, index) => {
-              return <FlagWidget key={index} name={flag.getName()} machine={machine} />;
-            })}
-          </div>
-        </fieldset>
+        {(machine.getFlags().length > 1) && (
+          <fieldset style={{ paddingTop: "16px", paddingBottom: "16px" }}>
+            <legend>Flags</legend>
+            <div style={{ display: "flex", justifyContent: "center", gap: "16px" }}>
+              {machine.getFlags().map((flag, index) => {
+                return <FlagWidget key={index} name={flag.getName()} machine={machine} />;
+              })}
+            </div>
+          </fieldset>
+        )}
 
         {/* Registers */}
-        <fieldset style={{ paddingTop: "32px", paddingBottom: "32px" }}>
+        <fieldset style={{ paddingTop: "32px", paddingBottom: "32px", overflow: "auto" }}>
           <legend>Registers</legend>
           <div style={{ display: "grid", justifyContent: "center", gridTemplateColumns: "112px 112px", justifyItems: "center", gap: "16px", flexWrap: "wrap" }}>
             {machine.getRegisters().map((register, index) => {
@@ -216,6 +218,7 @@ function App() {
           </div>
         </div>
 
+        {/* Separator */}
         <div style={{ flexGrow: 1 }} />
 
         {/* Instructions */}
