@@ -4,27 +4,27 @@ import React, { ChangeEvent, useState } from "react";
 import codemirror from "codemirror";
 
 // Components
-import CodeEditor from "./ui/CodeEditor";
-import InstructionsRow from "./components/InstructionsRow";
-import DataRow from "./components/DataRow";
-import StackRow from "./components/StackRow";
-import FlagWidget from "./components/FlagWidget";
-import RegisterWidget from "./components/RegisterWidget";
-import Information from "./components/Information";
+import CodeEditor from "./CodeEditor";
+import InstructionsRow from "./InstructionsRow";
+import DataRow from "./DataRow";
+import StackRow from "./StackRow";
+import FlagWidget from "./FlagWidget";
+import RegisterWidget from "./RegisterWidget";
+import Information from "./Information";
 
 // Machines
-import { Machine } from "./core/Machine";
-import { Neander } from "./machines/Neander";
-import { Ahmes } from "./machines/Ahmes";
-import { Ramses } from "./machines/Ramses";
-import { Cromag } from "./machines/Cromag";
-import { Queops } from "./machines/Queops";
-import { Pitagoras } from "./machines/Pitagoras";
-import { Pericles } from "./machines/Pericles";
-import { Reg } from "./machines/Reg";
-import { Volta } from "./machines/Volta";
-import { Texts } from "./core/Texts";
-import { Assembler } from "./core/Assembler";
+import { Machine } from "../core/Machine";
+import { Neander } from "../machines/Neander";
+import { Ahmes } from "../machines/Ahmes";
+import { Ramses } from "../machines/Ramses";
+import { Cromag } from "../machines/Cromag";
+import { Queops } from "../machines/Queops";
+import { Pitagoras } from "../machines/Pitagoras";
+import { Pericles } from "../machines/Pericles";
+import { Reg } from "../machines/Reg";
+import { Volta } from "../machines/Volta";
+import { Texts } from "../core/Texts";
+import { Assembler } from "../core/Assembler";
 
 // Global pointer required for CodeMirror persistence between live-reloads
 declare global {

@@ -14,7 +14,7 @@ export default function DataRow({ address, machine, assembler }: { address: numb
     // Event subscriptions
     machine.subscribeToEvent(`MEM.${address}`, (newValue) => setValue(String(newValue)));
     machine.subscribeToEvent(`LABEL.${address}`, (newValue) => setLabel(String(newValue)));
-  }, [machine, address]);
+  }, [machine, address, assembler]);
 
   return (
     <tr>
