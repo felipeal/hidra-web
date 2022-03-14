@@ -1,6 +1,6 @@
 import "./App.css";
 
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import codemirror from "codemirror";
 
 // Components
@@ -36,12 +36,18 @@ window.onerror = function myErrorHandler(errorMessage) {
   return false;
 };
 
+// Busy state handling
+const showBusy = () => document.querySelector(".busy")?.classList.add("show-busy");
+const hideBusy = () => document.querySelector(".busy")?.classList.remove("show-busy");
+
 function App() {
   const [machine, setMachine] = useState(new Neander() as Machine);
   const [assembler, setAssembler] = useState(new Assembler(machine));
   const [errorMessages, setErrorMessages] = useState([] as string[]);
 
   let timeout: NodeJS.Timeout;
+
+  useEffect(hideBusy, [machine, assembler]);
 
   return (
     <div style={{ height: "calc(100vh - 32px)", display: "flex", margin: "16px", gap: "16px" }}>
@@ -135,8 +141,11 @@ function App() {
           }
 
           const newMachine = buildMachine(event.target.value);
-          setMachine(newMachine);
-          setAssembler(new Assembler(newMachine));
+          showBusy();
+          setTimeout(() => {
+            setMachine(newMachine);
+            setAssembler(new Assembler(newMachine));
+          }, 0);
         }}>
           <option value="Neander">Neander</option>
           <option value="Ahmes">Ahmes</option>
