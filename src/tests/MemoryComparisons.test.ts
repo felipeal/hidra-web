@@ -52,7 +52,7 @@ describe("Memory Comparisons", () => {
     const machine = createMachineBasedOnExtension(filePath.split(".")[1]);
     const assembler = new Assembler(machine);
     const sourceCode = readTextFile(`${filePath}`);
-    const errorMessages = assembler.assemble(sourceCode);
+    const errorMessages = assembler.build(sourceCode);
 
     // Test build
     const [expectedMemoryBeforeRunning, expectedIdentifier] = readMachineBinary(filePath.replace(/\..*/, ".build.mem"));

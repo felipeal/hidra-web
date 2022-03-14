@@ -39,7 +39,7 @@ export class Assembler {
   //////////////////////////////////////////////////
 
   // Returns an array of error messages on failure
-  public assemble(sourceCode: string): string[] {
+  public build(sourceCode: string): string[] {
     this.buildSuccessful = false;
     this.firstErrorLine = -1;
 

@@ -1,6 +1,6 @@
 import "./App.css";
 
-import React, { ChangeEvent,  useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 import codemirror from "codemirror";
 
 // Components
@@ -39,14 +39,28 @@ window.onerror = function myErrorHandler(errorMessage) {
 function App() {
   const [machine, setMachine] = useState(new Neander() as Machine);
   const [assembler, setAssembler] = useState(new Assembler(machine));
+  const [errorMessages, setErrorMessages] = useState([] as string[]);
+
   let timeout: NodeJS.Timeout;
 
   return (
     <div style={{ height: "calc(100vh - 32px)", display: "flex", margin: "16px", gap: "16px" }}>
+
       {/* Code area */}
-      {/* <textarea style={{ height: "100%", border: "1px solid", flexGrow: 1, resize: "none", fontFamily: "monospace", fontSize: "1rem" }} /> */}
-      <div style={{ border: "1px solid", flex: 1, overflow: "auto" }}>
-        <CodeEditor machine={machine} />
+      <div style={{ height: "100%", flex: 1, display: "flex", flexDirection: "column" }}>
+
+        {/* Code editor */}
+        <div style={{ border: "1px solid", flex: 1, overflow: "auto" }}>
+          <CodeEditor machine={machine} />
+        </div>
+
+        {/* Error messages */}
+        {(errorMessages.length > 0) && <div style={{ border: "1px solid", flex: 0.125, marginTop: "16px", overflow: "auto", padding: "4px" }}>
+          {errorMessages.map((message, index) => {
+            return <><text key={index}>{message}</text><br></br></>;
+          })}
+        </div>}
+
       </div>
 
       {/* Instructions memory area */}
@@ -100,6 +114,7 @@ function App() {
 
       {/* Machine area */}
       <div style={{ width: "360px", display: "flex", flexDirection: "column", gap: "16px" }}>
+
         {/* Machine select */}
         <select value={machine.getName()} onChange={(event: ChangeEvent<HTMLSelectElement>) => {
           clearTimeout(timeout);
@@ -164,7 +179,7 @@ function App() {
           <button onClick={() => {
             const sourceCode = window.codeMirrorInstance.getValue();
             machine.setRunning(false);
-            assembler.assemble(sourceCode);
+            setErrorMessages(assembler.build(sourceCode));
             machine.updateInstructionStrings();
           }}>Build</button>
           <div style={{ display: "flex", gap: "8px" }}>
