@@ -9,6 +9,10 @@ import { Machine } from "./Machine";
 
 export class Assembler {
 
+  // Constants
+  private static readonly ALLOCATE_SYMBOL = "%";
+  private static readonly QUOTE_SYMBOL = "¢";
+
   private readonly machine: Machine;
   private readonly pc: Register;
   private buildSuccessful = false;
@@ -61,8 +65,8 @@ export class Assembler {
     // Strip comments and extra spaces
     for (let lineNumber = 0; lineNumber < sourceLines.length; lineNumber++) {
       // Convert literal quotes to special symbol
-      sourceLines[lineNumber] = sourceLines[lineNumber].replaceAll("''''", "'" + Machine.QUOTE_SYMBOL); // '''' . 'QUOTE_SYMBOL
-      sourceLines[lineNumber] = sourceLines[lineNumber].replaceAll("'''", Machine.QUOTE_SYMBOL); // ''' . QUOTE_SYMBOL
+      sourceLines[lineNumber] = sourceLines[lineNumber].replaceAll("''''", "'" + Assembler.QUOTE_SYMBOL); // '''' . 'QUOTE_SYMBOL
+      sourceLines[lineNumber] = sourceLines[lineNumber].replaceAll("'''", Assembler.QUOTE_SYMBOL); // ''' . QUOTE_SYMBOL
 
       // Remove comments
       sourceLines[lineNumber] = this.removeComment(sourceLines[lineNumber]);
@@ -236,7 +240,7 @@ export class Assembler {
       }
 
       // Memory allocation
-      if (argumentList[0][0] === Machine.ALLOCATE_SYMBOL) {
+      if (argumentList[0][0] === Assembler.ALLOCATE_SYMBOL) {
         if (mnemonic !== "dab" && mnemonic !== "daw") {
           throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
         } else if (reserveOnly) {
@@ -407,7 +411,7 @@ export class Assembler {
     //////////////////////////////////////////////////
 
     if (matchBrackets.exactMatch(args)) {
-      finalArgumentList.push(Machine.ALLOCATE_SYMBOL + matchBrackets.cap(1));
+      finalArgumentList.push(Assembler.ALLOCATE_SYMBOL + matchBrackets.cap(1));
       return finalArgumentList;
     }
 
@@ -486,7 +490,7 @@ export class Assembler {
     }
 
     if (isImmediate) {
-      if (argument.includes(Machine.QUOTE_SYMBOL)) { // Immediate quote
+      if (argument.includes(Assembler.QUOTE_SYMBOL)) { // Immediate quote
         return "'".charCodeAt(0);
       } else if (matchChar.exactMatch(argument)) { // Immediate char
         return argument[1].charCodeAt(0); // TODO: Original (number)argument[1].toLatin1();

@@ -7,10 +7,6 @@ import { Conversion } from "./Conversion";
 
 export abstract class Machine extends MachineState {
 
-  // Constants
-  static readonly ALLOCATE_SYMBOL = "%";
-  static readonly QUOTE_SYMBOL = "¢";
-
   //////////////////////////////////////////////////
   // Step
   //////////////////////////////////////////////////
