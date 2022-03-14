@@ -390,7 +390,7 @@ export abstract class Machine extends MachineState {
     return this.memoryGetOperandAddress(immediateAddress, addressingModeCode);
   }
 
-  public memoryReadTwoByteAddress(address: number): number {
+  public memoryReadTwoByteValue(address: number): number {
     if (this.isLittleEndian()) {
       return this.memoryRead(address) + (this.memoryRead(address + 1) << 8);
     } else {
@@ -480,7 +480,7 @@ export abstract class Machine extends MachineState {
   public getNextOperandAddress(): { intermediateAddress: number, intermediateAddress2: number, finalOperandAddress: number } {
     const fetchedValue = this.getMemoryValue(this.getPCValue());
     const instruction = this.getInstructionFromValue(fetchedValue);
-    const addressingModeCode: AddressingModeCode = this.extractAddressingModeCode(fetchedValue);
+    const addressingModeCode = this.extractAddressingModeCode(fetchedValue);
 
     let intermediateAddress = -1;
     const intermediateAddress2 = -1;
@@ -518,7 +518,7 @@ export abstract class Machine extends MachineState {
     return { intermediateAddress, intermediateAddress2, finalOperandAddress };
   }
 
-  public getMemoryTwoByteAddress(address: number): number {
+  public getMemoryTwoByteValue(address: number): number {
     if (this.isLittleEndian()) {
       return this.getMemoryValue(address) + (this.getMemoryValue(address + 1) << 8);
     } else {
