@@ -476,6 +476,10 @@ export abstract class Machine extends MachineState {
   // High-level accessors
   //////////////////////////////////////////////////
 
+  public getDefaultDataStartingAddress(): number {
+    return Math.min(this.getMemorySize() / 2, 1024);
+  }
+
   // Used to highlight the next operand
   public getNextOperandAddress(): { intermediateAddress: number, intermediateAddress2: number, finalOperandAddress: number } {
     const fetchedValue = this.getMemoryValue(this.getPCValue());

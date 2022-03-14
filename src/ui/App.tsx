@@ -40,6 +40,25 @@ window.onerror = function myErrorHandler(errorMessage) {
 const showBusy = () => document.querySelector(".busy")?.classList.add("show-busy");
 const hideBusy = () => document.querySelector(".busy")?.classList.remove("show-busy");
 
+function scrollToFirstInstructionsRow() {
+  const instructionsTable: HTMLElement | null = document.querySelector(".instructions-table");
+  instructionsTable?.scrollTo(0, 0);
+}
+
+function scrollToFirstDataRow() {
+  const firstDataRow: HTMLElement | null = document.querySelector(".first-data-row");
+  if (firstDataRow) {
+    const table = firstDataRow.parentElement!.parentElement!;
+    const header = table.firstChild as HTMLElement;
+    table?.scrollTo(0, firstDataRow.offsetTop - header.offsetHeight);
+  }
+}
+
+function scrollToLastStackRow() {
+  const stackTable: HTMLElement | null = document.querySelector(".stack-table");
+  stackTable?.scrollTo(0, stackTable.scrollHeight);
+}
+
 function App() {
   const [machine, setMachine] = useState(new Neander() as Machine);
   const [assembler, setAssembler] = useState(new Assembler(machine));
@@ -47,7 +66,12 @@ function App() {
 
   let timeout: NodeJS.Timeout;
 
-  useEffect(hideBusy, [machine, assembler]);
+  useEffect(() => {
+    scrollToFirstInstructionsRow();
+    scrollToFirstDataRow();
+    scrollToLastStackRow();
+    hideBusy();
+  }, [machine, assembler]);
 
   return (
     <div style={{ height: "calc(100vh - 32px)", display: "flex", margin: "16px", gap: "16px" }}>
@@ -70,7 +94,7 @@ function App() {
       </div>
 
       {/* Instructions memory area */}
-      <table style={{ height: "100%", display: "block", overflowY: "scroll" }}>
+      <table className="instructions-table" style={{ height: "100%", display: "block", overflowY: "scroll" }}>
         <thead>
           <tr>
             <th>Pos</th>
@@ -103,7 +127,7 @@ function App() {
       </table>
 
       {/* Stack memory area */}
-      {machine instanceof Volta && <table style={{ height: "100%", display: "block", overflowY: "scroll" }}>
+      {machine instanceof Volta && <table className="stack-table" style={{ height: "100%", display: "block", overflowY: "scroll" }}>
         <thead>
           <tr>
             <th>SP</th>

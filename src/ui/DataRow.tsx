@@ -17,7 +17,7 @@ export default function DataRow({ address, machine, assembler }: { address: numb
   }, [machine, address, assembler]);
 
   return (
-    <tr>
+    <tr className={machine.getDefaultDataStartingAddress() === address ? "first-data-row" : undefined}>
       <td style={{ padding: "4px", color: "gray" }}>{address}</td>
       <td><input style={{ width: "50px" }} inputMode="numeric" value={value} onChange={(event) => {
         setValue(String(event.target.value));
