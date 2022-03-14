@@ -31,6 +31,10 @@ export class Register {
     return this.bitPattern;
   }
 
+  public getNumberOfBits() {
+    return this.numOfBits;
+  }
+
   // Returns NO_BIT_CODE if register isn't directly accessible
   public getBitCode(): number {
     if (this.bitPattern === "") {
@@ -61,10 +65,6 @@ export class Register {
   public matchByte(byte: number): boolean {
     const bitPatternRegExp = new QRegExp(this.bitPattern);
     return bitPatternRegExp.exactMatch(Conversion.valueToString(byte));
-  }
-
-  public getNumOfBits(): number {
-    return this.numOfBits;
   }
 
   public isData(): boolean {

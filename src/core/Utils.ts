@@ -1,3 +1,5 @@
+export type EventCallback = ((newValue: unknown, oldValue?: unknown) => void);
+
 export function Q_ASSERT(condition: boolean, message: string): asserts condition {
   if (!condition) {
     throw new Error(`Assertion failure: ${message}`);

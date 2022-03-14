@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { Assembler } from "../core/Assembler";
 import { Machine } from "../core/Machine";
 
-export default function DataRow({ address, machine }: { address: number, machine: Machine }) {
+export default function DataRow({ address, machine, assembler }: { address: number, machine: Machine, assembler: Assembler }) {
   const [value, setValue] = useState(String(machine.getMemoryValue(address)));
-  const [label, setLabel] = useState(machine.getAddressCorrespondingLabel(address));
+  const [label, setLabel] = useState(assembler.getAddressCorrespondingLabel(address));
 
   useEffect(() => {
     // Restore values on machine change
     setValue(String(machine.getMemoryValue(address)));
-    setLabel(machine.getAddressCorrespondingLabel(address));
+    setLabel(assembler.getAddressCorrespondingLabel(address));
 
     // Event subscriptions
     machine.subscribeToEvent(`MEM.${address}`, (newValue) => setValue(String(newValue)));

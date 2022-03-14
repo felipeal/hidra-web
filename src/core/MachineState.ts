@@ -4,9 +4,7 @@ import { Instruction } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
 import { Byte } from "./Byte";
 import { Conversion } from "./Conversion";
-import { Q_ASSERT, validateSize } from "./Utils";
-
-type EventCallback = ((newValue: unknown, oldValue?: unknown) => void);
+import { EventCallback, Q_ASSERT, validateSize } from "./Utils";
 
 interface MachineSettings {
   name: string,
@@ -25,37 +23,25 @@ export abstract class MachineState {
   static readonly ALLOCATE_SYMBOL = "%";
   static readonly QUOTE_SYMBOL = "¢";
 
-  // TODO: Change remaining protected properties to private
-  // TODO: Remove "!"
-
   // Machine setttings (always provided in constructor)
-  protected name!: string;
-  protected identifier!: string;
+  private name!: string;
+  private identifier!: string;
   private memorySize!: number;
   private flags!: Flag[];
   private registers!: Register[];
   private instructions!: Instruction[];
   private addressingModes!: AddressingMode[];
-  protected littleEndian: boolean;
+  private littleEndian: boolean;
 
   private pc: Register;
   private memory: Byte[] = [];
-  protected assemblerMemory: Byte[] = [];
   private instructionStrings: string[] = [];
-  protected reserved: boolean[] = [];
-  protected addressCorrespondingSourceLine: number[] = []; // Each address may be associated with a line of code
-  protected sourceLineCorrespondingAddress: number[] = []; // Each address may be associated with a line of code
-  private addressCorrespondingLabel: string[] = [];
   private changed: boolean[] = [];
-  protected labelPCMap: Map<string, number> = new Map();
-  protected descriptions: Map<string, string> = new Map();
-  protected buildSuccessful!: boolean;
   private running = false;
-  protected firstErrorLine!: number;
   private breakpoint = -1;
   private instructionCount = 0;
   private accessCount = 0;
-  private memoryMask!: number;
+  private memoryMask!: number; // Populated by setMemorySize
   private eventSubscriptions: Record<string, EventCallback[]> = {};
 
   constructor(settings: MachineSettings) {
@@ -88,14 +74,6 @@ export abstract class MachineState {
     this.running = running;
   }
 
-  public getBuildSuccessful(): boolean {
-    return this.buildSuccessful;
-  }
-
-  public getFirstErrorLine(): number {
-    return this.firstErrorLine;
-  }
-
   public getBreakpoint(): number {
     return this.breakpoint;
   }
@@ -121,14 +99,8 @@ export abstract class MachineState {
     this.memorySize = size;
 
     new Array(size).fill(null).forEach(() => this.memory.push(new Byte()));
-    new Array(size).fill(null).forEach(() => this.assemblerMemory.push(new Byte()));
-
     this.instructionStrings = new Array(size).fill("");
-    this.reserved = new Array(size).fill(false);
     this.changed = new Array(size).fill(true);
-    this.addressCorrespondingSourceLine = new Array(size).fill(-1);
-    this.addressCorrespondingLabel = new Array(size).fill("");
-
     this.memoryMask = (size - 1);
   }
 
@@ -174,18 +146,6 @@ export abstract class MachineState {
     for (let i = 0; i < this.instructionStrings.length; i++) {
       this.setInstructionString(i, "");
     }
-  }
-
-  public clearAssemblerData(): void {
-    for (let i = 0; i < this.assemblerMemory.length; i++) {
-      this.assemblerMemory[i].setValue(0);
-      this.reserved[i] = false;
-      this.addressCorrespondingSourceLine[i] = -1;
-      this.setAddressCorrespondingLabel(i, "");
-    }
-
-    this.sourceLineCorrespondingAddress = [];
-    this.labelPCMap.clear();
   }
 
   public getNumberOfFlags(): number {
@@ -371,25 +331,8 @@ export abstract class MachineState {
     this.setPCValue(this.pc.getValue() + units);
   }
 
-  public getPCCorrespondingSourceLine(): number {
-    return (this.addressCorrespondingSourceLine.at(this.pc.getValue()) ?? -1);
-  }
-
-  public getAddressCorrespondingSourceLine(address: number): number {
-    return (this.buildSuccessful) ? (this.addressCorrespondingSourceLine[address] ?? -1) : -1;
-  }
-
-  public getSourceLineCorrespondingAddress(line: number): number {
-    return (this.buildSuccessful) ? (this.sourceLineCorrespondingAddress[line] ?? -1) : -1;
-  }
-
-  public getAddressCorrespondingLabel(address: number): string {
-    return (this.buildSuccessful) ? this.addressCorrespondingLabel[address] : "";
-  }
-
-  protected setAddressCorrespondingLabel(address: number, label: string): void {
-    this.addressCorrespondingLabel[address] = label;
-    this.publishEvent(`LABEL.${address}`, label);
+  public getPCNumberOfBits() {
+    return this.pc.getNumberOfBits();
   }
 
   public getInstructions(): ReadonlyArray<Instruction> {
@@ -450,6 +393,10 @@ export abstract class MachineState {
     return ""; // TODO: Throw?
   }
 
+  public isLittleEndian(): boolean {
+    return this.littleEndian;
+  }
+
   public getInstructionCount(): number {
     return this.instructionCount;
   }
@@ -481,10 +428,11 @@ export abstract class MachineState {
     this.clearFlags();
     this.clearCounters();
     this.clearInstructionStrings();
-    this.clearAssemblerData();
 
     this.setBreakpoint(-1);
     this.setRunning(false);
+
+    throw new Error("assemblerData must also be cleared"); // TODO: Review
   }
 
   public clearAfterBuild(): void {

@@ -45,34 +45,17 @@ export class Pericles extends Machine {
         new AddressingMode("......01", AddressingModeCode.INDIRECT, "(.*),i"),
         new AddressingMode("......10", AddressingModeCode.IMMEDIATE, "#(.*)"),
         new AddressingMode("......11", AddressingModeCode.INDEXED_BY_X, "(.*),x")
-      ]
+      ],
+      littleEndian: true
     });
-
-    this.littleEndian = true;
   }
 
-  // Returns number of bytes reserved
-  public calculateBytesToReserve(addressArgument: string): number {
-    const { addressingModeCode } = this.extractArgumentAddressingModeCode(addressArgument);
-    return (addressingModeCode === AddressingModeCode.IMMEDIATE) ? 2 : 3; // Immediate requires only 2 bytes
-  }
-
-  public decodeInstruction(fetchedValue: number, instruction: Instruction): { addressingModeCode: AddressingModeCode, registerName: string, immediateAddress: number } {
-    const addressingModeCode = this.extractAddressingModeCode(fetchedValue);
-    const registerName = this.extractRegisterName(fetchedValue);
-    let immediateAddress = 0;
-
-    if (instruction && instruction.getNumBytes() === 0) { // If instruction has variable number of bytes
-      immediateAddress = this.getPCValue(); // Address that contains first argument byte
-
-      // Skip argument bytes
-      this.incrementPCValue();
-      if (addressingModeCode !== AddressingModeCode.IMMEDIATE) { // Immediate argument has only 1 byte
-        this.incrementPCValue();
-      }
+  public calculateInstructionNumBytes(instruction: Instruction, addressingModeCode: AddressingModeCode) {
+    if (instruction.getNumBytes() !== 0) {
+      return instruction.getNumBytes();
+    } else { // Variable number of bytes
+      return (addressingModeCode !== AddressingModeCode.IMMEDIATE) ? 2 : 3; // Immediate argument has only 1 byte
     }
-
-    return { addressingModeCode, registerName, immediateAddress };
   }
 
   public memoryGetOperandAddress(immediateAddress: number, addressingModeCode: AddressingModeCode): number {
@@ -139,12 +122,7 @@ export class Pericles extends Machine {
     const addressingModePattern = this.getAddressingModePattern(addressingModeCode);
 
     // Calculate size of argument
-    let argumentsSize;
-    if (instruction.getNumBytes() === 0) { // Instruction with variable number of bytes
-      argumentsSize = (addressingModeCode === AddressingModeCode.IMMEDIATE) ? 1 : 2;
-    } else {
-      argumentsSize = instruction.getNumBytes() - 1;
-    }
+    const argumentsSize = this.calculateInstructionNumBytes(instruction, addressingModeCode) - 1;
 
     // Get argument
     const argumentValue = (argumentsSize === 2) ? this.getMemoryTwoByteAddress(address + 1) : this.getMemoryValue(address + 1);
@@ -152,18 +130,11 @@ export class Pericles extends Machine {
 
     // Add addressing mode syntax
     if (addressingModePattern !== AddressingMode.NO_PATTERN) {
+      // Surround argument string with the corresponding addressing mode syntax
       argument = addressingModePattern.replace("(.*)", argument).toUpperCase();
     }
 
     return { argument, argumentsSize };
-  }
-
-  public memoryReadTwoByteAddress(address: number): number {
-    return this.memoryRead(address) + (this.memoryRead(address + 1) << 8);
-  }
-
-  public getMemoryTwoByteAddress(address: number): number {
-    return this.getMemoryValue(address) + (this.getMemoryValue(address + 1) << 8);
   }
 
 }

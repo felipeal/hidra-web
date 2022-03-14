@@ -4,6 +4,7 @@ import { Machine } from "../core/Machine";
 import { Neander } from "../machines/Neander";
 import { Ahmes } from "../machines/Ahmes";
 import { Ramses } from "../machines/Ramses";
+import { Assembler } from "../core/Assembler";
 
 const resourcesPath = "src/tests/resources";
 
@@ -49,14 +50,15 @@ describe("Memory Comparisons", () => {
   ])("%s: should match Daedalus and original simulators' output", (filePath, { instructions, accesses, extraAccesses, buildOnly }: MemoryComparison) => {
     // Build
     const machine = createMachineBasedOnExtension(filePath.split(".")[1]);
+    const assembler = new Assembler(machine);
     const sourceCode = readTextFile(`${filePath}`);
-    const errorMessages = machine.assemble(sourceCode);
+    const errorMessages = assembler.assemble(sourceCode);
 
     // Test build
     const [expectedMemoryBeforeRunning, expectedIdentifier] = readMachineBinary(filePath.replace(/\..*/, ".build.mem"));
     expect(machine.getIdentifier()).toStrictEqual(expectedIdentifier);
     expect(errorMessages).toStrictEqual([]);
-    expect(machine.getBuildSuccessful()).toBe(true);
+    expect(assembler.getBuildSuccessful()).toBe(true);
     for (let i = 0; i < 256; i++) {
       expect(`MEM[${i}] = ${machine.getMemoryValue(i)}`).toBe(`MEM[${i}] = ${expectedMemoryBeforeRunning[i]}`);
     }

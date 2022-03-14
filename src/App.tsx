@@ -24,6 +24,7 @@ import { Pericles } from "./machines/Pericles";
 import { Reg } from "./machines/Reg";
 import { Volta } from "./machines/Volta";
 import { Texts } from "./core/Texts";
+import { Assembler } from "./core/Assembler";
 
 // Global pointer required for CodeMirror persistence between live-reloads
 declare global {
@@ -37,6 +38,7 @@ window.onerror = function myErrorHandler(errorMessage) {
 
 function App() {
   const [machine, setMachine] = useState(new Neander() as Machine);
+  const [assembler, setAssembler] = useState(new Assembler(machine));
   let timeout: NodeJS.Timeout;
 
   return (
@@ -75,7 +77,7 @@ function App() {
         </thead>
         <tbody>
           {machine.getMemory().map((value, address) => {
-            return <DataRow key={address} address={address} machine={machine} />;
+            return <DataRow key={address} address={address} machine={machine} assembler={assembler} />;
           })}
         </tbody>
       </table>
@@ -101,17 +103,25 @@ function App() {
         {/* Machine select */}
         <select value={machine.getName()} onChange={(event: ChangeEvent<HTMLSelectElement>) => {
           clearTimeout(timeout);
-          switch (event.target.value) {
-            case "Neander": return setMachine(new Neander());
-            case "Ahmes": return setMachine(new Ahmes());
-            case "Ramses": return setMachine(new Ramses());
-            case "Cromag": return setMachine(new Cromag());
-            case "Queops": return setMachine(new Queops());
-            case "Pitagoras": return setMachine(new Pitagoras());
-            case "Pericles": return setMachine(new Pericles());
-            case "REG": return setMachine(new Reg());
-            case "Volta": return setMachine(new Volta());
+
+          function buildMachine(machineName: string): Machine {
+            switch (machineName) {
+              case "Neander": return new Neander();
+              case "Ahmes": return new Ahmes();
+              case "Ramses": return new Ramses();
+              case "Cromag": return new Cromag();
+              case "Queops": return new Queops();
+              case "Pitagoras": return new Pitagoras();
+              case "Pericles": return new Pericles();
+              case "REG": return new Reg();
+              case "Volta": return new Volta();
+              default: throw new Error(`Invalid machine name: ${machineName}`);
+            }
           }
+
+          const newMachine = buildMachine(event.target.value);
+          setMachine(newMachine);
+          setAssembler(new Assembler(newMachine));
         }}>
           <option value="Neander">Neander</option>
           <option value="Ahmes">Ahmes</option>
@@ -152,7 +162,9 @@ function App() {
         {/* Buttons */}
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           <button onClick={() => {
-            machine.assemble(window.codeMirrorInstance.getValue());
+            const sourceCode = window.codeMirrorInstance.getValue();
+            machine.setRunning(false);
+            assembler.assemble(sourceCode);
             machine.updateInstructionStrings();
           }}>Build</button>
           <div style={{ display: "flex", gap: "8px" }}>

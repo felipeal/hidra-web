@@ -10,7 +10,7 @@ export class Volta extends Machine {
   private stack: Byte[] = [];
   private stackChanged: boolean[] = [];
 
-  private stackMask!: number; // TODO: Remove !
+  private stackMask!: number; // Populated by setStackSize
 
   constructor() {
     super({
