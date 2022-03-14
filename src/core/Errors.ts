@@ -21,7 +21,7 @@ export enum MachineErrorCode {
 
 export class MachineError extends Error {
 
-  errorCode: MachineErrorCode;
+  public readonly errorCode: MachineErrorCode;
 
   constructor(errorCode: MachineErrorCode) {
     super();

@@ -1,5 +1,4 @@
 import { MachineState } from "./MachineState";
-import { FileErrorCode } from "./Errors";
 import { FlagCode } from "./Flag";
 import { Instruction, InstructionCode } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
@@ -15,8 +14,6 @@ export abstract class Machine extends MachineState {
   //////////////////////////////////////////////////
   // Step
   //////////////////////////////////////////////////
-
-  //#region Step
 
   public step(): void {
     const { fetchedValue, instruction } = this.fetchInstruction(); // Fetched value may be a byte or a word
@@ -341,13 +338,9 @@ export abstract class Machine extends MachineState {
     }
   }
 
-  //#endregion
-
   //////////////////////////////////////////////////
   // Memory read/write with access count
   //////////////////////////////////////////////////
-
-  //#region Memory read/write with access count
 
   // Increments accessCount
   public memoryRead(address: number): number {
@@ -409,97 +402,9 @@ export abstract class Machine extends MachineState {
     }
   }
 
-  //#endregion
-
-  //////////////////////////////////////////////////
-  // Import/Export memory
-  //////////////////////////////////////////////////
-
-  //#region Import/Export memory
-
-  // Returns true if successful
-  public importMemory(_filename: string): FileErrorCode {
-    throw Error("Not implemented");
-    /*
-      const byte: string;
-      QFile this.memFile(filename); // Implicitly closed
-
-      // Open file
-      memFile.open(QFile.ReadOnly);
-
-      if (memFile.size() !== 1 + this.identifier.length + this.memory.size() * 2)
-          return FileErrorCode.INCORRECT_SIZE;
-
-      // Read identifier length
-      memFile.getChar(&byte);
-      if (byte !== this.identifier.length)
-          return FileErrorCode.INVALID_IDENTIFIER; // Incorrect identifier length
-
-      // Read identifier
-      for (let i = 0; i < this.identifier.length; i++)
-      {
-          memFile.getChar(&byte);
-
-          if (byte !== this.identifier[i].toLatin1())
-              return FileErrorCode.INVALID_IDENTIFIER; // Wrong character
-      }
-
-      // Read memory
-      for (let address = 0; address < this.memory.size(); address++)
-      {
-          memFile.getChar(&byte);
-          this.setMemoryValue(address, byte);
-          memFile.getChar(&byte); // Skip byte
-      }
-
-      // Return error status
-      if (memFile.error() !== QFileDevice.NoError)
-          return FileErrorCode.INPUT_OUTPUT;
-      else
-          return FileErrorCode.NO_ERROR;
-    */
-  }
-
-  // Returns true if successful
-  public exportMemory(_filename: string): FileErrorCode {
-    throw Error("Not implemented");
-    /*
-      QFile this.memFile(filename); // Implicitly closed
-
-      // Open file
-      memFile.open(QFile.WriteOnly);
-
-      // Write identifier length
-      memFile.putChar((unsigned char)this.identifier.length);
-
-      // Write identifier
-      for (let i = 0; i < this.identifier.length; i++)
-      {
-          memFile.putChar(this.identifier[i].toLatin1());
-      }
-
-      // Write memory bytes
-      for (const byte of this.memory)
-      {
-          memFile.putChar(byte.getValue());
-          memFile.putChar(0);
-      }
-
-      // Return error status
-      if (memFile.error() !== QFileDevice.NoError)
-          return FileErrorCode.INPUT_OUTPUT;
-      else
-          return FileErrorCode.NO_ERROR;
-    */
-  }
-
-  //#endregion
-
   //////////////////////////////////////////////////
   // Instruction strings
   //////////////////////////////////////////////////
-
-  //#region Instruction strings
 
   public updateInstructionStrings(): void {
     let address = 0, pendingArgumentBytes = 0; let pcReached = false;
@@ -570,8 +475,6 @@ export abstract class Machine extends MachineState {
     const argumentsSize = instruction.getNumBytes() - 1;
     return { argument, argumentsSize };
   }
-
-  //#endregion
 
   //////////////////////////////////////////////////
   // High-level accessors
