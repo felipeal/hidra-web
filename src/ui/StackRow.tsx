@@ -17,7 +17,7 @@ export default function StackRow({ address, voltaMachine }: { address: number, v
       }
     });
     voltaMachine.subscribeToEvent(`STACK.${address}`, (newValue) => setValue(String(newValue)));
-  }, [voltaMachine, address]);
+  }, [voltaMachine]);
 
   return (
     <tr>

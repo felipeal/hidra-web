@@ -9,12 +9,18 @@ export default function DataRow({ address, machine, assembler }: { address: numb
   useEffect(() => {
     // Restore values on machine change
     setValue(String(machine.getMemoryValue(address)));
-    setLabel(assembler.getAddressCorrespondingLabel(address));
 
     // Event subscriptions
     machine.subscribeToEvent(`MEM.${address}`, (newValue) => setValue(String(newValue)));
-    machine.subscribeToEvent(`LABEL.${address}`, (newValue) => setLabel(String(newValue)));
-  }, [machine, address, assembler]);
+  }, [machine]);
+
+  useEffect(() => {
+    // Restore values on assembler change
+    setLabel(assembler.getAddressCorrespondingLabel(address));
+
+    // Event subscriptions
+    assembler.subscribeToEvent(`LABEL.${address}`, (newValue) => setLabel(String(newValue)));
+  }, [assembler]);
 
   return (
     <tr className={machine.getDefaultDataStartingAddress() === address ? "first-data-row" : undefined}>
