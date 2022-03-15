@@ -1,31 +1,39 @@
 @import 'codemirror/lib/codemirror.css';
 @import 'codemirror/theme/material.css';
 
+body {
+  margin: 0;
+}
+
+body, button, select, input {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 select, fieldset, button, table, input {
   font-size: 14px;
 }
 
-code,
-.monospace-font,
-.CodeMirror {
+code, .monospace-font, .CodeMirror {
   font-family: Consolas, 'Courier New', monospace;
+}
+
+.CodeMirror {
+  font-size: 1rem;
 }
 
 /*******************************************************************************
  * Left area (code editor and error messages)
  *******************************************************************************/
 
-.code-editor,
-.error-messages {
+.code-editor, .error-messages {
   border: 1px solid;
 }
 
 .error-message {
   color: #a00;
-}
-
-.CodeMirror {
-  font-size: 1rem;
 }
 
 .react-codemirror2, .CodeMirror {

@@ -1,5 +1,3 @@
-import "./App.css";
-
 import React, { ChangeEvent, useEffect, useState } from "react";
 import codemirror from "codemirror";
 
