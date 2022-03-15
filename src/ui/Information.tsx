@@ -17,7 +17,7 @@ export default function Information({ machine }: { machine: Machine }) {
 
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
-      Instructions: {instructionCount} - Accesses: {accessCount}
+      Instruções: {instructionCount} - Acessos: {accessCount}
     </div>
   );
 }

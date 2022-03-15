@@ -99,10 +99,10 @@ function App() {
       <table className="instructions-table" style={{ height: "100%", display: "block", overflowY: "scroll" }}>
         <thead>
           <tr>
-            <th>Pos</th>
-            <th>Address</th>
-            <th>Value</th>
-            <th>Instruction</th>
+            <th>PC</th>
+            <th>End.</th>
+            <th>Valor</th>
+            <th>Instrução</th>
           </tr>
         </thead>
         <tbody>
@@ -116,8 +116,8 @@ function App() {
       <table style={{ height: "100%", display: "block", overflowY: "scroll" }}>
         <thead>
           <tr>
-            <th>Address</th>
-            <th>Value</th>
+            <th>End.</th>
+            <th>Valor</th>
             <th>Label</th>
           </tr>
         </thead>
@@ -133,8 +133,8 @@ function App() {
         <thead>
           <tr>
             <th>SP</th>
-            <th>Address</th>
-            <th>Value</th>
+            <th>End.</th>
+            <th>Valor</th>
           </tr>
         </thead>
         <tbody>
@@ -184,7 +184,7 @@ function App() {
         </select>
 
         {/* Busy state */}
-        <div className="show-if-busy" style={{ display: "flex", width: "100%", flex: 1, justifyContent: "center", alignItems: "center" }}>Loading...</div>
+        <div className="show-if-busy" style={{ display: "flex", width: "100%", flex: 1, justifyContent: "center", alignItems: "center" }}>Inicializando...</div>
 
         {/* Flags */}
         {(machine.getFlags().length > 1) && (
@@ -200,7 +200,7 @@ function App() {
 
         {/* Registers */}
         <fieldset className="hide-if-busy" style={{ paddingTop: "32px", paddingBottom: "32px", overflow: "auto" }}>
-          <legend>Registers</legend>
+          <legend>Registradores</legend>
           <div style={{ display: "grid", justifyContent: "center", gridTemplateColumns: "112px 112px", justifyItems: "center", gap: "16px", flexWrap: "wrap" }}>
             {machine.getRegisters().map((register, index) => {
               return <RegisterWidget key={index} name={register.getName()} machine={machine} />;
@@ -220,7 +220,7 @@ function App() {
             machine.setRunning(false);
             setErrorMessages(assembler.build(sourceCode));
             machine.updateInstructionStrings();
-          }}>Build</button>
+          }}>Montar</button>
           <div style={{ display: "flex", gap: "8px" }}>
             <button style={{ flex: 1 }} onClick={() => {
               machine.setRunning(false);
@@ -229,7 +229,7 @@ function App() {
                 machine.setRegisterValueByName("SP", 0);
               }
               machine.clearCounters();
-            }}>Reset PC</button>
+            }}>Zerar PC</button>
             <button style={{ flex: 1 }} onClick={() => {
               machine.setRunning(!machine.isRunning());
               const nextStep = function () {
@@ -239,10 +239,10 @@ function App() {
                 }
               };
               nextStep();
-            }}>Run</button>
+            }}>Rodar</button>
             <button style={{ flex: 1 }} onClick={() => {
               machine.step();
-            }}>Step</button>
+            }}>Passo</button>
           </div>
         </div>
 
@@ -251,7 +251,7 @@ function App() {
 
         {/* Instructions */}
         <fieldset className="hide-if-busy">
-          <legend>Instructions</legend>
+          <legend>Instruções</legend>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px" }}>
             {machine.getInstructions().map((instruction, index) => {
               let assemblyFormat = [instruction.getMnemonic().toUpperCase(), ...instruction.getArguments()].join(" ");
@@ -270,7 +270,7 @@ function App() {
         {/* Addressing modes */}
         {(machine.getAddressingModes().length > 1) && (
           <fieldset className="hide-if-busy">
-            <legend>Addressing modes</legend>
+            <legend>Modos de end.</legend>
             <div style={{
               display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px",
               justifyContent: (machine.getAddressingModes().length > 2 ? "left" : "center")
