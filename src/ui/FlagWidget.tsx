@@ -14,7 +14,7 @@ export default function FlagWidget({ name, machine }: { name: string, machine: M
 
   return (
     <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", gap: "4px" }}>
-      <input id={`flag-${name}-input`} type={"checkbox"} checked={value} disabled={true} />
+      <input className="machine-flag" id={`flag-${name}-input`} type="checkbox" checked={value} disabled={true} />
       <label htmlFor={`flag-${name}-input`}>{name}</label>
     </div>
   );

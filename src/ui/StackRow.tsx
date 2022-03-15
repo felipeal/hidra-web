@@ -21,9 +21,9 @@ export default function StackRow({ address, voltaMachine }: { address: number, v
 
   return (
     <tr>
-      <td style={{ padding: "4px" }}>{isCurrentStackPos ? "→" : ""}</td>
-      <td style={{ padding: "4px", color: "gray" }}>{address}</td>
-      <td><input style={{ width: "50px" }} inputMode="numeric" value={value} onChange={(event) => {
+      <td>{isCurrentStackPos ? "→" : ""}</td>
+      <td className="table-address">{address}</td>
+      <td><input className="table-value" inputMode="numeric" value={value} onChange={(event) => {
         setValue(String(event.target.value));
       }} onBlur={(event) => {
         voltaMachine.setStackValue(address, Number(event.target.value)); // Write value to stack on focus out

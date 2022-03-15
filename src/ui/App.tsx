@@ -79,27 +79,27 @@ function App() {
     <div style={{ height: "calc(100vh - 32px)", display: "flex", margin: "16px", gap: "16px" }}>
 
       {/***********************************************************************
-        * Code area
+        * Left area (code editor and error messages)
         **********************************************************************/}
 
       <div style={{ height: "100%", flex: 1, display: "flex", flexDirection: "column", overflowX: "auto", minWidth: "20rem" }}>
 
         {/* Code editor */}
-        <div style={{ border: "1px solid", flex: 1, overflowY: "auto" }}>
+        <div className="code-editor" style={{ flex: 1, overflowY: "auto" }}>
           <CodeEditor machine={machine} />
         </div>
 
         {/* Error messages */}
-        {(errorMessages.length > 0) && <div style={{ border: "1px solid", flex: 0.125, marginTop: "16px", overflow: "auto", padding: "4px" }}>
+        {(errorMessages.length > 0) && <div className="error-messages monospace-font" style={{ flex: 0.125, marginTop: "16px", overflow: "auto", padding: "4px" }}>
           {errorMessages.map((message, index) => {
-            return <><text key={index}>{message}</text><br></br></>;
+            return <><text className="error-message" key={index}>{message}</text><br></br></>;
           })}
         </div>}
 
       </div>
 
       {/***********************************************************************
-        * Memory areas
+        * Middle area (memory tables)
         **********************************************************************/}
 
       {/* Instructions memory area */}
@@ -152,7 +152,7 @@ function App() {
       </table>}
 
       {/***********************************************************************
-        * Machine area
+        * Right area (machine)
         **********************************************************************/}
 
       <div style={{ width: "360px", minWidth: "360px", display: "inline-flex", flexDirection: "column", overflowY: "auto" }}>
@@ -263,10 +263,8 @@ function App() {
             {machine.getInstructions().map((instruction, index) => {
               let assemblyFormat = [instruction.getMnemonic().toUpperCase(), ...instruction.getArguments()].join(" ");
               assemblyFormat = assemblyFormat.replace("a0", "a").replace("a1", "b");
-              const isWide = (assemblyFormat.length > 7); // TODO: Revisit layout
-              return <div style={{
-                width: "56px", whiteSpace: "nowrap", fontFamily: "monospace",
-                marginLeft: (isWide ? "0" : "16px"), marginRight: (isWide ? "16px" : "0")
+              return <div className="monospace-font" style={{
+                minWidth: "56px", whiteSpace: "nowrap", marginLeft: "16px", marginRight: "0"
               }} key={index}>
                 {assemblyFormat}
               </div>;
@@ -279,11 +277,10 @@ function App() {
           <fieldset className="hide-if-busy">
             <legend>Modos de end.</legend>
             <div style={{
-              display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px",
-              justifyContent: (machine.getAddressingModes().length > 2 ? "left" : "center")
+              display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px"
             }}>
               {machine.getAddressingModes().map((addressingMode, index) => {
-                return <div style={{ width: "56px", marginLeft: "16px", fontFamily: "monospace" }} key={index}>
+                return <div className="monospace-font" style={{ width: "56px", marginLeft: "16px" }} key={index}>
                   {addressingMode.getAssemblyPattern().toUpperCase().replace("(.*)", "a") || "a"}
                 </div>;
               })}

@@ -24,14 +24,14 @@ export default function InstructionsRow({ address, machine }: { address: number,
 
   return (
     <tr>
-      <td style={{ padding: "4px" }}>{isCurrentPos ? "→" : ""}</td>
-      <td style={{ padding: "4px", color: "gray" }}>{address}</td>
-      <td><input style={{ width: "50px" }} inputMode="numeric" value={value} onChange={(event) => {
+      <td>{isCurrentPos ? "→" : ""}</td>
+      <td className="table-address">{address}</td>
+      <td><input className="table-value" inputMode="numeric" value={value} onChange={(event) => {
         setValue(String(event.target.value));
       }} onBlur={(event) => {
         machine.setMemoryValue(address, Number(event.target.value)); // Write value to memory on focus out
       }} /></td>
-      <td style={{ padding: "4px" }}>{instructionString}</td>
+      <td>{instructionString}</td>
     </tr>
   );
 }

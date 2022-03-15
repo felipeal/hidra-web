@@ -1,106 +1,32 @@
 @import 'codemirror/lib/codemirror.css';
 @import 'codemirror/theme/material.css';
 
-/*******************************************************************************
- * General
- ******************************************************************************/
-
-html, body {
-  margin: 0;
+select, fieldset, button, table, input {
+  font-size: 14px;
 }
 
-textarea {
-  margin: 0;
-}
-
-select {
-  background-color: #eee;
-  border: none;
-  border-radius: 4px;
-  padding: 8px;
-}
-
-fieldset {
-  border: 1px solid #999;
-  margin-top: 6px;
-  border-radius: 4px;
-}
-
-legend {
-  padding-left: 4px;
-  padding-right: 4px;
+code,
+.monospace-font,
+.CodeMirror {
+  font-family: Consolas, 'Courier New', monospace;
 }
 
 /*******************************************************************************
- * Buttons
- ******************************************************************************/
+ * Left area (code editor and error messages)
+ *******************************************************************************/
 
-button {
-  background-color: #eee;
-  color: #222;
-  border: none;
-  border-radius: 4px;
-  padding: 8px;
-  cursor: pointer;
+.code-editor,
+.error-messages {
+  border: 1px solid;
 }
 
-button:hover {
-  background-color: #ddd;
+.error-message {
+  color: #a00;
 }
 
-button:active {
-  background-color: #aaa;
+.CodeMirror {
+  font-size: 1rem;
 }
-
-/*******************************************************************************
- * Tables
- ******************************************************************************/
-
-table {
-  border: 1px solid rgb(103, 103, 116);
-  border-collapse: collapse;
-}
-
-table input {
-  font-size: 16px;
-  padding: 4px;
-  border: none;
-}
-
-th, td {
-  border: 1px solid #ddd;
-  border-collapse: collapse;
-}
-
-th {
-  padding: 4px;
-  font-weight: unset;
-  background-color: #eee;
-  padding-left: 8px;
-  padding-right: 8px;
-  position: sticky;
-  top: 0;
-}
-
-/* Remove double borders */
-table tr:first-child th {
-  border-top: 0;
-}
-table tr:last-child td {
-  border-bottom: 0;
-}
-table tr td:first-child,
-table tr th:first-child {
-  border-left: 0;
-}
-table tr td:last-child,
-table tr th:last-child {
-  border-right: 0;
-}
-
-/*******************************************************************************
- * Code Editor
- ******************************************************************************/
 
 .react-codemirror2, .CodeMirror {
   height: 100%;
@@ -121,8 +47,111 @@ table tr th:last-child {
   color: green;
 }
 
-.CodeMirror * {
-  font-size: 1rem;
+/*******************************************************************************
+ * Middle area (memory tables)
+ ******************************************************************************/
+
+table {
+  border: 1px solid rgb(103, 103, 116);
+  border-collapse: collapse;
+}
+table input {
+  border: none;
+}
+th, td {
+  border: 1px solid #ddd;
+}
+td {
+  padding: 4px;
+}
+th {
+  padding: 4px;
+  font-weight: unset;
+  background-color: #eee;
+  padding-left: 4px;
+  padding-right: 12px;
+  text-align: left;
+  position: sticky;
+  top: 0;
+}
+
+/* Remove double borders */
+table tr:first-child th {
+  border-top: 0;
+}
+table tr:last-child td {
+  border-bottom: 0;
+}
+table tr td:first-child,
+table tr th:first-child {
+  border-left: 0;
+}
+table tr td:last-child,
+table tr th:last-child {
+  border-right: 0;
+}
+
+.table-address {
+  color: gray;
+}
+
+.table-value {
+  width: 50px;
+}
+
+/*******************************************************************************
+ * Right area (machine)
+ ******************************************************************************/
+
+select {
+  background-color: #eee;
+  border: none;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+fieldset {
+  border: 1px solid #999;
+  margin-top: 6px;
+  border-radius: 4px;
+}
+fieldset legend {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.machine-flag {
+  width: 1.25em;
+  height: 1.25em;
+  transform: translate(0, -0.125em);
+  background-color: white;
+  border: 1px solid #666;
+  border-radius: 50%;
+  appearance: none;
+}
+
+.machine-flag:checked {
+  background-color: #9e9;
+}
+
+.machine-register-display {
+  border: 1px solid #444;
+  border-radius: 3px;
+}
+
+button {
+  background-color: #eee;
+  color: #222;
+  border: none;
+  border-radius: 4px;
+  padding: 8px;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #ddd;
+}
+button:active {
+  background-color: #aaa;
 }
 
 /*******************************************************************************

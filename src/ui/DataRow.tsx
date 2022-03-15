@@ -24,13 +24,13 @@ export default function DataRow({ address, machine, assembler }: { address: numb
 
   return (
     <tr className={machine.getDefaultDataStartingAddress() === address ? "first-data-row" : undefined}>
-      <td style={{ padding: "4px", color: "gray" }}>{address}</td>
-      <td><input style={{ width: "50px" }} inputMode="numeric" value={value} onChange={(event) => {
+      <td className="table-address">{address}</td>
+      <td><input className="table-value" inputMode="numeric" value={value} onChange={(event) => {
         setValue(String(event.target.value));
       }} onBlur={(event) => {
         machine.setMemoryValue(address, Number(event.target.value)); // Write value to memory on focus out
       }} /></td>
-      <td style={{ padding: "4px", maxWidth: "10rem", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</td>
+      <td style={{ maxWidth: "10rem", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</td>
     </tr>
   );
 }

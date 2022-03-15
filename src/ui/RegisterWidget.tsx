@@ -15,7 +15,7 @@ export default function RegisterWidget({ name, machine }: { name: string, machin
   return (
     <div style={{ display: "flex", flexDirection: "row", justifyContent: "end", alignItems: "center", gap: "8px", width: "128px" }}>
       <label htmlFor={`register-${name}-div`}>{name}</label>
-      <div id={`register-${name}-div`} style={{ border: "1px solid", padding: "4px", width: "64px", marginRight: "16px" }}>{value}</div>
+      <div className="machine-register-display" id={`register-${name}-div`} style={{ padding: "4px", width: "64px", marginRight: "16px" }}>{value}</div>
     </div>
   );
 }
