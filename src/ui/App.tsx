@@ -78,11 +78,14 @@ function App() {
   return (
     <div style={{ height: "calc(100vh - 32px)", display: "flex", margin: "16px", gap: "16px" }}>
 
-      {/* Code area */}
-      <div style={{ height: "100%", flex: 1, display: "flex", flexDirection: "column" }}>
+      {/***********************************************************************
+        * Code area
+        **********************************************************************/}
+
+      <div style={{ height: "100%", flex: 1, display: "flex", flexDirection: "column", overflowX: "auto", minWidth: "20rem" }}>
 
         {/* Code editor */}
-        <div style={{ border: "1px solid", flex: 1, overflow: "auto" }}>
+        <div style={{ border: "1px solid", flex: 1, overflowY: "auto" }}>
           <CodeEditor machine={machine} />
         </div>
 
@@ -95,8 +98,12 @@ function App() {
 
       </div>
 
+      {/***********************************************************************
+        * Memory areas
+        **********************************************************************/}
+
       {/* Instructions memory area */}
-      <table className="instructions-table" style={{ height: "100%", display: "block", overflowY: "scroll" }}>
+      <table className="instructions-table" style={{ height: "100%", display: "block", overflowY: "scroll", minWidth: "10rem" }}>
         <thead>
           <tr>
             <th>PC</th>
@@ -113,7 +120,7 @@ function App() {
       </table>
 
       {/* Data memory area */}
-      <table style={{ height: "100%", display: "block", overflowY: "scroll" }}>
+      <table style={{ height: "100%", display: "block", overflowY: "scroll", tableLayout: "fixed", minWidth: "10rem" }}>
         <thead>
           <tr>
             <th>End.</th>
@@ -129,7 +136,7 @@ function App() {
       </table>
 
       {/* Stack memory area */}
-      {machine instanceof Volta && <table className="stack-table" style={{ height: "100%", display: "block", overflowY: "scroll" }}>
+      {machine instanceof Volta && <table className="stack-table" style={{ height: "100%", display: "block", overflowY: "scroll", minWidth: "8rem" }}>
         <thead>
           <tr>
             <th>SP</th>
@@ -144,8 +151,11 @@ function App() {
         </tbody>
       </table>}
 
-      {/* Machine area */}
-      <div style={{ width: "360px", display: "flex", flexDirection: "column", gap: "16px" }}>
+      {/***********************************************************************
+        * Machine area
+        **********************************************************************/}
+
+      <div style={{ width: "360px", minWidth: "360px", display: "inline-flex", flexDirection: "column", overflowY: "auto" }}>
 
         {/* Machine select */}
         <select className="hide-if-busy" value={machine.getName()} onChange={(event: ChangeEvent<HTMLSelectElement>) => {
@@ -183,9 +193,6 @@ function App() {
           <option value="Volta">Volta</option>
         </select>
 
-        {/* Busy state */}
-        <div className="show-if-busy" style={{ display: "flex", width: "100%", flex: 1, justifyContent: "center", alignItems: "center" }}>Inicializando...</div>
-
         {/* Flags */}
         {(machine.getFlags().length > 1) && (
           <fieldset className="hide-if-busy" style={{ paddingTop: "16px", paddingBottom: "16px" }}>
@@ -209,7 +216,7 @@ function App() {
         </fieldset>
 
         {/* Information */}
-        <fieldset className="hide-if-busy" style={{ paddingTop: "16px", paddingBottom: "16px" }}>
+        <fieldset className="hide-if-busy" style={{ marginTop: "16px", marginBottom: "16px", paddingTop: "16px", paddingBottom: "16px" }}>
           <Information machine={machine} />
         </fieldset>
 
@@ -247,7 +254,7 @@ function App() {
         </div>
 
         {/* Separator */}
-        <div className="hide-if-busy" style={{ flexGrow: 1 }} />
+        <div className="hide-if-busy" style={{ minHeight: "16px", flexGrow: 1 }} />
 
         {/* Instructions */}
         <fieldset className="hide-if-busy">
@@ -283,6 +290,9 @@ function App() {
             </div>
           </fieldset>
         )}
+
+        {/* Busy state */}
+        <div className="show-if-busy" style={{ display: "flex", width: "100%", flex: 1, justifyContent: "center", alignItems: "center" }}>Inicializando...</div>
 
       </div>
     </div>

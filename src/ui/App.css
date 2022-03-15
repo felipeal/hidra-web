@@ -16,13 +16,19 @@ textarea {
 select {
   background-color: #eee;
   border: none;
+  border-radius: 4px;
   padding: 8px;
 }
 
-input {
-  font-size: 16px;
-  padding: 4px;
-  border: none;
+fieldset {
+  border: 1px solid #999;
+  margin-top: 6px;
+  border-radius: 4px;
+}
+
+legend {
+  padding-left: 4px;
+  padding-right: 4px;
 }
 
 /*******************************************************************************
@@ -31,7 +37,9 @@ input {
 
 button {
   background-color: #eee;
+  color: #222;
   border: none;
+  border-radius: 4px;
   padding: 8px;
   cursor: pointer;
 }
@@ -51,6 +59,12 @@ button:active {
 table {
   border: 1px solid rgb(103, 103, 116);
   border-collapse: collapse;
+}
+
+table input {
+  font-size: 16px;
+  padding: 4px;
+  border: none;
 }
 
 th, td {

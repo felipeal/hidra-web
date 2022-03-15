@@ -30,7 +30,7 @@ export default function DataRow({ address, machine, assembler }: { address: numb
       }} onBlur={(event) => {
         machine.setMemoryValue(address, Number(event.target.value)); // Write value to memory on focus out
       }} /></td>
-      <td style={{ padding: "4px" }}>{label}</td>
+      <td style={{ padding: "4px", maxWidth: "10rem", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</td>
     </tr>
   );
 }
