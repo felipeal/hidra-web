@@ -23,7 +23,6 @@ import { Pitagoras } from "../machines/Pitagoras";
 import { Pericles } from "../machines/Pericles";
 import { Reg } from "../machines/Reg";
 import { Volta } from "../machines/Volta";
-import { Texts } from "../core/Texts";
 import { Assembler } from "../core/Assembler";
 
 // Global pointer required for CodeMirror persistence between live-reloads
@@ -35,10 +34,6 @@ window.onerror = function myErrorHandler(errorMessage) {
   alert(`Error: ${errorMessage}`);
   return false;
 };
-
-// Busy state handling
-const showBusy = () => document.querySelector(".busy")?.classList.add("show-busy");
-const hideBusy = () => document.querySelector(".busy")?.classList.remove("show-busy");
 
 function scrollToFirstInstructionsRow() {
   const instructionsTable: HTMLElement | null = document.querySelector(".instructions-table");
@@ -59,9 +54,15 @@ function scrollToLastStackRow() {
   stackTable?.scrollTo(0, stackTable.scrollHeight);
 }
 
+const initialMachine = new Neander() as Machine;
+const initialAssembler = new Assembler(initialMachine);
+
+// Busy state handling
+const showBusy = () => document.body.classList.add("is-busy");
+const hideBusy = () => document.body.classList.remove("is-busy");
+
 function App() {
-  const [machine, setMachine] = useState(new Neander() as Machine);
-  const [assembler, setAssembler] = useState(new Assembler(machine));
+  const [[machine, assembler], setState] = useState([initialMachine, initialAssembler]);
   const [errorMessages, setErrorMessages] = useState([] as string[]);
 
   let timeout: NodeJS.Timeout;
@@ -70,6 +71,7 @@ function App() {
     scrollToFirstInstructionsRow();
     scrollToFirstDataRow();
     scrollToLastStackRow();
+
     hideBusy();
   }, [machine, assembler]);
 
@@ -146,7 +148,7 @@ function App() {
       <div style={{ width: "360px", display: "flex", flexDirection: "column", gap: "16px" }}>
 
         {/* Machine select */}
-        <select value={machine.getName()} onChange={(event: ChangeEvent<HTMLSelectElement>) => {
+        <select className="hide-if-busy" value={machine.getName()} onChange={(event: ChangeEvent<HTMLSelectElement>) => {
           clearTimeout(timeout);
 
           function buildMachine(machineName: string): Machine {
@@ -167,9 +169,8 @@ function App() {
           const newMachine = buildMachine(event.target.value);
           showBusy();
           setTimeout(() => {
-            setMachine(newMachine);
-            setAssembler(new Assembler(newMachine));
-          }, 0);
+            setState([newMachine, new Assembler(newMachine)]);
+          });
         }}>
           <option value="Neander">Neander</option>
           <option value="Ahmes">Ahmes</option>
@@ -182,9 +183,12 @@ function App() {
           <option value="Volta">Volta</option>
         </select>
 
+        {/* Busy state */}
+        <div className="show-if-busy" style={{ display: "flex", width: "100%", flex: 1, justifyContent: "center", alignItems: "center" }}>Loading...</div>
+
         {/* Flags */}
         {(machine.getFlags().length > 1) && (
-          <fieldset style={{ paddingTop: "16px", paddingBottom: "16px" }}>
+          <fieldset className="hide-if-busy" style={{ paddingTop: "16px", paddingBottom: "16px" }}>
             <legend>Flags</legend>
             <div style={{ display: "flex", justifyContent: "center", gap: "16px" }}>
               {machine.getFlags().map((flag, index) => {
@@ -195,7 +199,7 @@ function App() {
         )}
 
         {/* Registers */}
-        <fieldset style={{ paddingTop: "32px", paddingBottom: "32px", overflow: "auto" }}>
+        <fieldset className="hide-if-busy" style={{ paddingTop: "32px", paddingBottom: "32px", overflow: "auto" }}>
           <legend>Registers</legend>
           <div style={{ display: "grid", justifyContent: "center", gridTemplateColumns: "112px 112px", justifyItems: "center", gap: "16px", flexWrap: "wrap" }}>
             {machine.getRegisters().map((register, index) => {
@@ -205,12 +209,12 @@ function App() {
         </fieldset>
 
         {/* Information */}
-        <fieldset style={{ paddingTop: "16px", paddingBottom: "16px" }}>
+        <fieldset className="hide-if-busy" style={{ paddingTop: "16px", paddingBottom: "16px" }}>
           <Information machine={machine} />
         </fieldset>
 
         {/* Buttons */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <div className="hide-if-busy" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           <button onClick={() => {
             const sourceCode = window.codeMirrorInstance.getValue();
             machine.setRunning(false);
@@ -243,10 +247,10 @@ function App() {
         </div>
 
         {/* Separator */}
-        <div style={{ flexGrow: 1 }} />
+        <div className="hide-if-busy" style={{ flexGrow: 1 }} />
 
         {/* Instructions */}
-        <fieldset>
+        <fieldset className="hide-if-busy">
           <legend>Instructions</legend>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px" }}>
             {machine.getInstructions().map((instruction, index) => {
@@ -265,7 +269,7 @@ function App() {
 
         {/* Addressing modes */}
         {(machine.getAddressingModes().length > 1) && (
-          <fieldset>
+          <fieldset className="hide-if-busy">
             <legend>Addressing modes</legend>
             <div style={{
               display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px",

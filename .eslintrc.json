@@ -61,6 +61,7 @@
       "anonymous": "always",
       "asyncArrow": "always"
     }],
-    "eol-last": "warn"
+    "eol-last": "warn",
+    "no-constant-condition": "warn"
   }
 }
