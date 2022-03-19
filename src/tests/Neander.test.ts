@@ -3,7 +3,7 @@ import { Neander } from "../machines/Neander";
 
 describe("Neander", () => {
 
-  let neander = new Neander();
+  let neander: Neander;
 
   beforeEach(() => {
     neander = new Neander();
@@ -21,7 +21,7 @@ describe("Neander", () => {
     expect(neander.getPCValue()).toBe(0);
   });
 
-  test("step: should increment pc for 2-byte instructions", () => {
+  test("step: should increment PC for 2-byte instructions", () => {
     expect(neander.getPCValue()).toBe(0);
     neander.setMemoryValue(0, 48); // ADD
     neander.step();
