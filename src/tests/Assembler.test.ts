@@ -7,11 +7,10 @@ import { Ramses } from "../machines/Ramses";
 const machine = new Ramses();
 const assembler = new Assembler(machine);
 
-function expectSuccess(line: string, memory: number[]) {
+function expectSuccess(line: string, expectedMemory: number[]) {
   expect(assembler.build(line)).toDeepEqual([], line);
-  for (let i = 0; i < memory.length; i++) {
-    expect(machine.getMemoryValue(i)).toDeepEqual(memory[i], line);
-  }
+  const actualMemory = Object.keys(expectedMemory).map((pos) => machine.getMemoryValue(Number(pos)));
+  expect(actualMemory).toDeepEqual(expectedMemory, line);
 }
 
 function expectError(line: string, errorCode: AssemblerErrorCode, lineNumber = 1) {
@@ -149,7 +148,14 @@ describe("Labels", () => {
   test("should reject duplicate labels", () => {
     expectSuccess("Label1:\nLabel2:\nDB 1", [1]);
     expectError("Label:\nLabel:", AssemblerErrorCode.DUPLICATE_LABEL, 2);
-    expectError("LABEL:\nlabel:", AssemblerErrorCode.DUPLICATE_LABEL, 2); // Case-insensitive
+    expectError("LABEL:\nlabel:", AssemblerErrorCode.DUPLICATE_LABEL, 2); // Case-insensitive duplicate
+  });
+
+  test("should correctly follow ORG directive", () => {
+    expectSuccess("Label: ORG 2\nDB Label", [0, 0, 0]); // Label before ORG
+    expectSuccess("Label: ORG 2\nJMP Label", [0, 0, 128, 0]); // Label before ORG
+    expectSuccess("ORG 2\nLabel: DB Label", [0, 0, 2]); // Label after ORG
+    expectSuccess("ORG 2\nLabel: JMP Label", [0, 0, 128, 2]); // Label after ORG
   });
 
 });
@@ -172,9 +178,10 @@ describe("Directives", () => {
     expectSuccess("DB\nDB 1", [0, 1]); // No argument: defaults to zero
     expectSuccess("DB '0'", [48]); // Single character
     expectSuccess("DB '''", [39]); // Single quote character
-    expectSuccess("DB -128", [128]); // Lower bound (two's complement)
-    expectSuccess("DB 255", [255]); // Upper bound
+    expectSuccess("ORG 1\nLabel: DB Label", [0, 1]); // Label
     expectSuccess("DB hFF", [255]); // Hexadecimal
+    expectSuccess("DB -128", [128]); // Lower bound
+    expectSuccess("DB 255", [255]); // Upper bound
     expectError("DB -129", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
     expectError("DB 256", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
     expectError("DB 1 2", AssemblerErrorCode.TOO_MANY_ARGUMENTS); // Extra arguments
@@ -189,6 +196,8 @@ describe("Directives", () => {
     expectSuccess("DW\nDB 1", [0, 0, 1]); // No argument: defaults to zero
     expectSuccess("DW '0'", [0, 48]); // Single character
     expectSuccess("DW '''", [0, 39]); // Single quote character
+    expectSuccess("ORG 1\nLabel: DW Label", [0, 0, 1]); // Label
+    expectSuccess("DW hFF", [0, 255]); // Hexadecimal
     expectSuccess("DW -32768", [128, 0]); // Lower bound
     expectSuccess("DW 65535", [255, 255]); // Upper bound
     expectError("DW -32769", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
