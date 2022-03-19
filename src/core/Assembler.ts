@@ -10,21 +10,20 @@ import { Machine } from "./Machine";
 export class Assembler {
 
   // Constants
-  private static readonly ALLOCATE_SYMBOL = "%";
-  private static readonly QUOTE_SYMBOL = "¢";
+  protected static readonly ALLOCATE_SYMBOL = "%";
+  protected static readonly QUOTE_SYMBOL = "¢";
 
-  private readonly machine: Machine;
+  protected readonly machine: Machine;
+  protected reserved: boolean[];
+  protected buildSuccessful = false;
+  protected firstErrorLine = -1;
+
   private readonly pc: Register;
-  private buildSuccessful = false;
-  private firstErrorLine = -1;
-
   private assemblerMemory: Byte[] = [];
-  private reserved: boolean[];
   private addressCorrespondingSourceLine: number[];
   private sourceLineCorrespondingAddress: number[] = [];
   private addressCorrespondingLabel: string[];
   private labelPCMap: Map<string, number> = new Map();
-
   private eventSubscriptions: Record<string, EventCallback[]> = {};
 
   constructor(machine: Machine) {
@@ -191,7 +190,7 @@ export class Assembler {
     return [];
   }
 
-  public removeComment(line: string) {
+  protected removeComment(line: string) {
     let isInsideString = false;
     for (let i = 0; i < line.length; i++) {
       if (line[i] === "'") {
@@ -204,7 +203,7 @@ export class Assembler {
   }
 
   // Mnemonic must be lowercase
-  public obeyDirective(mnemonic: string, args: string, reserveOnly: boolean, sourceLine: number): void {
+  protected obeyDirective(mnemonic: string, args: string, reserveOnly: boolean, sourceLine: number): void {
     const whitespace = new QRegExp("\\s+");
 
     if (mnemonic === "org") {
@@ -273,7 +272,7 @@ export class Assembler {
     }
   }
 
-  public buildInstruction(instruction: Instruction, args: string): void {
+  protected buildInstruction(instruction: Instruction, args: string): void {
     const whitespace = new QRegExp("\\s+");
 
     const argumentList = args.split(whitespace).filter(argument => /\S/.test(argument)); // Filters out empty strings
@@ -325,13 +324,13 @@ export class Assembler {
   }
 
   // Increments PC
-  public setAssemblerMemoryNext(value: number): void {
+  protected setAssemblerMemoryNext(value: number): void {
     this.assemblerMemory[this.getPCValue()].setValue(value);
     this.incrementPCValue();
   }
 
   // Copies assemblerMemory to machine's memory
-  public copyAssemblerMemoryToMemory(): void {
+  protected copyAssemblerMemoryToMemory(): void {
     for (let i = 0; i < this.machine.getMemorySize(); i++) {
       // Copy only different values to avoid marking bytes as changed
       if (this.machine.getMemoryValue(i) !== this.assemblerMemory[i].getValue()) {
@@ -341,7 +340,7 @@ export class Assembler {
   }
 
   // Reserve 'sizeToReserve' bytes starting from PC, associate addresses with a source line. Throws exception on overlap.
-  public reserveAssemblerMemory(sizeToReserve: number, associatedSourceLine: number): void {
+  protected reserveAssemblerMemory(sizeToReserve: number, associatedSourceLine: number): void {
     while (sizeToReserve > 0) {
       if (!this.reserved[this.getPCValue()]) {
         this.reserved[this.getPCValue()] = true;
@@ -354,7 +353,7 @@ export class Assembler {
     }
   }
 
-  public isValidValue(valueString: string, min: number, max: number): boolean {
+  protected isValidValue(valueString: string, min: number, max: number): boolean {
     let ok = false;
     let value: number;
 
@@ -371,7 +370,7 @@ export class Assembler {
   }
 
   // Checks if string is a valid number for the machine
-  public isValidNBytesValue(valueString: string, n: number): boolean {
+  protected isValidNBytesValue(valueString: string, n: number): boolean {
     if (n === 1) {
       return this.isValidValue(valueString, -128, 255);
     } else {
@@ -379,19 +378,19 @@ export class Assembler {
     }
   }
 
-  public isValidByteValue(valueString: string): boolean { // FIXME: Unused
+  protected isValidByteValue(valueString: string): boolean { // FIXME: Unused
     return this.isValidValue(valueString, -128, 255);
   }
 
-  public isValidAddress(addressString: string): boolean { // Allows negative values for offsets
+  protected isValidAddress(addressString: string): boolean { // Allows negative values for offsets
     return this.isValidValue(addressString, -this.machine.getMemorySize(), this.machine.getMemorySize() - 1);
   }
 
-  public isValidOrg(offsetString: string): boolean {
+  protected isValidOrg(offsetString: string): boolean {
     return this.isValidValue(offsetString, 0, this.machine.getMemorySize() - 1);
   }
 
-  public splitArguments(args: string): string[] {
+  protected splitArguments(args: string): string[] {
     const finalArgumentList: string[] = [];
 
     // Regular expressions
@@ -449,7 +448,7 @@ export class Assembler {
     return finalArgumentList;
   }
 
-  public extractArgumentAddressingModeCode(argument: string): { argument: string, addressingModeCode: AddressingModeCode } {
+  protected extractArgumentAddressingModeCode(argument: string): { argument: string, addressingModeCode: AddressingModeCode } {
     let addressingModeCode = this.machine.getDefaultAddressingModeCode();
 
     for (const addressingMode of this.machine.getAddressingModes()) {
@@ -465,7 +464,7 @@ export class Assembler {
     return { argument, addressingModeCode };
   }
 
-  public argumentToValue(argument: string, isImmediate: boolean, immediateNumBytes = 1): number {
+  protected argumentToValue(argument: string, isImmediate: boolean, immediateNumBytes = 1): number {
     const matchChar = new QRegExp("'.'");
     const labelOffset = new QRegExp("(.+)(\\+|\\-)(.+)"); // (label) (+|-) (offset)
 
@@ -509,7 +508,7 @@ export class Assembler {
   }
 
   // TODO: Move to conversions?
-  public stringToInt(valueString: string): number {
+  protected stringToInt(valueString: string): number {
     if (valueString.toLowerCase().startsWith("h")) {
       return parseInt(valueString.slice(1), 16); // Remove H
     } else {
@@ -550,7 +549,7 @@ export class Assembler {
     return (this.buildSuccessful) ? this.addressCorrespondingLabel[address] : "";
   }
 
-  public clearAssemblerData(): void {
+  protected clearAssemblerData(): void {
     for (let i = 0; i < this.assemblerMemory.length; i++) {
       this.assemblerMemory[i].setValue(0);
       this.reserved[i] = false;
@@ -567,15 +566,15 @@ export class Assembler {
     this.publishEvent(`LABEL.${address}`, label);
   }
 
-  public getPCValue(): number {
+  protected getPCValue(): number {
     return this.pc.getValue();
   }
 
-  public setPCValue(value: number): void {
+  protected setPCValue(value: number): void {
     this.pc.setValue(value);
   }
 
-  public incrementPCValue(units = 1): void {
+  protected incrementPCValue(units = 1): void {
     this.setPCValue(this.pc.getValue() + units);
   }
 
