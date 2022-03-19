@@ -3,7 +3,7 @@ import { QRegExp } from "./Utils";
 
 export class Register {
 
-  static NO_BIT_CODE = -1;
+  public static readonly NO_BIT_CODE = -1;
 
   private readonly name: string;
   private readonly bitPattern: string; // Empty string if not directly accessible
@@ -40,7 +40,7 @@ export class Register {
     if (this.bitPattern === "") {
       return Register.NO_BIT_CODE;
     } else {
-      return Conversion.stringToValue(this.bitPattern);
+      return Conversion.bitPatternToByteValue(this.bitPattern);
     }
   }
 
@@ -64,7 +64,7 @@ export class Register {
 
   public matchByte(byte: number): boolean {
     const bitPatternRegExp = new QRegExp(this.bitPattern);
-    return bitPatternRegExp.exactMatch(Conversion.valueToString(byte));
+    return bitPatternRegExp.exactMatch(Conversion.byteValueToBitPattern(byte));
   }
 
   public isData(): boolean {

@@ -43,7 +43,7 @@ export class Instruction {
   }
 
   public matchByte(byte: number): boolean {
-    return this.byteRegExp.exactMatch(Conversion.valueToString(byte));
+    return this.byteRegExp.exactMatch(Conversion.byteValueToBitPattern(byte));
   }
 
   public getMnemonic(): string {
@@ -59,7 +59,7 @@ export class Instruction {
   }
 
   public getByteValue(): number {
-    return Conversion.stringToValue(this.bitPattern);
+    return Conversion.bitPatternToByteValue(this.bitPattern);
   }
 
   public getNumBytes(): number {

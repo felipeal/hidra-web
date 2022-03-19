@@ -2,7 +2,7 @@ import { AssemblerError, AssemblerErrorCode } from "./Errors";
 import { Register } from "./Register";
 import { Instruction } from "./Instruction";
 import { AddressingModeCode } from "./AddressingMode";
-import { buildArray, EventCallback, QRegExp } from "./Utils";
+import { buildArray, range, EventCallback, QRegExp } from "./Utils";
 import { Texts } from "./Texts";
 import { Byte } from "./Byte";
 import { Machine } from "./Machine";
@@ -55,7 +55,7 @@ export class Assembler {
     const sourceLines = sourceCode.split(/\r?\n/); // Split source code to individual lines
 
     // Strip comments and extra spaces
-    for (let lineIndex = 0; lineIndex < sourceLines.length; lineIndex++) {
+    for (const lineIndex of range(sourceLines.length)) {
       // Convert literal quotes to special symbol
       sourceLines[lineIndex] = sourceLines[lineIndex].replaceAll("''''", "'" + Assembler.QUOTE_SYMBOL); // '''' . 'QUOTE_SYMBOL
       sourceLines[lineIndex] = sourceLines[lineIndex].replaceAll("'''", Assembler.QUOTE_SYMBOL); // ''' . QUOTE_SYMBOL
@@ -74,7 +74,7 @@ export class Assembler {
     this.clearAssemblerData();
     this.setPCValue(0);
 
-    for (let lineIndex = 0; lineIndex < sourceLines.length; lineIndex++) {
+    for (const lineIndex of range(sourceLines.length)) {
       try {
 
         //////////////////////////////////////////////////
@@ -147,7 +147,7 @@ export class Assembler {
     this.sourceLineCorrespondingAddress = new Array(sourceLines.length).fill(-1);
     this.setPCValue(0);
 
-    for (let lineIndex = 0; lineIndex < sourceLines.length; lineIndex++) {
+    for (const lineIndex of range(sourceLines.length)) {
       try {
         this.sourceLineCorrespondingAddress[lineIndex] = this.getPCValue();
 
@@ -190,7 +190,7 @@ export class Assembler {
 
   protected removeComment(line: string) {
     let isInsideString = false;
-    for (let i = 0; i < line.length; i++) {
+    for (const i of range(line.length)) {
       if (line[i] === "'") {
         isInsideString = !isInsideString;
       } else if (line[i] === ";" && !isInsideString) {
@@ -326,7 +326,7 @@ export class Assembler {
 
   // Copies assemblerMemory to machine's memory
   protected copyAssemblerMemoryToMemory(): void {
-    for (let i = 0; i < this.machine.getMemorySize(); i++) {
+    for (const i of range(this.machine.getMemorySize())) {
       // Copy only different values to avoid marking bytes as changed
       if (this.machine.getMemoryValue(i) !== this.assemblerMemory[i].getValue()) {
         this.machine.setMemoryValue(i, this.assemblerMemory[i].getValue());
@@ -563,7 +563,7 @@ export class Assembler {
   }
 
   protected clearAssemblerData(): void {
-    for (let i = 0; i < this.assemblerMemory.length; i++) {
+    for (const i of range(this.assemblerMemory.length)) {
       this.assemblerMemory[i].setValue(0);
       this.reserved[i] = false;
       this.addressCorrespondingSourceLine[i] = -1;

@@ -4,7 +4,7 @@ import { Instruction } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
 import { Byte } from "./Byte";
 import { Conversion } from "./Conversion";
-import { buildArray, EventCallback, Q_ASSERT, validateSize } from "./Utils";
+import { buildArray, range, EventCallback, Q_ASSERT, validateSize } from "./Utils";
 
 interface MachineSettings {
   name: string,
@@ -123,8 +123,8 @@ export abstract class MachineState {
   }
 
   public clearMemory(): void {
-    for (let i = 0; i < this.memory.length; i++) {
-      this.setMemoryValue(i, 0);
+    for (const address of range(this.memory.length)) {
+      this.setMemoryValue(address, 0);
     }
   }
 
@@ -138,8 +138,8 @@ export abstract class MachineState {
   }
 
   public clearInstructionStrings(): void {
-    for (let i = 0; i < this.instructionStrings.length; i++) {
-      this.setInstructionString(i, "");
+    for (const address of range(this.instructionStrings.length)) {
+      this.setInstructionString(address, "");
     }
   }
 
@@ -160,13 +160,12 @@ export abstract class MachineState {
   }
 
   public getFlagValueByName(flagName: string): boolean {
-    for (const flag of this.flags) {
-      if (flag.getName() === flagName) {
-        return flag.getValue();
-      }
+    const flag = this.flags.find(flag => flag.getName() === flagName);
+    if (!flag) {
+      throw new Error(`Invalid flag name: ${flagName}`);
     }
 
-    throw new Error(`Invalid flag name: ${flagName}`);
+    return flag.getValue();
   }
 
   public setFlagValueById(id: number, value: boolean): void {
@@ -175,24 +174,23 @@ export abstract class MachineState {
   }
 
   public setFlagValueByName(flagName: string, value: boolean): void {
-    for (const flag of this.flags) {
-      if (flag.getName() === flagName) {
-        flag.setValue(value);
-        this.publishEvent(`FLAG.${flag.getName()}`, value);
-        return;
-      }
+    const flag = this.flags.find(flag => flag.getName() === flagName);
+    if (!flag) {
+      throw new Error(`Invalid flag name: ${flagName}`);
     }
 
-    throw new Error(`Invalid flag name: ${flagName}`);
+    flag.setValue(value);
+    this.publishEvent(`FLAG.${flag.getName()}`, value);
   }
 
   public setFlagValueByFlagCode(flagCode: FlagCode, value: boolean): void {
-    for (const flag of this.flags) {
-      if (flag.getFlagCode() === flagCode) {
-        flag.setValue(value);
-        this.publishEvent(`FLAG.${flag.getName()}`, value);
-      }
+    const flag = this.flags.find(flag => flag.getFlagCode() === flagCode);
+    if (!flag) {
+      return; // Flag type not available, safe to skip
     }
+
+    flag.setValue(value);
+    this.publishEvent(`FLAG.${flag.getName()}`, value);
   }
 
   public clearFlags(): void {
@@ -203,13 +201,7 @@ export abstract class MachineState {
   }
 
   public hasFlag(flagCode: FlagCode): boolean { // TODO: Use get by flag code
-    for (const flag of this.flags) {
-      if (flag.getFlagCode() === flagCode) {
-        return true;
-      }
-    }
-
-    return false;
+    return this.flags.some(flag => flag.getFlagCode() === flagCode);
   }
 
   public getNumberOfRegisters(): number {
@@ -220,15 +212,14 @@ export abstract class MachineState {
     return this.registers;
   }
 
-  // -1 if no code
+  // Returns Register.NO_BIT_CODE if no code
   public getRegisterBitCode(registerName: string): number {
-    for (const register of this.registers) {
-      if (register.getName().toLowerCase() === registerName.toLowerCase()) {
-        return register.getBitCode();
-      }
+    const register = this.registers.find(register => register.getName().toLowerCase() === registerName.toLowerCase());
+    if (!register) {
+      return Register.NO_BIT_CODE; // Register not found
     }
 
-    return Register.NO_BIT_CODE; // Register not found
+    return register.getBitCode();
   }
 
   public getRegisterName(id: number): string {
@@ -242,13 +233,7 @@ export abstract class MachineState {
   }
 
   public hasRegister(registerName: string): boolean {
-    for (const register of this.registers) {
-      if (register.getName().toLowerCase() === registerName.toLowerCase()) {
-        return true;
-      }
-    }
-
-    return false;
+    return this.registers.some(register => register.getName().toLowerCase() === registerName.toLowerCase());
   }
 
   public getRegisterValueById(id: number, signedData = false): number {
@@ -264,13 +249,12 @@ export abstract class MachineState {
       return 0;
     }
 
-    for (const register of this.registers) {
-      if (register.getName().toLowerCase() === registerName.toLowerCase()) {
-        return register.getValue();
-      }
+    const register = this.registers.find(register => register.getName().toLowerCase() === registerName.toLowerCase());
+    if (!register) {
+      throw new Error(`Invalid register name: ${registerName}`);
     }
 
-    throw new Error(`Invalid register name: ${registerName}`);
+    return register.getValue();
   }
 
   public setRegisterValueById(id: number, value: number): void {
@@ -285,16 +269,14 @@ export abstract class MachineState {
       return;
     }
 
-    for (const register of this.registers) {
-      if (register.getName().toLowerCase() === registerName.toLowerCase()) {
-        const oldValue = register.getValue();
-        register.setValue(value);
-        this.publishEvent(`REG.${registerName}`, register.getValue(), oldValue);
-        return;
-      }
+    const register = this.registers.find(register => register.getName().toLowerCase() === registerName.toLowerCase());
+    if (!register) {
+      throw new Error(`Invalid register name: ${registerName}`);
     }
 
-    throw new Error(`Invalid register name: ${registerName}`);
+    const oldValue = register.getValue();
+    register.setValue(value);
+    this.publishEvent(`REG.${registerName}`, register.getValue(), oldValue);
   }
 
   public isRegisterData(id: number): boolean {
@@ -336,23 +318,11 @@ export abstract class MachineState {
   }
 
   public getInstructionFromValue(value: number): Instruction | null {
-    for (const instruction of this.instructions) {
-      if (instruction.matchByte(value)) {
-        return instruction;
-      }
-    }
-
-    return null;
+    return this.instructions.find(instruction => instruction.matchByte(value)) || null;
   }
 
   public getInstructionFromMnemonic(mnemonic: string): Instruction | null {
-    for (const instruction of this.instructions) {
-      if (instruction.getMnemonic() === mnemonic) {
-        return instruction;
-      }
-    }
-
-    return null;
+    return this.instructions.find(instruction => instruction.getMnemonic() === mnemonic) || null;
   }
 
   public getAddressingModes(): ReadonlyArray<AddressingMode> {
@@ -360,33 +330,33 @@ export abstract class MachineState {
   }
 
   public getDefaultAddressingModeCode(): AddressingModeCode {
-    for (const addressingMode of this.addressingModes) {
-      if (addressingMode.getAssemblyPattern() === AddressingMode.NO_PATTERN) {
-        return addressingMode.getAddressingModeCode();
-      }
+    const defaultAddressingMode = this.addressingModes.find(
+      addressingMode => addressingMode.getAssemblyPattern() === AddressingMode.NO_PATTERN
+    );
+
+    if (!defaultAddressingMode) {
+      throw new Error("No default addressing mode found.");
     }
 
-    throw new Error("No default addressing mode found.");
+    return defaultAddressingMode.getAddressingModeCode();
   }
 
   public getAddressingModeBitCode(addressingModeCode: AddressingModeCode): number {
-    for (const addressingMode of this.addressingModes) {
-      if (addressingMode.getAddressingModeCode() === addressingModeCode) {
-        return Conversion.stringToValue(addressingMode.getBitPattern());
-      }
+    const addressingMode = this.addressingModes.find(addressingMode => addressingMode.getAddressingModeCode() === addressingModeCode);
+    if (!addressingMode) {
+      throw new Error(`Invalid addressing mode code: ${addressingModeCode}`);
     }
 
-    throw new Error(`Invalid addressing mode code: ${addressingModeCode}`);
+    return Conversion.bitPatternToByteValue(addressingMode.getBitPattern());
   }
 
   public getAddressingModePattern(addressingModeCode: AddressingModeCode): string {
-    for (const addressingMode of this.addressingModes) {
-      if (addressingMode.getAddressingModeCode() === addressingModeCode) {
-        return addressingMode.getAssemblyPattern();
-      }
+    const addressingMode = this.addressingModes.find(addressingMode => addressingMode.getAddressingModeCode() === addressingModeCode);
+    if (!addressingMode) {
+      return ""; // TODO: Throw?
     }
 
-    return ""; // TODO: Throw?
+    return addressingMode.getAssemblyPattern();
   }
 
   public isLittleEndian(): boolean {

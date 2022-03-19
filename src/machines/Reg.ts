@@ -16,7 +16,7 @@ export class Reg extends Machine {
       ],
       registers: [
         ...buildArray(64, (registerId) => {
-          const bitPattern = ".." + Conversion.valueToString(registerId).substring(2); // "..000000" to "..111111"
+          const bitPattern = ".." + Conversion.byteValueToBitPattern(registerId).substring(2); // "..000000" to "..111111"
           return new Register("R" + String(registerId), bitPattern, 8);
         }),
         new Register("PC", "", 8, false)

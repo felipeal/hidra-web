@@ -3,7 +3,7 @@ import { Register } from "../core/Register";
 import { Instruction, InstructionCode } from "../core/Instruction";
 import { AddressingMode, AddressingModeCode } from "../core/AddressingMode";
 import { Byte } from "../core/Byte";
-import { buildArray, validateSize } from "../core/Utils";
+import { buildArray, range, validateSize } from "../core/Utils";
 
 export class Volta extends Machine {
 
@@ -368,8 +368,8 @@ export class Volta extends Machine {
   }
 
   public clearStack(): void {
-    for (let i = 0; i < this.stack.length; i++) {
-      this.setStackValue(i, 0);
+    for (const address of range(this.stack.length)) {
+      this.setStackValue(address, 0);
     }
   }
 

@@ -31,6 +31,10 @@ export function validateSize(size: number): void {
   Q_ASSERT((size === 1), "Memory/Stack sizes must be powers of two for the masks to work.");
 }
 
+export function range(length: number): number[] {
+  return Object.keys(new Array(length).fill(undefined)).map(index => Number(index));
+}
+
 export function buildArray<T>(length: number, buildFunction: (index: number) => T): T[] {
-  return Object.keys(new Array(length).fill(undefined)).map(index => Number(index)).map(buildFunction);
+  return range(length).map(buildFunction);
 }

@@ -280,7 +280,7 @@ export abstract class Machine extends MachineState {
     for (const addressingMode of this.getAddressingModes()) {
       const matchAddressingMode = new QRegExp(addressingMode.getBitPattern());
 
-      if (matchAddressingMode.exactMatch(Conversion.valueToString(fetchedValue))) {
+      if (matchAddressingMode.exactMatch(Conversion.byteValueToBitPattern(fetchedValue))) {
         return addressingMode.getAddressingModeCode();
       }
     }

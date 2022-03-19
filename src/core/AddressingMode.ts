@@ -26,7 +26,7 @@ export class AddressingMode {
   }
 
   public getBitCode(): number {
-    return Conversion.stringToValue(this.bitPattern);
+    return Conversion.bitPatternToByteValue(this.bitPattern);
   }
 
   public getAddressingModeCode(): AddressingModeCode {
