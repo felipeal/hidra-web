@@ -10,7 +10,6 @@ import { Machine } from "./Machine";
 export class Assembler {
 
   // Constants
-  protected static readonly ALLOCATE_SYMBOL = "%";
   protected static readonly WHITESPACE = new QRegExp("\\s+");
   protected static readonly QUOTE_SYMBOL = "\uFFFF"; // Reserved unicode character
 
@@ -217,36 +216,34 @@ export class Assembler {
 
       this.setPCValue(this.stringToInt(argumentList[0]));
     } else if (new QRegExp("db|dw|dab|daw").exactMatch(mnemonic)) {
-      const argumentList = this.splitArguments(args);
+      const { argumentList, isAllocate } = this.splitArguments(args);
 
-      let numberOfArguments = argumentList.length;
       const bytesPerArgument = (mnemonic === "db" || mnemonic === "dab") ? 1 : 2;
-      const isArray = (mnemonic === "dab" || mnemonic === "daw") ? true : false;
+      const isDefineArray = (mnemonic === "dab" || mnemonic === "daw");
 
-      if (bytesPerArgument === 1 && numberOfArguments === 0) {
+      if (!isDefineArray && argumentList.length === 0) {
         argumentList.push("0"); // Default to argument 0 in case of DB and DW
-        numberOfArguments = 1;
       }
 
-      if (!isArray && numberOfArguments > 1) { // Too many arguments
-        throw new AssemblerError(AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS);
+      if (!isDefineArray && argumentList.length > 1) { // Too many arguments
+        throw new AssemblerError(AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS); // TODO: Error specific to strings too?
       }
 
-      if (isArray && numberOfArguments < 1) { // No arguments
+      if (isDefineArray && argumentList.length < 1) { // No arguments
         throw new AssemblerError(AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS);
       }
 
       // Memory allocation
-      if (argumentList[0][0] === Assembler.ALLOCATE_SYMBOL) {
+      if (isAllocate) {
         if (mnemonic !== "dab" && mnemonic !== "daw") {
           throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
         } else if (reserveOnly) {
-          this.reserveAssemblerMemory(Number(argumentList[0].slice(1)) * bytesPerArgument, sourceLine); // TODO: Is this correct?
+          this.reserveAssemblerMemory(Number(argumentList[0]) * bytesPerArgument, sourceLine); // TODO: Is this correct?
         } else { // Skip bytes
-          this.incrementPCValue(Number(argumentList[0].slice(1)) * bytesPerArgument);
+          this.incrementPCValue(Number(argumentList[0]) * bytesPerArgument);
         }
       } else if (reserveOnly) {
-        this.reserveAssemblerMemory(numberOfArguments * bytesPerArgument, sourceLine); // Increments PC
+        this.reserveAssemblerMemory(argumentList.length * bytesPerArgument, sourceLine); // Increments PC
       } else {
         // Process each argument
         for (const argument of argumentList) {
@@ -386,7 +383,7 @@ export class Assembler {
     return this.isValidValue(offsetString, 0, this.machine.getMemorySize() - 1);
   }
 
-  protected splitArguments(args: string): string[] {
+  protected splitArguments(args: string): { argumentList: string[], isAllocate: boolean } {
     const finalArgumentList: string[] = [];
 
     // Regular expressions
@@ -406,8 +403,7 @@ export class Assembler {
     //////////////////////////////////////////////////
 
     if (matchBrackets.exactMatch(args)) {
-      finalArgumentList.push(Assembler.ALLOCATE_SYMBOL + matchBrackets.cap(1));
-      return finalArgumentList;
+      return { argumentList: [matchBrackets.cap(1)], isAllocate: true };
     }
 
     //////////////////////////////////////////////////
@@ -441,7 +437,7 @@ export class Assembler {
       throw new AssemblerError(AssemblerErrorCode.INVALID_STRING);
     }
 
-    return finalArgumentList;
+    return { argumentList: finalArgumentList, isAllocate: false };
   }
 
   protected extractArgumentAddressingModeCode(argument: string): { argument: string, addressingModeCode: AddressingModeCode } {
