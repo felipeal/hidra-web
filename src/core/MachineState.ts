@@ -19,10 +19,6 @@ interface MachineSettings {
 
 export abstract class MachineState {
 
-  // Constants
-  static readonly ALLOCATE_SYMBOL = "%";
-  static readonly QUOTE_SYMBOL = "¢";
-
   // Machine setttings (always provided in constructor)
   private name!: string;
   private identifier!: string;
@@ -41,7 +37,7 @@ export abstract class MachineState {
   private breakpoint = -1;
   private instructionCount = 0;
   private accessCount = 0;
-  private memoryMask!: number; // Populated by setMemorySize
+  private memoryMask!: number; // Memory address mask, populated by setMemorySize
   private eventSubscriptions: Record<string, EventCallback[]> = {};
 
   constructor(settings: MachineSettings) {
@@ -111,7 +107,7 @@ export abstract class MachineState {
   public setMemoryValue(address: number, value: number): void {
     const validAddress = address & this.memoryMask;
 
-    this.memory[validAddress].setValue(value); // TODO: Review memoryMask vs addressMask (also in C++)
+    this.memory[validAddress].setValue(value);
     this.changed[validAddress] = true;
     this.publishEvent(`MEM.${address}`, this.memory[validAddress].getValue());
   }

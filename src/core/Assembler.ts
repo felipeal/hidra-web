@@ -247,7 +247,7 @@ export class Assembler {
       } else {
         // Process each argument
         for (const argument of argumentList) {
-          // TODO: Should DAB/DAW disallow labels as in Daedalus?
+          // TODO: Should labels only be allowed in DB/DW and not in DAB/DAW to replicate Daedalus?
           const value = this.argumentToValue(argument, true, bytesPerArgument);
 
           // Write value

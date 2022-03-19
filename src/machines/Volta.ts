@@ -8,9 +8,7 @@ import { validateSize } from "../core/Utils";
 export class Volta extends Machine {
 
   private stack: Byte[] = [];
-  private stackChanged: boolean[] = [];
-
-  private stackMask!: number; // Populated by setStackSize
+  private stackMask!: number; // Stack address mask, populated by setStackSize
 
   constructor() {
     super({
@@ -348,10 +346,7 @@ export class Volta extends Machine {
 
   public setStackSize(size: number): void {
     validateSize(size);
-
     new Array(size).fill(null).forEach(() => this.stack.push(new Byte()));
-    this.stackChanged = new Array(size).fill(true);
-
     this.stackMask = (size - 1);
   }
 
