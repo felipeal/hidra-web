@@ -49,12 +49,6 @@ export class Assembler {
     const errorMessages: string[] = [];
 
     //////////////////////////////////////////////////
-    // Regular expressions
-    //////////////////////////////////////////////////
-
-    const validLabel = new QRegExp("[a-z_][a-z0-9_]*"); // Validates label names (must start with a letter/underline, may have numbers)
-
-    //////////////////////////////////////////////////
     // Simplify source code
     //////////////////////////////////////////////////
 
@@ -80,6 +74,7 @@ export class Assembler {
     this.clearAssemblerData();
     this.setPCValue(0);
 
+    // TODO: Change lineNumber to lineIndex everywhere
     for (let lineNumber = 0; lineNumber < sourceLines.length; lineNumber++) {
       try {
 
@@ -90,17 +85,19 @@ export class Assembler {
         if (sourceLines[lineNumber].includes(":")) { // If getLabel found a label
           const labelName = sourceLines[lineNumber].split(":")[0];
 
-          // Check for invalid or duplicated label
-          if (!validLabel.exactMatch(labelName.toLowerCase())) {
+          // Check for invalid label name
+          if (!this.isValidLabelFormat(labelName)) {
             throw new AssemblerError(AssemblerErrorCode.INVALID_LABEL);
           }
+
+          // Check for duplicate label
           if (this.labelPCMap.has(labelName.toLowerCase())) {
             throw new AssemblerError(AssemblerErrorCode.DUPLICATE_LABEL);
           }
 
           this.labelPCMap.set(labelName.toLowerCase(), this.getPCValue()); // Add to map
           this.setAddressCorrespondingLabel(this.getPCValue(), labelName);
-          sourceLines[lineNumber] = sourceLines[lineNumber].replaceAll(labelName + ":", "").trim(); // Remove label from sourceLines
+          sourceLines[lineNumber] = sourceLines[lineNumber].replaceAll(labelName + ":", "").trim(); // Remove label from line
         }
 
         //////////////////////////////////////////////////
@@ -346,35 +343,50 @@ export class Assembler {
     }
   }
 
+  // Validates label names (must start with a letter/underline, may have numbers)
+  protected isValidLabelFormat(labelName: string): boolean {
+    const validLabel = new QRegExp("[a-z_][a-z0-9_]*");
+    return validLabel.exactMatch(labelName.toLowerCase());
+  }
+
+  // Returns true if conversion ok and value between min and max (closed interval)
   protected isValidValue(valueString: string, min: number, max: number): boolean {
-    let ok = false;
-    let value: number;
+    return this.isValidValueFormat(valueString) && this.isValueInRange(valueString, min, max);
+  }
 
-    if (valueString.toLowerCase().startsWith("h")) {
-      value = parseInt(valueString.slice(1), 16); // Remove "h"
-      ok = /^[0-9A-Fa-f]+$/.test(valueString.slice(1)) && !isNaN(value);
+  protected isValidValueFormat(valueString: string): boolean {
+    valueString = valueString.toLowerCase();
+
+    if (valueString.startsWith("h")) {
+      return /^h[0-9a-f]{1,6}$/.test(valueString); // TODO: Forbid negative on Hidra C++?
     } else {
-      value = parseInt(valueString, 10);
-      ok = /^-?\d+$/.test(valueString) && !isNaN(value);
+      return /^-?\d{1,6}$/.test(valueString);
     }
+  }
 
-    // Returns true if conversion ok and value between min and max
-    return (ok && value >= min && value <= max);
+  // Does not validate valueString. Both min and max are valid (closed interval)
+  protected isValueInRange(valueString: string, min: number, max: number): boolean {
+    if (valueString.toLowerCase().startsWith("h")) {
+      const value = parseInt(valueString.slice(1), 16); // Remove "h"
+      return (value >= min && value <= max);
+    } else {
+      const value = parseInt(valueString, 10);
+      return (value >= min && value <= max);
+    }
   }
 
   // Checks if string is a valid number for the machine
   protected isValidNBytesValue(valueString: string, n: number): boolean {
     if (n === 1) {
       return this.isValidValue(valueString, -128, 255);
-    } else {
+    } else if (n === 2) {
       return this.isValidValue(valueString, -32768, 65535);
+    } else {
+      throw new Error("Invalid number of bytes: " + n);
     }
   }
 
-  protected isValidByteValue(valueString: string): boolean { // FIXME: Unused
-    return this.isValidValue(valueString, -128, 255);
-  }
-
+  // TODO: Shouldn't it also allow positive offsets to overflow memory?
   protected isValidAddress(addressString: string): boolean { // Allows negative values for offsets
     return this.isValidValue(addressString, -this.machine.getMemorySize(), this.machine.getMemorySize() - 1);
   }
@@ -464,8 +476,8 @@ export class Assembler {
     if (labelOffset.exactMatch(argument.toLowerCase())) {
       const sign = (labelOffset.cap(2) === "+") ? +1 : -1;
 
-      if (!this.labelPCMap.has(labelOffset.cap(1))) { // Validate label
-        throw new AssemblerError(AssemblerErrorCode.INVALID_LABEL);
+      if (!this.labelPCMap.has(labelOffset.cap(1))) { // Validate label's existence
+        throw new AssemblerError(AssemblerErrorCode.INVALID_LABEL); // TODO: Distinguish between not found vs invalid syntax?
       }
       if (!this.isValidAddress(labelOffset.cap(3))) { // Validate offset
         throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
