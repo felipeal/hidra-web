@@ -11,6 +11,7 @@ export class Assembler {
 
   // Constants
   protected static readonly ALLOCATE_SYMBOL = "%";
+  protected static readonly WHITESPACE = new QRegExp("\\s+");
   protected static readonly QUOTE_SYMBOL = "\uFFFF"; // Reserved unicode character
 
   protected readonly machine: Machine;
@@ -53,7 +54,6 @@ export class Assembler {
     //////////////////////////////////////////////////
 
     const validLabel = new QRegExp("[a-z_][a-z0-9_]*"); // Validates label names (must start with a letter/underline, may have numbers)
-    const whitespace = new QRegExp("\\s+");
 
     //////////////////////////////////////////////////
     // Simplify source code
@@ -109,21 +109,21 @@ export class Assembler {
         //////////////////////////////////////////////////
 
         if (sourceLines[lineNumber].length > 0) {
-          const mnemonic = sourceLines[lineNumber].split(whitespace)[0].toLowerCase();
+          const mnemonic = sourceLines[lineNumber].split(Assembler.WHITESPACE)[0].toLowerCase();
 
           const instruction = this.machine.getInstructionFromMnemonic(mnemonic);
           if (instruction !== null) {
             let numBytes = instruction.getNumBytes();
 
             if (numBytes === 0) { // If instruction has variable number of bytes
-              const addressArgument = sourceLines[lineNumber].split(whitespace).slice(-1).join(" "); // Last argument
+              const addressArgument = sourceLines[lineNumber].split(Assembler.WHITESPACE).slice(-1).join(" "); // Last argument
               const { addressingModeCode } = this.extractArgumentAddressingModeCode(addressArgument);
               numBytes = this.machine.calculateInstructionNumBytes(instruction, addressingModeCode);
             }
 
             this.reserveAssemblerMemory(numBytes, lineNumber);
           } else { // Directive
-            const args = sourceLines[lineNumber].split(whitespace).slice(1).join(" "); // Everything after mnemonic
+            const args = sourceLines[lineNumber].split(Assembler.WHITESPACE).slice(1).join(" "); // Everything after mnemonic
             this.obeyDirective(mnemonic, args, true, lineNumber);
           }
         }
@@ -155,8 +155,8 @@ export class Assembler {
         this.sourceLineCorrespondingAddress[lineNumber] = this.getPCValue();
 
         if (sourceLines[lineNumber].length > 0) {
-          const mnemonic = sourceLines[lineNumber].split(whitespace)[0].toLowerCase();
-          const args = sourceLines[lineNumber].split(whitespace).slice(1).join(" "); // Everything after mnemonic
+          const mnemonic = sourceLines[lineNumber].split(Assembler.WHITESPACE)[0].toLowerCase();
+          const args = sourceLines[lineNumber].split(Assembler.WHITESPACE).slice(1).join(" "); // Everything after mnemonic
 
           const instruction: Instruction | null = this.machine.getInstructionFromMnemonic(mnemonic);
           if (instruction !== null) {
@@ -204,10 +204,8 @@ export class Assembler {
 
   // Mnemonic must be lowercase
   protected obeyDirective(mnemonic: string, args: string, reserveOnly: boolean, sourceLine: number): void {
-    const whitespace = new QRegExp("\\s+");
-
     if (mnemonic === "org") {
-      const argumentList = args.trim().split(whitespace).filter(argument => /\S/.test(argument)); // Filters out empty strings
+      const argumentList = args.trim().split(Assembler.WHITESPACE).filter(argument => /\S/.test(argument)); // Filters out empty strings
       const numberOfArguments = argumentList.length;
 
       if (numberOfArguments !== 1) {
@@ -273,9 +271,7 @@ export class Assembler {
   }
 
   protected buildInstruction(instruction: Instruction, args: string): void {
-    const whitespace = new QRegExp("\\s+");
-
-    const argumentList = args.split(whitespace).filter(argument => /\S/.test(argument)); // Filters out empty strings
+    const argumentList = args.split(Assembler.WHITESPACE).filter(argument => /\S/.test(argument)); // Filters out empty strings
     const instructionArguments = instruction.getArguments(); let isImmediate = false;
     let registerBitCode = 0b00000000;
     let addressingModeBitCode = 0b00000000;
