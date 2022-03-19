@@ -124,6 +124,7 @@ export class Assembler {
           }
         }
       } catch (error: unknown) {
+        /* istanbul ignore else */
         if (error instanceof AssemblerError) {
           if (this.firstErrorLine === -1) {
             this.firstErrorLine = lineNumber;
@@ -162,6 +163,7 @@ export class Assembler {
           }
         }
       } catch (error: unknown) {
+        /* istanbul ignore else */
         if (error instanceof AssemblerError) {
           if (this.firstErrorLine === -1) {
             this.firstErrorLine = lineNumber;
