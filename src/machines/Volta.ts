@@ -3,7 +3,7 @@ import { Register } from "../core/Register";
 import { Instruction, InstructionCode } from "../core/Instruction";
 import { AddressingMode, AddressingModeCode } from "../core/AddressingMode";
 import { Byte } from "../core/Byte";
-import { validateSize } from "../core/Utils";
+import { buildArray, validateSize } from "../core/Utils";
 
 export class Volta extends Machine {
 
@@ -346,7 +346,7 @@ export class Volta extends Machine {
 
   public setStackSize(size: number): void {
     validateSize(size);
-    new Array(size).fill(null).forEach(() => this.stack.push(new Byte()));
+    this.stack = buildArray(size, () => new Byte());
     this.stackMask = (size - 1);
   }
 

@@ -4,7 +4,7 @@ import { Instruction } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
 import { Byte } from "./Byte";
 import { Conversion } from "./Conversion";
-import { EventCallback, Q_ASSERT, validateSize } from "./Utils";
+import { buildArray, EventCallback, Q_ASSERT, validateSize } from "./Utils";
 
 interface MachineSettings {
   name: string,
@@ -94,7 +94,7 @@ export abstract class MachineState {
     validateSize(size);
     this.memorySize = size;
 
-    new Array(size).fill(null).forEach(() => this.memory.push(new Byte()));
+    this.memory = buildArray(size, () => new Byte());
     this.instructionStrings = new Array(size).fill("");
     this.changed = new Array(size).fill(true);
     this.memoryMask = (size - 1);

@@ -2,7 +2,7 @@ import { AssemblerError, AssemblerErrorCode } from "./Errors";
 import { Register } from "./Register";
 import { Instruction } from "./Instruction";
 import { AddressingModeCode } from "./AddressingMode";
-import { EventCallback, QRegExp } from "./Utils";
+import { buildArray, EventCallback, QRegExp } from "./Utils";
 import { Texts } from "./Texts";
 import { Byte } from "./Byte";
 import { Machine } from "./Machine";
@@ -31,7 +31,7 @@ export class Assembler {
     this.pc = new Register("PC", "", machine.getPCNumberOfBits(), false);
 
     // Initialize memory arrays
-    new Array(machine.getMemorySize()).fill(null).forEach(() => this.assemblerMemory.push(new Byte()));
+    this.assemblerMemory = buildArray(machine.getMemorySize(), () => new Byte());
     this.reserved = new Array(machine.getMemorySize()).fill(false);
     this.addressCorrespondingSourceLine = new Array(machine.getMemorySize()).fill(-1);
     this.addressCorrespondingLabel = new Array(machine.getMemorySize()).fill("");

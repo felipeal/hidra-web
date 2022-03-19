@@ -3,16 +3,7 @@ import { Register } from "../core/Register";
 import { Instruction, InstructionCode } from "../core/Instruction";
 import { AddressingMode, AddressingModeCode } from "../core/AddressingMode";
 import { Conversion } from "../core/Conversion";
-
-function buildRegisters() {
-  const registers: Register[] = [];
-  for (let registerId = 0; registerId < 64; registerId++) {
-    const bitPattern = ".." + Conversion.valueToString(registerId).substring(2); // "..000000" to "..111111"
-    registers.push(new Register("R" + String(registerId), bitPattern, 8));
-  }
-  registers.push(new Register("PC", "", 8, false));
-  return registers;
-}
+import { buildArray } from "../core/Utils";
 
 export class Reg extends Machine {
 
@@ -23,7 +14,13 @@ export class Reg extends Machine {
       memorySize: 256,
       flags: [
       ],
-      registers: buildRegisters(),
+      registers: [
+        ...buildArray(64, (registerId) => {
+          const bitPattern = ".." + Conversion.valueToString(registerId).substring(2); // "..000000" to "..111111"
+          return new Register("R" + String(registerId), bitPattern, 8);
+        }),
+        new Register("PC", "", 8, false)
+      ],
       instructions: [
         new Instruction(1, "00......", InstructionCode.INC, "inc r"),
         new Instruction(1, "01......", InstructionCode.DEC, "dec r"),
