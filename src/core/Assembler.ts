@@ -499,14 +499,20 @@ export class Assembler {
         return argument[1].charCodeAt(0); // TODO: Original (number)argument[1].toLatin1();
       } else if (this.isValidNBytesValue(argument, immediateNumBytes)) { // Immediate hex/dec value
         return this.stringToInt(argument);
-      } else {
+      } else if (this.isValidValueFormat(argument)) {
         throw new AssemblerError(AssemblerErrorCode.INVALID_VALUE);
+      } else {
+        throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
       }
     } else {
       if (this.isValidAddress(argument)) { // Address
         return this.stringToInt(argument);
-      } else {
+      } else if (this.isValidValueFormat(argument)) {
         throw new AssemblerError(AssemblerErrorCode.INVALID_ADDRESS);
+      } else if (this.isValidLabelFormat(argument) && argument.length > 1) {
+        throw new AssemblerError(AssemblerErrorCode.INVALID_LABEL); // TODO: Keep?
+      } else {
+        throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
       }
     }
   }
