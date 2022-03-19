@@ -11,7 +11,7 @@ export class Assembler {
 
   // Constants
   protected static readonly ALLOCATE_SYMBOL = "%";
-  protected static readonly QUOTE_SYMBOL = "¢";
+  protected static readonly QUOTE_SYMBOL = "\uFFFF"; // Reserved unicode character
 
   protected readonly machine: Machine;
   protected reserved: boolean[];
