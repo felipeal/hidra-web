@@ -55,16 +55,16 @@ export class Assembler {
     const sourceLines = sourceCode.split(/\r?\n/); // Split source code to individual lines
 
     // Strip comments and extra spaces
-    for (let lineNumber = 0; lineNumber < sourceLines.length; lineNumber++) {
+    for (let lineIndex = 0; lineIndex < sourceLines.length; lineIndex++) {
       // Convert literal quotes to special symbol
-      sourceLines[lineNumber] = sourceLines[lineNumber].replaceAll("''''", "'" + Assembler.QUOTE_SYMBOL); // '''' . 'QUOTE_SYMBOL
-      sourceLines[lineNumber] = sourceLines[lineNumber].replaceAll("'''", Assembler.QUOTE_SYMBOL); // ''' . QUOTE_SYMBOL
+      sourceLines[lineIndex] = sourceLines[lineIndex].replaceAll("''''", "'" + Assembler.QUOTE_SYMBOL); // '''' . 'QUOTE_SYMBOL
+      sourceLines[lineIndex] = sourceLines[lineIndex].replaceAll("'''", Assembler.QUOTE_SYMBOL); // ''' . QUOTE_SYMBOL
 
       // Remove comments
-      sourceLines[lineNumber] = this.removeComment(sourceLines[lineNumber]);
+      sourceLines[lineIndex] = this.removeComment(sourceLines[lineIndex]);
 
       // Trim whitespace
-      sourceLines[lineNumber] = sourceLines[lineNumber].trim();
+      sourceLines[lineIndex] = sourceLines[lineIndex].trim();
     }
 
     //////////////////////////////////////////////////
@@ -74,16 +74,15 @@ export class Assembler {
     this.clearAssemblerData();
     this.setPCValue(0);
 
-    // TODO: Change lineNumber to lineIndex everywhere
-    for (let lineNumber = 0; lineNumber < sourceLines.length; lineNumber++) {
+    for (let lineIndex = 0; lineIndex < sourceLines.length; lineIndex++) {
       try {
 
         //////////////////////////////////////////////////
         // Read labels
         //////////////////////////////////////////////////
 
-        if (sourceLines[lineNumber].includes(":")) { // If getLabel found a label
-          const labelName = sourceLines[lineNumber].split(":")[0];
+        if (sourceLines[lineIndex].includes(":")) { // If getLabel found a label
+          const labelName = sourceLines[lineIndex].split(":")[0];
 
           // Check for invalid label name
           if (!this.isValidLabelFormat(labelName)) {
@@ -97,39 +96,40 @@ export class Assembler {
 
           this.labelPCMap.set(labelName.toLowerCase(), this.getPCValue()); // Add to map
           this.setAddressCorrespondingLabel(this.getPCValue(), labelName);
-          sourceLines[lineNumber] = sourceLines[lineNumber].replaceAll(labelName + ":", "").trim(); // Remove label from line
+          sourceLines[lineIndex] = sourceLines[lineIndex].replaceAll(labelName + ":", "").trim(); // Remove label from line
         }
 
         //////////////////////////////////////////////////
         // Reserve memory for instructions/directives
         //////////////////////////////////////////////////
 
-        if (sourceLines[lineNumber].length > 0) {
-          const mnemonic = sourceLines[lineNumber].split(Assembler.WHITESPACE)[0].toLowerCase();
+        if (sourceLines[lineIndex].length > 0) {
+          const mnemonic = sourceLines[lineIndex].split(Assembler.WHITESPACE)[0].toLowerCase();
 
           const instruction = this.machine.getInstructionFromMnemonic(mnemonic);
           if (instruction !== null) {
             let numBytes = instruction.getNumBytes();
 
             if (numBytes === 0) { // If instruction has variable number of bytes
-              const addressArgument = sourceLines[lineNumber].split(Assembler.WHITESPACE).slice(-1).join(" "); // Last argument
+              const addressArgument = sourceLines[lineIndex].split(Assembler.WHITESPACE).slice(-1).join(" "); // Last argument
               const { addressingModeCode } = this.extractArgumentAddressingModeCode(addressArgument);
               numBytes = this.machine.calculateInstructionNumBytes(instruction, addressingModeCode);
             }
 
-            this.reserveAssemblerMemory(numBytes, lineNumber);
+            this.reserveAssemblerMemory(numBytes, lineIndex);
           } else { // Directive
-            const args = sourceLines[lineNumber].split(Assembler.WHITESPACE).slice(1).join(" "); // Everything after mnemonic
-            this.obeyDirective(mnemonic, args, true, lineNumber);
+            const args = sourceLines[lineIndex].split(Assembler.WHITESPACE).slice(1).join(" "); // Everything after mnemonic
+            this.obeyDirective(mnemonic, args, true, lineIndex);
           }
         }
+
       } catch (error: unknown) {
         /* istanbul ignore else */
         if (error instanceof AssemblerError) {
           if (this.firstErrorLine === -1) {
-            this.firstErrorLine = lineNumber;
+            this.firstErrorLine = lineIndex;
           }
-          errorMessages.push(Texts.buildErrorMessage(lineNumber, error.errorCode));
+          errorMessages.push(Texts.buildErrorMessage(lineIndex, error.errorCode));
         } else {
           throw error;
         }
@@ -147,28 +147,28 @@ export class Assembler {
     this.sourceLineCorrespondingAddress = new Array(sourceLines.length).fill(-1);
     this.setPCValue(0);
 
-    for (let lineNumber = 0; lineNumber < sourceLines.length; lineNumber++) {
+    for (let lineIndex = 0; lineIndex < sourceLines.length; lineIndex++) {
       try {
-        this.sourceLineCorrespondingAddress[lineNumber] = this.getPCValue();
+        this.sourceLineCorrespondingAddress[lineIndex] = this.getPCValue();
 
-        if (sourceLines[lineNumber].length > 0) {
-          const mnemonic = sourceLines[lineNumber].split(Assembler.WHITESPACE)[0].toLowerCase();
-          const args = sourceLines[lineNumber].split(Assembler.WHITESPACE).slice(1).join(" "); // Everything after mnemonic
+        if (sourceLines[lineIndex].length > 0) {
+          const mnemonic = sourceLines[lineIndex].split(Assembler.WHITESPACE)[0].toLowerCase();
+          const args = sourceLines[lineIndex].split(Assembler.WHITESPACE).slice(1).join(" "); // Everything after mnemonic
 
           const instruction: Instruction | null = this.machine.getInstructionFromMnemonic(mnemonic);
           if (instruction !== null) {
             this.buildInstruction(instruction, args);
           } else { // Directive
-            this.obeyDirective(mnemonic, args, false, lineNumber);
+            this.obeyDirective(mnemonic, args, false, lineIndex);
           }
         }
       } catch (error: unknown) {
         /* istanbul ignore else */
         if (error instanceof AssemblerError) {
           if (this.firstErrorLine === -1) {
-            this.firstErrorLine = lineNumber;
+            this.firstErrorLine = lineIndex;
           }
-          errorMessages.push(Texts.buildErrorMessage(lineNumber, error.errorCode));
+          errorMessages.push(Texts.buildErrorMessage(lineIndex, error.errorCode));
         } else {
           throw error;
         }

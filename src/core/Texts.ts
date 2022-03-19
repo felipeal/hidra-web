@@ -155,8 +155,8 @@ export class Texts {
     }
   }
 
-  public static buildErrorMessage(lineNumber: number, errorCode: AssemblerErrorCode) {
-    return `Linha ${String(lineNumber + 1)}: ${Texts.getErrorCodeMessage(errorCode)}`;
+  public static buildErrorMessage(lineIndex: number, errorCode: AssemblerErrorCode) {
+    return `Linha ${String(lineIndex + 1)}: ${Texts.getErrorCodeMessage(errorCode)}`;
   }
 
   private static getErrorCodeMessage(errorCode: AssemblerErrorCode): string {
