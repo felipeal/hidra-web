@@ -21,7 +21,7 @@ expect.extend({
       expect(received).toStrictEqual(expected);
     } catch (e) {
       pass = false;
-      message = `${e}\n\nScenario: ${scenario}`;
+      message = `${e}\n\nScenario: ${scenario.replaceAll("\n", "\n          ")}`;
     }
     return {
       pass,

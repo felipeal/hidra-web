@@ -1,4 +1,4 @@
-import { } from "./TestUtils";
+import { } from "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
 import { AssemblerErrorCode } from "../core/Errors";
 import { Texts } from "../core/Texts";

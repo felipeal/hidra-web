@@ -35,23 +35,23 @@
       "unix"
     ],
     "quotes": [
-      "error",
+      "warn",
       "double"
     ],
     "semi": [
-      "error",
+      "warn",
       "always"
     ],
-    "curly": "error",
+    "curly": "warn",
     "brace-style": [
-      "error",
+      "warn",
       "1tbs"
     ],
     "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/ban-ts-comment": "off",
-    "no-multiple-empty-lines": "error",
-    "react/prop-types": "off",
+    "@typescript-eslint/no-empty-function": "warn",
+    "no-multiple-empty-lines": "warn",
     "no-debugger":"warn",
     "comma-dangle": "warn",
     "space-before-blocks": "warn",
@@ -62,6 +62,7 @@
       "asyncArrow": "always"
     }],
     "eol-last": "warn",
-    "no-constant-condition": "warn"
+    "no-constant-condition": "warn",
+    "prefer-const": "warn"
   }
 }
