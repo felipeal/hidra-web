@@ -50,6 +50,11 @@ code, .monospace-font, .CodeMirror {
   color: blue;
 }
 
+.cm-hidra-string {
+  font-style: italic;
+  color: darkred;
+}
+
 .cm-hidra-comment {
   font-style: italic;
   color: green;

@@ -25,13 +25,13 @@ function defineCodeMirrorMode(machine: Machine) {
 
 function processToken(stream: CodeMirror.StringStream, instructions: string[], directives: string[]) {
   // If semicolon
-  if (stream.eat(/;/)) { // TODO: Handle isInsideString
+  if (stream.eat(";")) {
     stream.skipToEnd();
     return "hidra-comment";
   }
 
   // If word
-  if (stream.eatWhile(/\w/)) {
+  if (stream.match(/\w+/)) {
     if (arrayContains(instructions, stream.current())) {
       return "hidra-instruction";
     } else if (arrayContains(directives, stream.current())) {
@@ -39,6 +39,16 @@ function processToken(stream: CodeMirror.StringStream, instructions: string[], d
     } else {
       return;
     }
+  }
+
+  // If string
+  if (stream.match(/'''([^']|$)/, false)) { // Literal single quote (''')
+    stream.match(/'''/);
+    return "hidra-string";
+  } else if (stream.eat("'")) {
+    stream.match(/('''|[^'])+/);
+    stream.eat("'");
+    return "hidra-string";
   }
 
   stream.next();
