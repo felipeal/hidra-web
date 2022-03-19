@@ -1,4 +1,19 @@
+/* eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/no-empty-interface */
+declare global {
+  namespace jest {
+    interface Expect extends CustomMatchers { }
+    interface Matchers<R> extends CustomMatchers<R> { }
+    interface InverseAsymmetricMatchers extends CustomMatchers { }
+  }
+}
+/* eslint-enable */
+
+interface CustomMatchers<R = unknown> {
+  toDeepEqual(value: unknown, scenario: string): R;
+}
+
 expect.extend({
+  // Add custom toDeepEqual so that "scenario" can be printed for every subtest
   toDeepEqual(received: unknown, expected: unknown, scenario: string) {
     let pass = true;
     let message = "";
@@ -17,20 +32,4 @@ expect.extend({
   }
 });
 
-interface CustomMatchers<R = unknown> {
-  toDeepEqual(value: unknown, scenario: string): R;
-}
-
-declare global {
-  // eslint-disable-next-line
-  namespace jest {
-    // eslint-disable-next-line
-    interface Expect extends CustomMatchers {}
-    // eslint-disable-next-line
-    interface Matchers<R> extends CustomMatchers<R> {}
-    // eslint-disable-next-line
-    interface InverseAsymmetricMatchers extends CustomMatchers {}
-  }
-}
-
-export {};
+export { };

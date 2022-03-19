@@ -111,9 +111,9 @@ describe("Build", () => {
 
   test("build: should validate number of arguments for instructions", () => {
     expectSuccess("ADD A 0", [48, 0]);
-    expectError("ADD A 0 1", AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS);
-    expectError("ADD A", AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS);
-    expectError("HLT 0", AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS);
+    expectError("ADD A 0 1", AssemblerErrorCode.TOO_MANY_ARGUMENTS);
+    expectError("ADD A", AssemblerErrorCode.TOO_FEW_ARGUMENTS);
+    expectError("HLT 0", AssemblerErrorCode.TOO_MANY_ARGUMENTS);
   });
 
   test("build: should validate arguments", () => {
@@ -161,8 +161,8 @@ describe("Directives", () => {
     expectSuccess("ORG 255", []); // Upper bound
     expectSuccess("ORG hFF", []); // Hexadecimal
     expectError("ORG -1", AssemblerErrorCode.INVALID_ADDRESS); // Out of bounds
-    expectError("ORG", AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS); // Missing argument
-    expectError("ORG 1 2", AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS); // Extra arguments
+    expectError("ORG", AssemblerErrorCode.TOO_FEW_ARGUMENTS);
+    expectError("ORG 1 2", AssemblerErrorCode.TOO_MANY_ARGUMENTS);
     expectError("ORG 256", AssemblerErrorCode.INVALID_ADDRESS);
     expectError("ORG h100", AssemblerErrorCode.INVALID_ADDRESS);
   });
@@ -177,10 +177,10 @@ describe("Directives", () => {
     expectSuccess("DB hFF", [255]); // Hexadecimal
     expectError("DB -129", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
     expectError("DB 256", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
-    expectError("DB 1 2", AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS); // Extra arguments
+    expectError("DB 1 2", AssemblerErrorCode.TOO_MANY_ARGUMENTS); // Extra arguments
     expectError("DB [2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate syntax: invalid
     expectError("DB '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
-    expectError("DW '012'", AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS); // Multiple characters: invalid
+    expectError("DW '012'", AssemblerErrorCode.TOO_MANY_ARGUMENTS); // Multiple characters: invalid
     expectError("DB %", AssemblerErrorCode.INVALID_ARGUMENT); // Unexpected argument
   });
 
@@ -193,10 +193,10 @@ describe("Directives", () => {
     expectSuccess("DW 65535", [255, 255]); // Upper bound
     expectError("DW -32769", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
     expectError("DW 65536", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
-    expectError("DW 1 2", AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS); // Extra arguments
+    expectError("DW 1 2", AssemblerErrorCode.TOO_MANY_ARGUMENTS); // Extra arguments
     expectError("DW [2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate syntax: invalid
     expectError("DW '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
-    expectError("DW '012'", AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS); // Multiple characters: invalid
+    expectError("DW '012'", AssemblerErrorCode.TOO_MANY_ARGUMENTS); // Multiple characters: invalid
     expectError("DW %", AssemblerErrorCode.INVALID_ARGUMENT); // Unexpected argument
   });
 
@@ -216,7 +216,7 @@ describe("Directives", () => {
     expectSuccess("DAB 255", [255]); // Upper bound
     expectError("DAB 0, -129, 2", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
     expectError("DAB 0, 256, 2", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
-    expectError("DAB", AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS); // No argument: invalid
+    expectError("DAB", AssemblerErrorCode.TOO_FEW_ARGUMENTS); // No argument: invalid
     expectError("DAB ''", AssemblerErrorCode.INVALID_STRING); // Empty string
     expectError("DAB '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
     expectError("DAB %", AssemblerErrorCode.INVALID_ARGUMENT); // Unexpected argument
@@ -238,7 +238,7 @@ describe("Directives", () => {
     expectSuccess("DAW 65535", [255, 255]); // Upper bound
     expectError("DAW 0, -32769, 2", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
     expectError("DAW 0, 65536, 2", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
-    expectError("DAW", AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS); // No argument: invalid
+    expectError("DAW", AssemblerErrorCode.TOO_FEW_ARGUMENTS); // No argument: invalid
     expectError("DAW ''", AssemblerErrorCode.INVALID_STRING); // Empty string
     expectError("DAW '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
     expectError("DAW %", AssemblerErrorCode.INVALID_ARGUMENT); // Unexpected argument

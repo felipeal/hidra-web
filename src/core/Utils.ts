@@ -15,6 +15,7 @@ export class QRegExp extends RegExp {
     return Boolean(str === this.lastMatch?.[0]);
   }
 
+  // Returns capture "index" from the last exactMatch call (0 = full string)
   cap(index: number): string {
     Q_ASSERT(!!this.lastMatch, "Capture accessed without lastMatch.");
     return this.lastMatch[index];

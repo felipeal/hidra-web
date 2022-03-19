@@ -7,7 +7,8 @@ export enum FileErrorCode {
 
 export enum AssemblerErrorCode {
   NO_ERROR = 0,
-  WRONG_NUMBER_OF_ARGUMENTS,
+  TOO_FEW_ARGUMENTS,
+  TOO_MANY_ARGUMENTS,
   INVALID_INSTRUCTION,
   INVALID_ADDRESS,
   INVALID_VALUE,

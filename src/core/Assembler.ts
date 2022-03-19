@@ -206,10 +206,11 @@ export class Assembler {
       const argumentList = args.trim().split(Assembler.WHITESPACE).filter(argument => /\S/.test(argument)); // Filters out empty strings
       const numberOfArguments = argumentList.length;
 
-      if (numberOfArguments !== 1) {
-        throw new AssemblerError(AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS);
-      }
-      if (!this.isValidOrg(argumentList[0])) {
+      if (numberOfArguments < 1) {
+        throw new AssemblerError(AssemblerErrorCode.TOO_FEW_ARGUMENTS);
+      } else if (numberOfArguments > 1) {
+        throw new AssemblerError(AssemblerErrorCode.TOO_MANY_ARGUMENTS);
+      } else if (!this.isValidOrg(argumentList[0])) {
         throw new AssemblerError(AssemblerErrorCode.INVALID_ADDRESS);
       }
 
@@ -224,12 +225,12 @@ export class Assembler {
         argumentList.push("0"); // Default to argument 0 in case of DB and DW
       }
 
-      if (!isDefineArray && argumentList.length > 1) { // Too many arguments
-        throw new AssemblerError(AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS); // TODO: Error specific to strings too?
+      if (!isDefineArray && argumentList.length > 1) {
+        throw new AssemblerError(AssemblerErrorCode.TOO_MANY_ARGUMENTS); // TODO: Error specific to strings too?
       }
 
       if (isDefineArray && argumentList.length < 1) { // No arguments
-        throw new AssemblerError(AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS);
+        throw new AssemblerError(AssemblerErrorCode.TOO_FEW_ARGUMENTS);
       }
 
       // Memory allocation
@@ -237,7 +238,7 @@ export class Assembler {
         if (mnemonic !== "dab" && mnemonic !== "daw") {
           throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
         } else if (reserveOnly) {
-          this.reserveAssemblerMemory(Number(argumentList[0]) * bytesPerArgument, sourceLine); // TODO: Is this correct?
+          this.reserveAssemblerMemory(Number(argumentList[0]) * bytesPerArgument, sourceLine);
         } else { // Skip bytes
           this.incrementPCValue(Number(argumentList[0]) * bytesPerArgument);
         }
@@ -272,12 +273,14 @@ export class Assembler {
     let registerBitCode = 0b00000000;
     let addressingModeBitCode = 0b00000000;
 
-    // Check if number of arguments is correct:
-    if (argumentList.length !== instruction.getNumberOfArguments()) {
-      throw new AssemblerError(AssemblerErrorCode.WRONG_NUMBER_OF_ARGUMENTS);
+    // Check if number of arguments is correct
+    if (argumentList.length < instruction.getNumberOfArguments()) {
+      throw new AssemblerError(AssemblerErrorCode.TOO_FEW_ARGUMENTS);
+    } else if (argumentList.length > instruction.getNumberOfArguments()) {
+      throw new AssemblerError(AssemblerErrorCode.TOO_MANY_ARGUMENTS);
     }
 
-    // If argumentList contains a register:
+    // If argumentList contains a register
     if (instructionArguments.includes("r")) {
       registerBitCode = this.machine.getRegisterBitCode(argumentList[0]);
 
@@ -286,7 +289,7 @@ export class Assembler {
       }
     }
 
-    // If argumentList contains an address/value:
+    // If argumentList contains an address/value
     if (instructionArguments.includes("a")) {
       const { argument: newArgument, addressingModeCode } = this.extractArgumentAddressingModeCode(argumentList[argumentList.length - 1]); // Removes addressing mode from argument
       argumentList[argumentList.length - 1] = newArgument; // TODO: Refactor
@@ -294,21 +297,21 @@ export class Assembler {
       isImmediate = (addressingModeCode === AddressingModeCode.IMMEDIATE);
     }
 
-    // Write first byte (instruction with register and addressing mode):
+    // Write first byte (instruction with register and addressing mode)
     this.setAssemblerMemoryNext(instruction.getByteValue() | registerBitCode | addressingModeBitCode);
 
-    // Write second byte (if 1-byte address/immediate value):
+    // Write second byte (if 1-byte address/immediate value)
     if (instruction.getNumBytes() === 2 || isImmediate) {
       this.setAssemblerMemoryNext(this.argumentToValue(argumentList[argumentList.length - 1], isImmediate)); // Converts labels, chars, etc.
 
-      // Write second and third bytes (if 2-byte addresses):
+    // Write second and third bytes (if 2-byte addresses)
     } else if (instructionArguments.includes("a")) {
       const address = this.argumentToValue(argumentList[argumentList.length - 1], isImmediate);
 
       this.setAssemblerMemoryNext(address & 0xFF); // Least significant byte (little-endian)
       this.setAssemblerMemoryNext((address >> 8) & 0xFF); // Most significant byte
 
-      // If instruction has two addresses (REG_IF), write both addresses:
+    // If instruction has two addresses (REG_IF), write both addresses
     } else if (instructionArguments.includes("a0") && instructionArguments.includes("a1")) {
       this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instructionArguments.indexOf("a0")], false));
       this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instructionArguments.indexOf("a1")], false));
@@ -427,16 +430,14 @@ export class Assembler {
     let currentMatch = matchArgument.exec(args);
     let totalMatchedLength = 0;
 
-    // TODO: Untested
-
     while (currentMatch) { // While there are arguments
       let argument = currentMatch[1];
 
       // Ascii string
       if (argument.includes("'")) {
         argument = argument.replaceAll("'", "");
-        for (const c of argument.split("")) {
-          finalArgumentList.push(`'${c}'`); // Char between single quotes
+        for (const character of argument.split("")) {
+          finalArgumentList.push(`'${character}'`); // Char between single quotes
         }
       } else { // Value
         finalArgumentList.push(argument);
@@ -511,8 +512,8 @@ export class Assembler {
         return this.stringToInt(argument);
       } else if (this.isValidValueFormat(argument)) {
         throw new AssemblerError(AssemblerErrorCode.INVALID_ADDRESS);
-      } else if (this.isValidLabelFormat(argument) && argument.length > 1) {
-        throw new AssemblerError(AssemblerErrorCode.INVALID_LABEL); // TODO: Keep?
+      } else if (this.isValidLabelFormat(argument) && argument.length > 1) { // Assume label unless single character
+        throw new AssemblerError(AssemblerErrorCode.INVALID_LABEL);
       } else {
         throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
       }
