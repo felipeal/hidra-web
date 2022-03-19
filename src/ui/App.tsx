@@ -3,9 +3,9 @@ import codemirror from "codemirror";
 
 // Components
 import CodeEditor from "./CodeEditor";
-import InstructionsRow from "./InstructionsRow";
-import DataRow from "./DataRow";
-import StackRow from "./StackRow";
+import MemoryRowInstructions from "./MemoryRowInstructions";
+import MemoryRowData from "./MemoryRowData";
+import MemoryRowStack from "./MemoryRowStack";
 import FlagWidget from "./FlagWidget";
 import RegisterWidget from "./RegisterWidget";
 import Information from "./Information";
@@ -112,13 +112,13 @@ function App() {
         </thead>
         <tbody>
           {machine.getMemory().map((value, address) => {
-            return <InstructionsRow key={address} address={address} machine={machine} />;
+            return <MemoryRowInstructions key={address} address={address} machine={machine} />;
           })}
         </tbody>
       </table>
 
       {/* Data memory area */}
-      <table style={{ height: "100%", display: "block", overflowY: "scroll", tableLayout: "fixed", minWidth: "10rem" }}>
+      <table className="data-table" style={{ height: "100%", display: "block", overflowY: "scroll", tableLayout: "fixed", minWidth: "10rem" }}>
         <thead>
           <tr>
             <th>End.</th>
@@ -128,7 +128,7 @@ function App() {
         </thead>
         <tbody>
           {machine.getMemory().map((value, address) => {
-            return <DataRow key={address} address={address} machine={machine} assembler={assembler} />;
+            return <MemoryRowData key={address} address={address} machine={machine} assembler={assembler} />;
           })}
         </tbody>
       </table>
@@ -144,7 +144,7 @@ function App() {
         </thead>
         <tbody>
           {machine.getStack().map((value, index) => {
-            return <StackRow key={index} address={machine.getStack().length - 1 - index} voltaMachine={machine} />;
+            return <MemoryRowStack key={index} address={machine.getStack().length - 1 - index} voltaMachine={machine} />;
           })}
         </tbody>
       </table>}

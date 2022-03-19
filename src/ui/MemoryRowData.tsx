@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Assembler } from "../core/Assembler";
 import { Machine } from "../core/Machine";
 
-export default function DataRow({ address, machine, assembler }: { address: number, machine: Machine, assembler: Assembler }) {
+export default function MemoryRowData({ address, machine, assembler }: { address: number, machine: Machine, assembler: Assembler }) {
   const [value, setValue] = useState(String(machine.getMemoryValue(address)));
   const [label, setLabel] = useState(assembler.getAddressCorrespondingLabel(address));
 

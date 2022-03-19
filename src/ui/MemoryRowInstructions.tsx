@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Machine } from "../core/Machine";
 
-export default function InstructionsRow({ address, machine }: { address: number, machine: Machine }) {
+export default function MemoryRowInstructions({ address, machine }: { address: number, machine: Machine }) {
   const [value, setValue] = useState(String(machine.getMemoryValue(address)));
   const [instructionString, setInstructionString] = useState(String(machine.getInstructionString(address)));
   const [isCurrentPos, setIsCurrentPos] = useState(machine.getPCValue() === address);

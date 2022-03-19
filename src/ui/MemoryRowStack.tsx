@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Volta } from "../machines/Volta";
 
-export default function StackRow({ address, voltaMachine }: { address: number, voltaMachine: Volta }) {
+export default function MemoryRowStack({ address, voltaMachine }: { address: number, voltaMachine: Volta }) {
   const [value, setValue] = useState(String(voltaMachine.getStackValue(address)));
   const [isCurrentStackPos, setIsCurrentStackPos] = useState(voltaMachine.getSPValue() === address);
 

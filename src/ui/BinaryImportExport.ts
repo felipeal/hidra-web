@@ -1,6 +1,6 @@
 import { FileErrorCode } from "../core/Errors";
 
-export class MemoryImportExport {
+export class BinaryImportExport {
 
   // Returns true if successful
   public importMemory(_filename: string): FileErrorCode {
