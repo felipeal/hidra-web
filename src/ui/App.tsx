@@ -102,7 +102,7 @@ function App() {
         {/* Error messages */}
         {(errorMessages.length > 0) && <div className="error-messages monospace-font" style={{ flex: 0.125, marginTop: "16px", overflow: "auto", padding: "4px" }}>
           {errorMessages.map((message, index) => {
-            return <><text className="error-message" key={index}>{message}</text><br></br></>;
+            return <><text className="error-message" key={index}>{message}</text><br/></>;
           })}
         </div>}
 
@@ -267,6 +267,29 @@ function App() {
         {/* Separator */}
         <div className="hide-if-busy" style={{ minHeight: "16px", flexGrow: 1 }} />
 
+        {/* Directives */}
+        <fieldset className="hide-if-busy">
+          <legend>Diretivas</legend>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px" }}>
+            {["org", "db", "dw", "dab/daw"].map((directive, index) => {
+              const description = Texts.getDirectiveDescription(directive);
+              return <div className="monospace-font" style={{
+                minWidth: "56px", whiteSpace: "nowrap", marginLeft: "16px", marginRight: "0"
+              }} key={index}>
+                <Tippy className="tooltip" content={<span>
+                  <strong>{description.name}</strong>
+                  <p>{description.description}</p>
+                  <p>{description.examples}</p>
+                </span>}>
+                  <text>
+                    {Texts.shortenArguments(directive.toUpperCase())}
+                  </text>
+                </Tippy>
+              </div>;
+            })}
+          </div>
+        </fieldset>
+
         {/* Instructions */}
         <fieldset className="hide-if-busy">
           <legend>Instruções</legend>
@@ -277,7 +300,9 @@ function App() {
               return <div className="monospace-font" style={{
                 minWidth: "56px", whiteSpace: "nowrap", marginLeft: "16px", marginRight: "0"
               }} key={index}>
-                <Tippy content={<span>{Texts.shortenArguments(description)}</span>}>
+                <Tippy className="tooltip" content={<span>
+                  {Texts.shortenArguments(description)}
+                </span>}>
                   <text>
                     {Texts.shortenArguments(assemblyFormat)}
                   </text>
@@ -297,7 +322,11 @@ function App() {
               {machine.getAddressingModes().map((addressingMode, index) => {
                 const description = Texts.getAddressingModeDescription(addressingMode.getAddressingModeCode());
                 return <div key={index} className="monospace-font" style={{ width: "56px", marginLeft: "16px" }}>
-                  <Tippy content={<span><strong>{description.name}</strong><br></br>{description.format}<br></br>{description.description}</span>}>
+                  <Tippy className="tooltip" content={<span>
+                    <strong>{description.name}</strong>
+                    <p>{description.format}</p>
+                    <p>{description.description}</p>
+                  </span>}>
                     <text>
                       {addressingMode.getAssemblyPattern().toUpperCase().replace("(.*)", "a") || "a"}
                     </text>

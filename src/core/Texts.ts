@@ -4,8 +4,45 @@ import { Machine } from "./Machine";
 import { FlagCode } from "./Flag";
 
 interface AddressingModeDescription { acronym: string, name: string, format: string, description: string }
+interface DirectiveDescription { name: string,  description: string, examples: string }
 
 export class Texts {
+
+  public static getDirectiveDescription(directive: string): DirectiveDescription {
+    switch (directive) {
+      case "org": return {
+        name: "Origin",
+        description: "Posiciona a montagem das instruções subsequentes no endereço 'a' da memória.",
+        examples: "Exemplo: ORG 128"
+      };
+      case "db": return {
+        name: "Define Byte",
+        description: "Reserva um byte na posição de montagem atual, opcionalmente inicializando-o com um valor 'a'.",
+        examples: "Exemplos: DB | DB 255 | DB -128 | DB hFF | DB 'z'"
+      };
+      case "dw": return {
+        name: "Define Word",
+        description: "Reserva uma palavra (2 bytes) na posição de montagem atual. Os 8 bits mais significativos são armazenados no primeiro byte (big-endian), exceto na máquina Pericles (little-endian).",
+        examples: "Exemplos: DW | DW 65535 | DW hFFFF | DW 'z'"
+      };
+      case "dab": return {
+        name: "Define Array of Bytes",
+        description: "Reserva uma sequência de um ou mais bytes, com suporte a strings. Um número 'a' entre colchetes permite reservar 'a' valores sem inicializá-los.",
+        examples: "Exemplos: DAB 1, 2 | DAB 1 2 | DAB 'abc' | DAB [20]"
+      };
+      case "daw": return {
+        name: "Define Array of Words",
+        description: "Reserva uma sequência de uma ou mais palavras (valores de 2 bytes), com suporte a strings. Os 8 bits mais significativos são armazenados no primeiro byte (big-endian), exceto na máquina Pericles (little-endian).",
+        examples: "Exemplos: DAW 1, 2 | DAW 1 2 | DAW 'abc' | DAW [20]"
+      };
+      case "dab/daw": return {
+        name: "Define Array of Bytes/Words",
+        description: "Reserva uma sequência de um ou mais bytes (DAB) ou palavras (DAW), separados por espaços ou vírgulas, com suporte a strings. No caso de palavras (2 bytes), os 8 bits mais significativos são armazenados primeiro (big-endian), exceto na máquina Pericles (little-endian).",
+        examples: "Exemplos: DAB 1, 2 | DAW 1 2 | DAB 'abc' | DAW [20]"
+      };
+      default: throw new Error(`Unknown directive: ${directive}`);
+    }
+  }
 
   public static getInstructionDescription(assemblyFormat: string, machine: Machine): string {
     if (machine.getName() === "Volta") {
