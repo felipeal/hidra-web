@@ -24,9 +24,9 @@ code, .monospace-font, .CodeMirror {
   font-size: 1rem;
 }
 
-/*******************************************************************************
- * Left area (code editor and error messages)
- *******************************************************************************/
+/******************************************************************************
+/* Left area (code editor and error messages)
+/******************************************************************************/
 
 .code-editor, .error-messages {
   border: 1px solid;
@@ -60,23 +60,24 @@ code, .monospace-font, .CodeMirror {
   color: green;
 }
 
-/*******************************************************************************
- * Middle area (memory tables)
- ******************************************************************************/
+/******************************************************************************
+/* Middle area (memory tables)
+/******************************************************************************/
 
 table {
   border: 1px solid rgb(103, 103, 116);
   border-collapse: collapse;
 }
-table input {
-  border: none;
+
+/* Inner borders */
+td + td, th + th {
+  border-left: 1px solid #ddd;
 }
-th, td {
-  border: 1px solid #ddd;
+tr + tr {
+  border-top: 1px solid #ddd;
 }
-td {
-  padding: 4px;
-}
+
+/* Sticky header */
 th {
   padding: 4px;
   font-weight: unset;
@@ -88,20 +89,12 @@ th {
   top: 0;
 }
 
-/* Remove double borders */
-table tr:first-child th {
-  border-top: 0;
+table input {
+  border: none;
 }
-table tr:last-child td {
-  border-bottom: 0;
-}
-table tr td:first-child,
-table tr th:first-child {
-  border-left: 0;
-}
-table tr td:last-child,
-table tr th:last-child {
-  border-right: 0;
+
+td {
+  padding: 4px;
 }
 
 .table-address {
@@ -112,9 +105,9 @@ table tr th:last-child {
   width: 50px;
 }
 
-/*******************************************************************************
- * Right area (machine)
- ******************************************************************************/
+/******************************************************************************
+/* Right area (machine)
+/******************************************************************************/
 
 select {
   background-color: #eee;
@@ -167,9 +160,9 @@ button:active {
   background-color: #aaa;
 }
 
-/*******************************************************************************
- * Busy state
- ******************************************************************************/
+/******************************************************************************
+/* Busy state
+/******************************************************************************/
 
 body:not(.is-busy) .show-if-busy {
   display: none !important;
