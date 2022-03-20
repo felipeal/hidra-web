@@ -153,11 +153,15 @@ button {
   padding: 8px;
   cursor: pointer;
 }
-button:hover {
+button:hover:not([disabled]) {
   background-color: #ddd;
 }
-button:active {
+button:active:not([disabled]) {
   background-color: #aaa;
+}
+button:disabled {
+  cursor: auto;
+  color: #aaa;
 }
 
 /******************************************************************************

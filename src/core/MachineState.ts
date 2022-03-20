@@ -68,6 +68,7 @@ export abstract class MachineState {
 
   public setRunning(running: boolean): void {
     this.running = running;
+    this.publishEvent("RUNNING", running);
   }
 
   public getBreakpoint(): number {

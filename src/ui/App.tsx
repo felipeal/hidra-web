@@ -59,11 +59,20 @@ const initialAssembler = new Assembler(initialMachine);
 const showBusy = () => document.body.classList.add("is-busy");
 const hideBusy = () => document.body.classList.remove("is-busy");
 
+let timeout: NodeJS.Timeout;
+
 function App() {
   const [[machine, assembler], setState] = useState([initialMachine, initialAssembler]);
   const [errorMessages, setErrorMessages] = useState([] as string[]);
+  const [isRunning, setRunning] = useState(machine.isRunning());
 
-  let timeout: NodeJS.Timeout;
+  useEffect(() => {
+    // Restore values on machine change
+    setRunning(machine.isRunning());
+
+    // Event subscriptions
+    machine.subscribeToEvent("RUNNING", (value) => setRunning(Boolean(value)));
+  }, [machine]);
 
   useEffect(() => {
     scrollToFirstInstructionsRow();
@@ -76,7 +85,7 @@ function App() {
   return (
     <div style={{ height: "calc(100vh - 32px)", display: "flex", margin: "16px", gap: "16px" }}>
 
-      {/***********************************************************************
+      {/**********************************************************************
         * Left area (code editor and error messages)
         **********************************************************************/}
 
@@ -96,7 +105,7 @@ function App() {
 
       </div>
 
-      {/***********************************************************************
+      {/**********************************************************************
         * Middle area (memory tables)
         **********************************************************************/}
 
@@ -149,7 +158,7 @@ function App() {
         </tbody>
       </table>}
 
-      {/***********************************************************************
+      {/**********************************************************************
         * Right area (machine)
         **********************************************************************/}
 
@@ -157,6 +166,7 @@ function App() {
 
         {/* Machine select */}
         <select className="hide-if-busy" value={machine.getName()} onChange={(event: ChangeEvent<HTMLSelectElement>) => {
+          machine.setRunning(false);
           clearTimeout(timeout);
 
           function buildMachine(machineName: string): Machine {
@@ -244,8 +254,8 @@ function App() {
                 }
               };
               nextStep();
-            }}>Rodar</button>
-            <button style={{ flex: 1 }} onClick={() => {
+            }}>{isRunning ? "Parar" : "Rodar"}</button>
+            <button disabled={isRunning} style={{ flex: 1 }} onClick={() => {
               machine.step();
             }}>Passo</button>
           </div>
