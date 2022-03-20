@@ -1,12 +1,14 @@
 import { AssemblerErrorCode } from "./Errors";
 import { AddressingModeCode } from "./AddressingMode";
+import { Machine } from "./Machine";
+import { FlagCode } from "./Flag";
 
 interface AddressingModeDescription { acronym: string, name: string, format: string, description: string }
 
 export class Texts {
 
-  public static getInstructionDescription(assemblyFormat: string, machineName: string, hasBorrowFlag: boolean): string {
-    if (machineName === "Volta") {
+  public static getInstructionDescription(assemblyFormat: string, machine: Machine): string {
+    if (machine.getName() === "Volta") {
       return Texts.getVoltaDescription(assemblyFormat);
     }
 
@@ -33,7 +35,7 @@ export class Texts {
       case "jc a": return "Se a flag C estiver ativada (carry), desvia a execução para o endereço 'a'.";
       case "jnc a": return "Se a flag C estiver desativada (not carry), desvia a execução para o endereço 'a'.";
 
-      case "jb a": return (hasBorrowFlag ?
+      case "jb a": return (machine.hasFlag(FlagCode.BORROW) ?
         "Se a flag B estiver ativada (borrow), desvia a execução para o endereço 'a'." :
         "Se a flag C estiver desativada (borrow), desvia a execução para o endereço 'a'.");
 
@@ -65,6 +67,10 @@ export class Texts {
 
       default: return "";
     }
+  }
+
+  public static shortenArguments(text: string): string {
+    return (text.includes("a0") && text.includes("a1")) ? text.replace("a0", "a").replace("a1", "b") : text;
   }
 
   private static getVoltaDescription(assemblyFormat: string): string {

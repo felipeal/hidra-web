@@ -1,5 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 import codemirror from "codemirror";
+import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css";
 
 // Components
 import CodeEditor from "./CodeEditor";
@@ -22,6 +24,7 @@ import { Pericles } from "../machines/Pericles";
 import { Reg } from "../machines/Reg";
 import { Volta } from "../machines/Volta";
 import { Assembler } from "../core/Assembler";
+import { Texts } from "../core/Texts";
 
 // Global pointer required for CodeMirror persistence between live-reloads
 declare global {
@@ -269,12 +272,16 @@ function App() {
           <legend>Instruções</legend>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px" }}>
             {machine.getInstructions().map((instruction, index) => {
-              let assemblyFormat = [instruction.getMnemonic().toUpperCase(), ...instruction.getArguments()].join(" ");
-              assemblyFormat = assemblyFormat.replace("a0", "a").replace("a1", "b");
+              const assemblyFormat = [instruction.getMnemonic().toUpperCase(), ...instruction.getArguments()].join(" ");
+              const description = Texts.getInstructionDescription(instruction.getAssemblyFormat(), machine);
               return <div className="monospace-font" style={{
                 minWidth: "56px", whiteSpace: "nowrap", marginLeft: "16px", marginRight: "0"
               }} key={index}>
-                {assemblyFormat}
+                <Tippy content={<span>{Texts.shortenArguments(description)}</span>}>
+                  <text>
+                    {Texts.shortenArguments(assemblyFormat)}
+                  </text>
+                </Tippy>
               </div>;
             })}
           </div>
@@ -288,8 +295,13 @@ function App() {
               display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px"
             }}>
               {machine.getAddressingModes().map((addressingMode, index) => {
-                return <div className="monospace-font" style={{ width: "56px", marginLeft: "16px" }} key={index}>
-                  {addressingMode.getAssemblyPattern().toUpperCase().replace("(.*)", "a") || "a"}
+                const description = Texts.getAddressingModeDescription(addressingMode.getAddressingModeCode());
+                return <div key={index} className="monospace-font" style={{ width: "56px", marginLeft: "16px" }}>
+                  <Tippy content={<span><strong>{description.name}</strong><br></br>{description.format}<br></br>{description.description}</span>}>
+                    <text>
+                      {addressingMode.getAssemblyPattern().toUpperCase().replace("(.*)", "a") || "a"}
+                    </text>
+                  </Tippy>
                 </div>;
               })}
             </div>
