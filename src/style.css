@@ -5,6 +5,10 @@ body {
   margin: 0;
 }
 
+/******************************************************************************
+/* Fonts
+/******************************************************************************/
+
 body, button, select, input {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
@@ -48,21 +52,19 @@ code, .monospace-font, .CodeMirror {
   height: 100%;
 }
 
+/* Code highlighter */
 .cm-hidra-instruction {
   font-weight: bold;
   color: purple;
 }
-
 .cm-hidra-directive {
   font-weight: bold;
   color: blue;
 }
-
 .cm-hidra-string {
   font-style: italic;
   color: darkred;
 }
-
 .cm-hidra-comment {
   font-style: italic;
   color: green;
@@ -117,6 +119,7 @@ td {
 /* Right area (machine)
 /******************************************************************************/
 
+/* Select (machine select) */
 select {
   background-color: #eee;
   border: none;
@@ -124,6 +127,7 @@ select {
   padding: 8px;
 }
 
+/* Area grouping */
 fieldset {
   border: 1px solid #999;
   margin-top: 6px;
@@ -134,6 +138,7 @@ fieldset legend {
   padding-right: 4px;
 }
 
+/* Flags */
 .machine-flag {
   width: 1.25em;
   height: 1.25em;
@@ -143,16 +148,17 @@ fieldset legend {
   border-radius: 50%;
   appearance: none;
 }
-
 .machine-flag:checked {
   background-color: #9e9;
 }
 
+/* Registers */
 .machine-register-display {
   border: 1px solid #444;
   border-radius: 3px;
 }
 
+/* Buttons */
 button {
   background-color: #eee;
   color: #222;
@@ -172,6 +178,7 @@ button:disabled {
   color: #aaa;
 }
 
+/* Hints */
 .tooltip p {
   margin: 0;
   margin-top: 0.35rem;
@@ -184,7 +191,6 @@ button:disabled {
 body:not(.is-busy) .show-if-busy {
   display: none !important;
 }
-
 body.is-busy .hide-if-busy {
   display: none !important;
 }

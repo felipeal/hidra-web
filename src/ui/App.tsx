@@ -102,7 +102,7 @@ export default function App() {
         {/* Error messages */}
         {(errorMessages.length > 0) && <div className="error-messages monospace-font" style={{ flex: 0.125, marginTop: "16px", overflow: "auto", padding: "4px" }}>
           {errorMessages.map((message, index) => {
-            return <><text className="error-message" key={index}>{message}</text><br/></>;
+            return <span className="error-message" key={index}>{message}<br/></span>;
           })}
         </div>}
 
@@ -286,9 +286,7 @@ export default function App() {
                   <p>{description.description}</p>
                   <p>{description.examples}</p>
                 </span>}>
-                  <text>
-                    {Texts.shortenArguments(directive.toUpperCase())}
-                  </text>
+                  <span>{Texts.shortenArguments(directive.toUpperCase())}</span>
                 </Tippy>
               </div>;
             })}
@@ -309,9 +307,7 @@ export default function App() {
                   <strong>{name}</strong>
                   <p>{Texts.shortenArguments(description)}</p>
                 </span>}>
-                  <text>
-                    {Texts.shortenArguments(assemblyFormat)}
-                  </text>
+                  <span>{Texts.shortenArguments(assemblyFormat)}</span>
                 </Tippy>
               </div>;
             })}
@@ -333,9 +329,7 @@ export default function App() {
                     <p>{description.format}</p>
                     <p>{description.description}</p>
                   </span>}>
-                    <text>
-                      {addressingMode.getAssemblyPattern().toUpperCase().replace("(.*)", "a") || "a"}
-                    </text>
+                    <span>{addressingMode.getAssemblyPattern().toUpperCase().replace("(.*)", "a") || "a"}</span>
                   </Tippy>
                 </div>;
               })}
