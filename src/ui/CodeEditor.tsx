@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Machine } from "../core/Machine";
 import { UnControlled as CodeMirror } from "react-codemirror2";
-import codemirror from "codemirror";
+import codemirror, { Editor } from "codemirror";
 
 function arrayContains(array: string[], needle: string): boolean {
   const lower = needle.toLowerCase();
@@ -54,10 +54,30 @@ function processToken(stream: CodeMirror.StringStream, instructions: string[], d
   stream.next();
 }
 
+function makeMarker() {
+  const marker = document.createElement("div");
+  marker.className = "breakpoint";
+  marker.innerHTML = "●";
+  return marker;
+}
+
+function toggleBreakpoint(codeMirror: Editor, lineNumber: number): void {
+  const info = codeMirror.lineInfo(lineNumber);
+  codeMirror.setGutterMarker(lineNumber, "breakpoints-gutter", info.gutterMarkers ? null : makeMarker());
+}
+
+export function hasBreakpointAtLine(lineNumber: number) {
+  const info = codeMirrorInstance.lineInfo(lineNumber);
+  return Boolean(info?.gutterMarkers?.["breakpoints-gutter"]);
+}
+
 export default function CodeEditor({ machine }: { machine: Machine }) {
   defineCodeMirrorMode(machine);
+  useEffect(() => {
+    window.codeMirrorInstance?.on("gutterClick", toggleBreakpoint);
+  }, []);
 
   return (
-    <CodeMirror options={{ mode: machine.getName(), lineNumbers: true, lineWrapping: true }} editorDidMount={editor => window.codeMirrorInstance = editor} />
+    <CodeMirror options={{ mode: machine.getName(), lineNumbers: true, lineWrapping: true, gutters: ["breakpoints-gutter", "CodeMirror-linenumbers"] }} editorDidMount={editor => window.codeMirrorInstance = editor} />
   );
 }

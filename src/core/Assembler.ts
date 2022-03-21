@@ -547,7 +547,7 @@ export class Assembler {
   }
 
   public getPCCorrespondingSourceLine(): number {
-    return (this.addressCorrespondingSourceLine.at(this.pc.getValue()) ?? -1);
+    return (this.addressCorrespondingSourceLine.at(this.machine.getPCValue()) ?? -1);
   }
 
   public getAddressCorrespondingSourceLine(address: number): number {

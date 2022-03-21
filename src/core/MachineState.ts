@@ -34,7 +34,7 @@ export abstract class MachineState {
   private instructionStrings: string[] = [];
   private changed: boolean[] = [];
   private running = false;
-  private breakpoint = -1;
+  private breakpoint = -1; // TODO: Breakpoint now handled by code editor, remove?
   private instructionCount = 0;
   private accessCount = 0;
   private memoryMask!: number; // Memory address mask, populated by setMemorySize

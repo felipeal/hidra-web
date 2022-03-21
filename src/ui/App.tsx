@@ -4,7 +4,7 @@ import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 
 // Components
-import CodeEditor from "./CodeEditor";
+import CodeEditor, { hasBreakpointAtLine } from "./CodeEditor";
 import MemoryRowInstructions from "./MemoryRowInstructions";
 import MemoryRowData from "./MemoryRowData";
 import MemoryRowStack from "./MemoryRowStack";
@@ -64,7 +64,7 @@ const hideBusy = () => document.body.classList.remove("is-busy");
 
 let timeout: NodeJS.Timeout;
 
-function App() {
+export default function App() {
   const [[machine, assembler], setState] = useState([initialMachine, initialAssembler]);
   const [errorMessages, setErrorMessages] = useState([] as string[]);
   const [isRunning, setRunning] = useState(machine.isRunning());
@@ -253,7 +253,12 @@ function App() {
               const nextStep = function () {
                 if (machine.isRunning()) {
                   machine.step();
-                  timeout = setTimeout(nextStep, 10);
+
+                  if (hasBreakpointAtLine(assembler.getPCCorrespondingSourceLine())) {
+                    machine.setRunning(false);
+                  } else {
+                    timeout = setTimeout(nextStep, 10);
+                  }
                 }
               };
               nextStep();
@@ -345,5 +350,3 @@ function App() {
     </div>
   );
 }
-
-export default App;

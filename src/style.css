@@ -36,6 +36,14 @@ code, .monospace-font, .CodeMirror {
   color: #a00;
 }
 
+.breakpoints-gutter {
+  width: .5em;
+  margin-left: 5px;
+}
+.breakpoint {
+  color: #d00;
+}
+
 .react-codemirror2, .CodeMirror {
   height: 100%;
 }
