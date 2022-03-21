@@ -296,12 +296,13 @@ function App() {
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px" }}>
             {machine.getInstructions().map((instruction, index) => {
               const assemblyFormat = [instruction.getMnemonic().toUpperCase(), ...instruction.getArguments()].join(" ");
-              const description = Texts.getInstructionDescription(instruction.getAssemblyFormat(), machine);
+              const [name, description] = Texts.getInstructionDescription(instruction.getAssemblyFormat(), machine);
               return <div className="monospace-font" style={{
                 minWidth: "56px", whiteSpace: "nowrap", marginLeft: "16px", marginRight: "0"
               }} key={index}>
                 <Tippy className="tooltip" content={<span>
-                  {Texts.shortenArguments(description)}
+                  <strong>{name}</strong>
+                  <p>{Texts.shortenArguments(description)}</p>
                 </span>}>
                   <text>
                     {Texts.shortenArguments(assemblyFormat)}

@@ -44,65 +44,66 @@ export class Texts {
     }
   }
 
-  public static getInstructionDescription(assemblyFormat: string, machine: Machine): string {
+  public static getInstructionDescription(assemblyFormat: string, machine: Machine): [name: string, description: string] {
     if (machine.getName() === "Volta") {
       return Texts.getVoltaDescription(assemblyFormat);
     }
 
     switch (assemblyFormat) {
       // Neander
-      case "nop": return "Nenhuma operação.";
-      case "sta a": return "Armazena o valor do acumulador no endereço 'a'.";
-      case "lda a": return "Carrega o valor no endereço 'a' para o acumulador.";
-      case "add a": return "Adiciona o valor no endereço 'a' ao acumulador.";
-      case "or a": return "Realiza um 'ou' lógico entre cada bit de 'a' e o bit correspondente no acumulador.";
-      case "and a": return "Realiza um 'e' lógico entre cada bit de 'a' e o bit correspondente no acumulador.";
-      case "not": return "Inverte (complementa) o valor dos bits do acumulador.";
-      case "jmp a": return "Desvia a execução para o endereço 'a' (desvio incondicional).";
-      case "jn a": return "Se a flag N estiver ativada (acumulador negativo), desvia a execução para o endereço 'a'.";
-      case "jz a": return "Se a flag Z estiver ativada (acumulador zerado), desvia a execução para o endereço 'a'.";
-      case "hlt": return "Termina a execução.";
+      case "nop": return ["No Operation", "Nenhuma operação."];
+      case "sta a": return ["Store Accumulator", "Armazena o valor do acumulador no endereço 'a'."];
+      case "lda a": return ["Load Accumulator", "Carrega o valor no endereço 'a' para o acumulador."];
+      case "add a": return ["Add", "Adiciona o valor no endereço 'a' ao acumulador."];
+      case "or a": return ["Or", "Realiza um 'ou' lógico entre cada bit de 'a' e o bit correspondente no acumulador."];
+      case "and a": return ["And", "Realiza um 'e' lógico entre cada bit de 'a' e o bit correspondente no acumulador."];
+      case "not": return ["Not", "Inverte (complementa para 1) o valor dos bits do acumulador."];
+      case "jmp a": return ["Jump", "Desvia a execução para o endereço 'a' (desvio incondicional)."];
+      case "jn a": return ["Jump if Negative", "Se a flag N estiver ativada (acumulador negativo), desvia a execução para o endereço 'a'."];
+      case "jz a": return ["Jump if Zero", "Se a flag Z estiver ativada (acumulador zerado), desvia a execução para o endereço 'a'."];
+      case "hlt": return ["Halt", "Termina a execução."];
 
       // Ahmes
-      case "sub a": return "Subtrai o valor no endereço 'a' do acumulador.";
-      case "jp a": return "Se a flag N estiver desativada (acumulador positivo ou zero), desvia a execução para o endereço 'a'.";
-      case "jv a": return "Se a flag V estiver ativada (overflow), desvia a execução para o endereço 'a'.";
-      case "jnv a": return "Se a flag V estiver desativada (not overflow), desvia a execução para o endereço 'a'.";
-      case "jnz a": return "Se a flag Z estiver desativada (acumulador diferente de zero), desvia a execução para o endereço 'a'.";
-      case "jc a": return "Se a flag C estiver ativada (carry), desvia a execução para o endereço 'a'.";
-      case "jnc a": return "Se a flag C estiver desativada (not carry), desvia a execução para o endereço 'a'.";
+      case "sub a": return ["Subtract", "Subtrai o valor no endereço 'a' do acumulador."];
+      case "jp a": return ["Jump if Positive/Zero", "Se a flag N estiver desativada (acumulador positivo ou zero), desvia a execução para o endereço 'a'."];
+      case "jv a": return ["Jump if Overflow", "Se a flag V (overflow) estiver ativada, desvia a execução para o endereço 'a'."];
+      case "jnv a": return ["Jump if Not Overflow", "Se a flag V (overflow) estiver desativada, desvia a execução para o endereço 'a'."];
+      case "jnz a": return ["Jump if Not Zero", "Se a flag Z estiver desativada (acumulador diferente de zero), desvia a execução para o endereço 'a'."];
+      case "jc a": return ["Jump if Carry", "Se a flag C (carry) estiver ativada, desvia a execução para o endereço 'a'."];
+      case "jnc a": return ["Jump if Not Carry", "Se a flag C (carry) estiver desativada, desvia a execução para o endereço 'a'."];
 
-      case "jb a": return (machine.hasFlag(FlagCode.BORROW) ?
+      case "jb a": return ["Jump if Borrow", (machine.hasFlag(FlagCode.BORROW) ?
         "Se a flag B estiver ativada (borrow), desvia a execução para o endereço 'a'." :
-        "Se a flag C estiver desativada (borrow), desvia a execução para o endereço 'a'.");
+        "Se a flag C estiver desativada (borrow), desvia a execução para o endereço 'a'.")
+      ];
 
-      case "jnb a": return "Se a flag B estiver desativada (not borrow), desvia a execução para o endereço 'a'.";
-      case "shr": return "Realiza shift lógico dos bits do acumulador para a direita, passando o estado do bit menos significativo para a flag C (carry) e preenchendo o bit mais significativo com 0.";
-      case "shl": return "Realiza shift lógico dos bits do acumulador para a esquerda, passando o estado do bit mais significativo para a flag C (carry) e preenchendo o bit menos significativo com 0.";
-      case "ror": return "Realiza rotação para a esquerda dos bits do acumulador, incluindo a flag C (carry) como um bit.";
-      case "rol": return "Realiza rotação para a direita dos bits do acumulador, incluindo a flag C (carry) como um bit.";
+      case "jnb a": return ["Jump if Not Borrow", "Se a flag B estiver desativada (not borrow), desvia a execução para o endereço 'a'."];
+      case "shr": return ["Shift Right", "Realiza shift lógico dos bits do acumulador para a direita, passando o estado do bit menos significativo para a flag C (carry) e preenchendo o bit mais significativo com 0."];
+      case "shl": return ["Shift Left", "Realiza shift lógico dos bits do acumulador para a esquerda, passando o estado do bit mais significativo para a flag C (carry) e preenchendo o bit menos significativo com 0."];
+      case "ror": return ["Rotate Right", "Realiza rotação para a esquerda dos bits do acumulador, incluindo a flag C (carry) como um bit."];
+      case "rol": return ["Rotate Left", "Realiza rotação para a direita dos bits do acumulador, incluindo a flag C (carry) como um bit."];
 
       // Ramses
-      case "str r a": return "Armazena o valor do registrador 'r' no endereço 'a'.";
-      case "ldr r a": return "Carrega o valor no endereço 'a' para o registrador 'r'.";
-      case "add r a": return "Adiciona o valor no endereço 'a' ao registrador 'r'.";
-      case "or r a": return "Realiza um 'ou' lógico entre cada bit de 'a' e o bit correspondente no registrador 'r'.";
-      case "and r a": return "Realiza um 'e' lógico entre cada bit de 'a' e o bit correspondente no registrador 'r'.";
-      case "not r": return "Inverte (complementa) o valor dos bits do registrador 'r'.";
-      case "sub r a": return "Subtrai o valor no endereço 'a' do registrador 'r'.";
-      case "jsr a": return "Desvia para subrotina, armazenando o valor atual de PC em 'a' e desviando a execução para o endereço 'a' + 1.";
-      case "neg r": return "Troca o sinal do valor em complemento de 2 do registrador 'r' entre positivo e negativo.";
-      case "shr r": return "Realiza shift lógico dos bits do registrador 'r' para a direita, passando o estado do bit menos significativo para a flag C (carry) e preenchendo o bit mais significativo com 0.";
+      case "str r a": return ["Store Register", "Armazena o valor do registrador 'r' no endereço 'a'."];
+      case "ldr r a": return ["Load Register", "Carrega o valor no endereço 'a' para o registrador 'r'."];
+      case "add r a": return ["Add", "Adiciona o valor no endereço 'a' ao registrador 'r'."];
+      case "or r a": return ["Or", "Realiza um 'ou' lógico entre cada bit de 'a' e o bit correspondente no registrador 'r'."];
+      case "and r a": return ["And", "Realiza um 'e' lógico entre cada bit de 'a' e o bit correspondente no registrador 'r'."];
+      case "not r": return ["Not", "Inverte (complementa para 1) o valor dos bits do registrador 'r'."];
+      case "sub r a": return ["Subtract", "Subtrai o valor no endereço 'a' do registrador 'r'."];
+      case "jsr a": return ["Jump to Subroutine", "Desvia para subrotina, armazenando o valor atual de PC em 'a' e desviando a execução para o endereço 'a' + 1."];
+      case "neg r": return ["Negate", "Troca o sinal do valor em complemento de 2 do registrador 'r' entre positivo e negativo."];
+      case "shr r": return ["Shift Right", "Realiza shift lógico dos bits do registrador 'r' para a direita, passando o estado do bit menos significativo para a flag C (carry) e preenchendo o bit mais significativo com 0."];
 
       // Pitagoras
-      case "jd a": return "Se a flag Z estiver desativada (acumulador diferente de zero), desvia a execução para o endereço 'a'.";
+      case "jd a": return ["Jump if Different from Zero", "Se a flag Z estiver desativada (acumulador diferente de zero), desvia a execução para o endereço 'a'."];
 
       // REG
-      case "inc r": return "Incrementa o registrador 'r' em uma unidade.";
-      case "dec r": return "Decrementa o registrador 'r' de uma unidade.";
-      case "if r a0 a1": return "Se o registrador 'r' for igual a zero (if zero), desvia a execução para o endereço 'a0'. Se for diferente de zero, desvia para 'a1'.";
+      case "inc r": return ["Increment", "Incrementa o registrador 'r' em uma unidade."];
+      case "dec r": return ["Decrement", "Decrementa o registrador 'r' de uma unidade."];
+      case "if r a0 a1": return ["If Zero", "Se o registrador 'r' for igual a zero, desvia a execução para o endereço 'a0'. Se for diferente de zero, desvia para 'a1'."];
 
-      default: return "";
+      default: return ["", ""];
     }
   }
 
@@ -110,52 +111,52 @@ export class Texts {
     return (text.includes("a0") && text.includes("a1")) ? text.replace("a0", "a").replace("a1", "b") : text;
   }
 
-  private static getVoltaDescription(assemblyFormat: string): string {
+  private static getVoltaDescription(assemblyFormat: string): [string, string] {
     switch (assemblyFormat) {
-      case "nop": return "Nenhuma operação.";
+      case "nop": return ["No Operation", "Nenhuma operação."];
 
       // Arithmetic and logic (two operands)
-      case "add": return "Desempilha A e B, empilha B + A.";
-      case "sub": return "Desempilha A e B, empilha B - A.";
-      case "and": return "Desempilha A e B, empilha resultado do 'e' lógico entre seus bits.";
-      case "or": return "Desempilha A e B, empilha resultado do 'ou' lógico entre seus bits.";
+      case "add": return ["Add", "Desempilha A e B, empilha B + A."];
+      case "sub": return ["Subtract", "Desempilha A e B, empilha B - A."];
+      case "and": return ["And", "Desempilha A e B, empilha resultado do 'e' lógico entre seus bits."];
+      case "or": return ["Or", "Desempilha A e B, empilha resultado do 'ou' lógico entre seus bits."];
 
       // Arithmetic and logic (one operand)
-      case "clr": return "Zera o valor no topo da pilha.";
-      case "not": return "Inverte (complementa) o valor dos bits do topo da pilha.";
-      case "neg": return "Troca o sinal do valor em complemento de 2 do topo da pilha entre positivo e negativo.";
-      case "inc": return "Incrementa em uma unidade o topo da pilha.";
-      case "dec": return "Decrementa de uma unidade o topo da pilha.";
-      case "asr": return "Realiza shift aritmético dos bits do topo da pilha para a direita, mantendo seu sinal em complemento de dois (bit mais significativo).";
-      case "asl": return "Realiza shift aritmético dos bits do topo da pilha para a esquerda, preenchendo com zero o bit menos significativo.";
-      case "ror": return "Realiza rotação para a direita dos bits do topo da pilha.";
-      case "rol": return "Realiza rotação para a esquerda dos bits do topo da pilha.";
+      case "clr": return ["Clear", "Zera o valor no topo da pilha."];
+      case "not": return ["Not", "Inverte (complementa para 1) o valor dos bits do topo da pilha."];
+      case "neg": return ["Negate", "Troca o sinal do valor em complemento de 2 do topo da pilha entre positivo e negativo."];
+      case "inc": return ["Increment", "Incrementa em uma unidade o topo da pilha."];
+      case "dec": return ["Decrement", "Decrementa de uma unidade o topo da pilha."];
+      case "asr": return ["Arithmetical Shift Right", "Realiza shift aritmético dos bits do topo da pilha para a direita, mantendo seu sinal em complemento de dois (bit mais significativo)."];
+      case "asl": return ["Arithmetical Shift Left", "Realiza shift aritmético dos bits do topo da pilha para a esquerda, preenchendo com zero o bit menos significativo."];
+      case "ror": return ["Rotate Right", "Realiza rotação para a direita dos bits do topo da pilha."];
+      case "rol": return ["Rotate Left", "Realiza rotação para a esquerda dos bits do topo da pilha."];
 
       // Conditionals (one operand)
-      case "sz": return "Retira o topo da pilha e pula a próxima instrução se for igual a zero (skip on zero).";
-      case "snz": return "Retira o topo da pilha e pula a próxima instrução se for diferente de zero (skip on not zero).";
-      case "spl": return "Retira o topo da pilha e pula a próxima instrução se for positivo (skip on plus).";
-      case "smi": return "Retira o topo da pilha e pula a próxima instrução se for negativo (skip on minus).";
-      case "spz": return "Retira o topo da pilha e pula a próxima instrução se for maior ou igual a zero (skip on plus/zero).";
-      case "smz": return "Retira o topo da pilha e pula a próxima instrução se for menor ou igual a zero (skip on minus/zero).";
+      case "sz": return ["Skip if Zero", "Retira o topo da pilha e pula a próxima instrução se for igual a zero."];
+      case "snz": return ["Skip if Not Zero", "Retira o topo da pilha e pula a próxima instrução se for diferente de zero."];
+      case "spl": return ["Skip if Plus", "Retira o topo da pilha e pula a próxima instrução se for positivo."];
+      case "smi": return ["Skip if Minus", "Retira o topo da pilha e pula a próxima instrução se for negativo."];
+      case "spz": return ["Skip if Plus/Zero", "Retira o topo da pilha e pula a próxima instrução se for maior ou igual a zero."];
+      case "smz": return ["Skip if Minus/Zero", "Retira o topo da pilha e pula a próxima instrução se for menor ou igual a zero."];
 
       // Conditionals (two operands)
-      case "seq": return "Retira A e B da pilha e pula a próxima instrução se B = A (skip if equal).";
-      case "sne": return "Retira A e B da pilha e pula a próxima instrução se B ≠ A (skip if not equal).";
-      case "sgr": return "Retira A e B da pilha e pula a próxima instrução se B &gt; A (skip if greater than).";
-      case "sls": return "Retira A e B da pilha e pula a próxima instrução se B &lt; A (skip if less than).";
-      case "sge": return "Retira A e B da pilha e pula a próxima instrução se B ≥ A (skip if greater than/equal to).";
-      case "sle": return "Retira A e B da pilha e pula a próxima instrução se B ≤ A (skip if less than/equal to).";
+      case "seq": return ["Skip if Equal", "Retira A e B da pilha e pula a próxima instrução se B = A."];
+      case "sne": return ["Skip if Not Equal", "Retira A e B da pilha e pula a próxima instrução se B ≠ A."];
+      case "sgr": return ["Skip if Greater Than", "Retira A e B da pilha e pula a próxima instrução se B &gt; A."];
+      case "sls": return ["Skip if Less Than", "Retira A e B da pilha e pula a próxima instrução se B &lt; A."];
+      case "sge": return ["Skip if Greater Than / Equal To", "Retira A e B da pilha e pula a próxima instrução se B ≥ A."];
+      case "sle": return ["Skip if Less Than / Equal To", "Retira A e B da pilha e pula a próxima instrução se B ≤ A."];
 
       // Others
-      case "rts": return "Desvia para o endereço indicado pelo topo da pilha, desempilhando-o (retorno de sub-rotina).";
-      case "psh a": return "Empilha o valor do endereço de memória 'a'.";
-      case "pop a": return "Desempilha o topo da pilha, armazenando-o no endereço de memória 'a'.";
-      case "jmp a": return "Desvia a execução para o endereço 'a' (desvio incondicional).";
-      case "jsr a": return "Empilha PC e desvia para o endereço 'a' (desvio para sub-rotina).";
-      case "hlt": return "Termina a execução.";
+      case "rts": return ["Return from Subroutine", "Desvia para o endereço indicado pelo topo da pilha, desempilhando-o (retorno de sub-rotina)."];
+      case "psh a": return ["Push", "Empilha o valor do endereço de memória 'a'."];
+      case "pop a": return ["Pop", "Desempilha o topo da pilha, armazenando-o no endereço de memória 'a'."];
+      case "jmp a": return ["Jump", "Desvia a execução para o endereço 'a' (desvio incondicional)."];
+      case "jsr a": return ["Jump to Subroutine", "Empilha PC e desvia para o endereço 'a' (desvio para sub-rotina)."];
+      case "hlt": return ["Halt", "Termina a execução."];
 
-      default: return "";
+      default: return ["", ""];
     }
   }
 
