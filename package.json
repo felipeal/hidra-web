@@ -53,7 +53,8 @@
       "!src/**/*.d.ts",
       "!src/index.js",
       "!src/setupTests.js",
-      "!src/reportWebVitals.ts"
+      "!src/reportWebVitals.ts",
+      "!src/tests/**"
     ],
     "globalSetup": "./src/tests/utils/globalSetup.js"
   }

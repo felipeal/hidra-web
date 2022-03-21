@@ -1,3 +1,3 @@
 export default () => {
-  console.log("\n".repeat(50)); // Whitespace between test executions
+  console.log("\n".repeat(25)); // Whitespace between test executions
 };
