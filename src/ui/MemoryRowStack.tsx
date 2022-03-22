@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Volta } from "../machines/Volta";
 
-export default function MemoryRowStack({ address, voltaMachine }: { address: number, voltaMachine: Volta }) {
+function focusInput(row: number) {
+  const tableInputs = document.querySelectorAll(".stack-table .table-value");
+  (tableInputs[row] as HTMLInputElement)?.focus();
+}
+
+export default function MemoryRowStack({ row, address, voltaMachine }: { row: number, address: number, voltaMachine: Volta }) {
   const [value, setValue] = useState(String(voltaMachine.getStackValue(address)));
   const [isCurrentStackPos, setIsCurrentStackPos] = useState(voltaMachine.getSPValue() === address);
 
@@ -11,9 +16,7 @@ export default function MemoryRowStack({ address, voltaMachine }: { address: num
     setIsCurrentStackPos(voltaMachine.getSPValue() === address);
 
     // Event subscriptions
-    voltaMachine.subscribeToEvent("REG.SP", (newValue) => {
-      setIsCurrentStackPos(newValue === address);
-    });
+    voltaMachine.subscribeToEvent("REG.SP", (newValue) => setIsCurrentStackPos(newValue === address));
     voltaMachine.subscribeToEvent(`STACK.${address}`, (newValue) => setValue(String(newValue)));
   }, [voltaMachine]);
 
@@ -25,6 +28,14 @@ export default function MemoryRowStack({ address, voltaMachine }: { address: num
         setValue(String(event.target.value));
       }} onBlur={(event) => {
         voltaMachine.setStackValue(address, Number(event.target.value)); // Write value to stack on focus out
+      }} onKeyDown={(event) => {
+        if (event.key === "ArrowUp" || (event.key === "Enter" && event.shiftKey)) {
+          focusInput(row - 1);
+        } else if (event.key === "ArrowDown" || event.key === "Enter") {
+          focusInput(row + 1);
+        }
+      }} onFocus={(event) => {
+        setTimeout(() => (event.target as HTMLInputElement).select(), 0);
       }} /></td>
     </tr>
   );

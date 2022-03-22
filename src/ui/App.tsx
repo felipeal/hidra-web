@@ -156,7 +156,7 @@ export default function App() {
         </thead>
         <tbody>
           {machine.getStack().map((value, index) => {
-            return <MemoryRowStack key={index} address={machine.getStack().length - 1 - index} voltaMachine={machine} />;
+            return <MemoryRowStack key={index} row={index} address={machine.getStack().length - 1 - index} voltaMachine={machine} />;
           })}
         </tbody>
       </table>}
