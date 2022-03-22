@@ -133,7 +133,8 @@ td {
   padding: 4px;
 }
 
-.table-address {
+.table-address,
+.table-value-above-sp:not(:focus) {
   color: gray;
 }
 
