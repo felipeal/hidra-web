@@ -54,7 +54,7 @@ export class Pericles extends Machine {
     if (instruction.getNumBytes() !== 0) {
       return instruction.getNumBytes();
     } else { // Variable number of bytes
-      return (addressingModeCode !== AddressingModeCode.IMMEDIATE) ? 2 : 3; // Immediate argument has only 1 byte
+      return (addressingModeCode === AddressingModeCode.IMMEDIATE) ? 2 : 3; // Immediate argument has only 1 byte
     }
   }
 
