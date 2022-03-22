@@ -21,7 +21,7 @@ export default function MemoryRowStack({ address, voltaMachine }: { address: num
 
   return (
     <tr>
-      <td>{isCurrentStackPos ? "→" : ""}</td>
+      <td className="monospace-font pc-sp-arrow">{isCurrentStackPos ? "→" : ""}</td>
       <td className="table-address">{address}</td>
       <td><input className="table-value" inputMode="numeric" value={value} onChange={(event) => {
         setValue(String(event.target.value));

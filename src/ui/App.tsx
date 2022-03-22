@@ -96,11 +96,11 @@ export default function App() {
 
         {/* Code editor */}
         <div className="code-editor" style={{ flex: 1, overflowY: "auto" }}>
-          <CodeEditor machine={machine} />
+          <CodeEditor machine={machine} assembler={assembler} />
         </div>
 
         {/* Error messages */}
-        {(errorMessages.length > 0) && <div className="error-messages monospace-font" style={{ flex: 0.125, marginTop: "16px", overflow: "auto", padding: "4px" }}>
+        {(errorMessages.length > 0) && <div className="error-messages-area monospace-font" style={{ flex: 0.125, marginTop: "16px", overflow: "auto", padding: "4px" }}>
           {errorMessages.map((message, index) => {
             return <span className="error-message" key={index}>{message}<br/></span>;
           })}
@@ -124,7 +124,7 @@ export default function App() {
         </thead>
         <tbody>
           {machine.getMemory().map((value, address) => {
-            return <MemoryRowInstructions key={address} address={address} machine={machine} />;
+            return <MemoryRowInstructions key={address} address={address} machine={machine} assembler={assembler} />;
           })}
         </tbody>
       </table>

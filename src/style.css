@@ -16,12 +16,12 @@ body, button, select, input {
   -moz-osx-font-smoothing: grayscale;
 }
 
-select, fieldset, button, table, input {
-  font-size: 14px;
-}
-
 code, .monospace-font, .CodeMirror {
   font-family: Consolas, 'Courier New', monospace;
+}
+
+select, fieldset, button, table, input, .pc-sp-arrow {
+  font-size: 14px;
 }
 
 .CodeMirror {
@@ -32,24 +32,38 @@ code, .monospace-font, .CodeMirror {
 /* Left area (code editor and error messages)
 /******************************************************************************/
 
-.code-editor, .error-messages {
+/* Code editor area */
+.code-editor {
   border: 1px solid;
 }
-
-.error-message {
-  color: #a00;
-}
-
-.breakpoints-gutter {
-  width: .5em;
-  margin-left: 5px;
-}
-.breakpoint {
-  color: #d00;
-}
-
 .react-codemirror2, .CodeMirror {
   height: 100%;
+}
+
+/* Gutters */
+.CodeMirror-linenumber {
+  padding-left: 3px !important;
+}
+.breakpoints-gutter {
+  width: .5em;
+  margin-left: 3px;
+}
+.breakpoint-marker {
+  color: #d00;
+}
+.current-pc-gutter {
+  width: .5em;
+  margin-left: 3px;
+}
+
+/* PC/SP arrow (also used in tables) */
+.pc-sp-arrow {
+  color: #444;
+}
+
+/* Line state */
+.current-pc-line, .current-pc-line input:not(:focus) {
+  background-color: rgb(240, 224, 255);
 }
 
 /* Code highlighter */
@@ -68,6 +82,14 @@ code, .monospace-font, .CodeMirror {
 .cm-hidra-comment {
   font-style: italic;
   color: green;
+}
+
+/* Error messages area */
+.error-messages-area {
+  border: 1px solid;
+}
+.error-message {
+  color: #a00;
 }
 
 /******************************************************************************

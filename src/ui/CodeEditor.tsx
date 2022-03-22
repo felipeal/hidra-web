@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
 import { Machine } from "../core/Machine";
+import { Assembler } from "../core/Assembler";
 import { UnControlled as CodeMirror } from "react-codemirror2";
-import codemirror, { Editor } from "codemirror";
+import codemirror, { Editor, LineHandle } from "codemirror";
 
 function arrayContains(array: string[], needle: string): boolean {
   const lower = needle.toLowerCase();
@@ -19,7 +20,6 @@ function defineCodeMirrorMode(machine: Machine) {
         return processToken(stream, instructions, directives);
       }
     };
-
   });
 }
 
@@ -54,16 +54,23 @@ function processToken(stream: CodeMirror.StringStream, instructions: string[], d
   stream.next();
 }
 
-function makeMarker() {
+function makeBreakpointMarker() {
   const marker = document.createElement("div");
-  marker.className = "breakpoint";
+  marker.className = "breakpoint-marker";
   marker.innerHTML = "●";
+  return marker;
+}
+
+function makePCMarker() {
+  const marker = document.createElement("div");
+  marker.className = "pc-sp-arrow";
+  marker.innerHTML = "→";
   return marker;
 }
 
 function toggleBreakpoint(codeMirror: Editor, lineNumber: number): void {
   const info = codeMirror.lineInfo(lineNumber);
-  codeMirror.setGutterMarker(lineNumber, "breakpoints-gutter", info.gutterMarkers ? null : makeMarker());
+  codeMirror.setGutterMarker(lineNumber, "breakpoints-gutter", info.gutterMarkers?.["breakpoints-gutter"] ? null : makeBreakpointMarker());
 }
 
 export function hasBreakpointAtLine(lineNumber: number) {
@@ -71,13 +78,26 @@ export function hasBreakpointAtLine(lineNumber: number) {
   return Boolean(info?.gutterMarkers?.["breakpoints-gutter"]);
 }
 
-export default function CodeEditor({ machine }: { machine: Machine }) {
-  defineCodeMirrorMode(machine);
+let currentPCLineHandle: LineHandle | null = null;
+
+export default function CodeEditor({ machine, assembler }: { machine: Machine, assembler: Assembler }) {
   useEffect(() => {
     window.codeMirrorInstance?.on("gutterClick", toggleBreakpoint);
   }, []);
 
+  useEffect(() => {
+    machine.subscribeToEvent("REG.PC", (value) => {
+      currentPCLineHandle && codeMirrorInstance.removeLineClass(currentPCLineHandle, "background", "current-pc-line");
+      currentPCLineHandle && codeMirrorInstance.setGutterMarker(currentPCLineHandle, "current-pc-gutter", null);
+      currentPCLineHandle = codeMirrorInstance.getLineHandle(assembler.getAddressCorrespondingSourceLine(Number(value)));
+      currentPCLineHandle && codeMirrorInstance.addLineClass(currentPCLineHandle, "background", "current-pc-line");
+      currentPCLineHandle && codeMirrorInstance.setGutterMarker(currentPCLineHandle, "current-pc-gutter", makePCMarker());
+    });
+  }, [machine]);
+
+  defineCodeMirrorMode(machine);
+
   return (
-    <CodeMirror options={{ mode: machine.getName(), lineNumbers: true, lineWrapping: true, gutters: ["breakpoints-gutter", "CodeMirror-linenumbers"] }} editorDidMount={editor => window.codeMirrorInstance = editor} />
+    <CodeMirror options={{ mode: machine.getName(), lineNumbers: true, lineWrapping: true, gutters: ["current-pc-gutter", "breakpoints-gutter", "CodeMirror-linenumbers"] }} editorDidMount={editor => window.codeMirrorInstance = editor} />
   );
 }
