@@ -41,6 +41,10 @@ select, fieldset, button, table, input, .pc-sp-arrow {
 }
 
 /* Gutters */
+.CodeMirror-gutters,
+.CodeMirror-gutter-elt {
+  cursor: pointer;
+}
 .CodeMirror-linenumber {
   padding-left: 3px !important;
 }
@@ -135,6 +139,10 @@ td {
 
 .table-value {
   width: 50px;
+}
+
+.pc-cell {
+  cursor: pointer;
 }
 
 /******************************************************************************

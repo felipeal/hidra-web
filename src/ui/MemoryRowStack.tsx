@@ -24,19 +24,21 @@ export default function MemoryRowStack({ row, address, voltaMachine }: { row: nu
     <tr>
       <td className="monospace-font pc-sp-arrow">{isCurrentStackPos ? "→" : ""}</td>
       <td className="table-address">{address}</td>
-      <td><input className="table-value" inputMode="numeric" value={value} onChange={(event) => {
-        setValue(String(event.target.value));
-      }} onBlur={(event) => {
-        voltaMachine.setStackValue(address, Number(event.target.value)); // Write value to stack on focus out
-      }} onKeyDown={(event) => {
-        if (event.key === "ArrowUp" || (event.key === "Enter" && event.shiftKey)) {
-          focusInput(row - 1);
-        } else if (event.key === "ArrowDown" || event.key === "Enter") {
-          focusInput(row + 1);
-        }
-      }} onFocus={(event) => {
-        setTimeout(() => (event.target as HTMLInputElement).select(), 0);
-      }} /></td>
+      <td>
+        <input className="table-value" inputMode="numeric" value={value} onChange={(event) => {
+          setValue(String(event.target.value));
+        }} onBlur={(event) => {
+          voltaMachine.setStackValue(address, Number(event.target.value)); // Write value to stack on focus out
+        }} onKeyDown={(event) => {
+          if (event.key === "ArrowUp" || (event.key === "Enter" && event.shiftKey)) {
+            focusInput(row - 1);
+          } else if (event.key === "ArrowDown" || event.key === "Enter") {
+            focusInput(row + 1);
+          }
+        }} onFocus={(event) => {
+          setTimeout(() => (event.target as HTMLInputElement).select(), 0);
+        }} />
+      </td>
     </tr>
   );
 }
