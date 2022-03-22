@@ -249,22 +249,30 @@ export default function App() {
               machine.clearCounters();
             }}>Zerar PC</button>
             <button style={{ flex: 1 }} onClick={() => {
-              machine.setRunning(!machine.isRunning());
-              const nextStep = function () {
-                if (machine.isRunning()) {
-                  machine.step();
+              if (!machine.isRunning()) { // Run requested
+                machine.setRunning(true);
+                const nextStep = function () {
+                  if (machine.isRunning()) {
+                    machine.step();
 
-                  if (hasBreakpointAtLine(assembler.getPCCorrespondingSourceLine())) {
-                    machine.setRunning(false);
+                    if (hasBreakpointAtLine(assembler.getPCCorrespondingSourceLine())) {
+                      machine.setRunning(false);
+                    }
+
+                    timeout = setTimeout(nextStep, 0);
+                  } else {
+                    machine.updateInstructionStrings();
                   }
-
-                  timeout = setTimeout(nextStep, 0);
-                }
-              };
-              nextStep();
+                };
+                nextStep();
+              } else { // Stop requested
+                machine.setRunning(false);
+                machine.updateInstructionStrings();
+              }
             }}>{isRunning ? "Parar" : "Rodar"}</button>
             <button disabled={isRunning} style={{ flex: 1 }} onClick={() => {
               machine.step();
+              machine.updateInstructionStrings();
             }}>Passo</button>
           </div>
         </div>

@@ -29,6 +29,7 @@ export default function MemoryRowData({ address, machine, assembler }: { address
         setValue(String(event.target.value));
       }} onBlur={(event) => {
         machine.setMemoryValue(address, Number(event.target.value)); // Write value to memory on focus out
+        machine.updateInstructionStrings();
       }} /></td>
       <td style={{ maxWidth: "10rem", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</td>
     </tr>

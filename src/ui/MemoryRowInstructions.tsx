@@ -38,6 +38,7 @@ export default function MemoryRowInstructions({ address, machine, assembler }: {
         setValue(String(event.target.value));
       }} onBlur={(event) => {
         machine.setMemoryValue(address, Number(event.target.value)); // Write value to memory on focus out
+        machine.updateInstructionStrings();
       }} /></td>
       <td>{instructionString}</td>
     </tr>
