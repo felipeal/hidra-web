@@ -600,8 +600,8 @@ export class Assembler {
     this.eventSubscriptions[event].push(callback);
   }
 
-  protected publishEvent(event: string, newValue: unknown, oldValue?: unknown) {
-    this.eventSubscriptions[event]?.forEach(callback => callback(newValue, oldValue));
+  protected publishEvent(event: string, value: unknown) {
+    this.eventSubscriptions[event]?.forEach(callback => callback(value));
   }
 
 }

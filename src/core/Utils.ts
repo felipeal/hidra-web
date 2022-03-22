@@ -1,4 +1,4 @@
-export type EventCallback = ((newValue: unknown, oldValue?: unknown) => void);
+export type EventCallback = ((value: unknown) => void);
 
 export function Q_ASSERT(condition: boolean, message: string): asserts condition {
   if (!condition) {

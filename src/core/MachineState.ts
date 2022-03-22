@@ -201,7 +201,7 @@ export abstract class MachineState {
     }
   }
 
-  public hasFlag(flagCode: FlagCode): boolean { // TODO: Use get by flag code
+  public hasFlag(flagCode: FlagCode): boolean {
     return this.flags.some(flag => flag.getFlagCode() === flagCode);
   }
 
@@ -260,9 +260,8 @@ export abstract class MachineState {
 
   public setRegisterValueById(id: number, value: number): void {
     const register = this.registers[id];
-    const oldValue = register.getValue();
     register.setValue(value);
-    this.publishEvent(`REG.${register.getName()}`, register.getValue(), oldValue);
+    this.publishEvent(`REG.${register.getName()}`, register.getValue());
   }
 
   public setRegisterValueByName(registerName: string, value: number): void {
@@ -275,9 +274,8 @@ export abstract class MachineState {
       throw new Error(`Invalid register name: ${registerName}`);
     }
 
-    const oldValue = register.getValue();
     register.setValue(value);
-    this.publishEvent(`REG.${registerName}`, register.getValue(), oldValue);
+    this.publishEvent(`REG.${registerName}`, register.getValue());
   }
 
   public isRegisterData(id: number): boolean {
@@ -286,9 +284,8 @@ export abstract class MachineState {
 
   public clearRegisters(): void {
     for (const register of this.registers) {
-      const oldValue = register.getValue();
       register.setValue(0);
-      this.publishEvent(`REG.${register.getName()}`, 0, oldValue);
+      this.publishEvent(`REG.${register.getName()}`, 0);
     }
   }
 
@@ -301,9 +298,8 @@ export abstract class MachineState {
   }
 
   public setPCValue(value: number): void {
-    const oldValue = this.pc.getValue();
     this.pc.setValue(value);
-    this.publishEvent(`REG.${this.pc.getName()}`, this.pc.getValue(), oldValue);
+    this.publishEvent(`REG.${this.pc.getName()}`, this.pc.getValue());
   }
 
   public incrementPCValue(units = 1): void {
@@ -420,8 +416,8 @@ export abstract class MachineState {
     this.eventSubscriptions[event].push(callback);
   }
 
-  protected publishEvent(event: string, newValue: unknown, oldValue?: unknown) {
-    this.eventSubscriptions[event]?.forEach(callback => callback(newValue, oldValue));
+  protected publishEvent(event: string, value: unknown) {
+    this.eventSubscriptions[event]?.forEach(callback => callback(value));
   }
 
 }

@@ -11,10 +11,8 @@ export default function MemoryRowStack({ address, voltaMachine }: { address: num
     setIsCurrentStackPos(voltaMachine.getSPValue() === address);
 
     // Event subscriptions
-    voltaMachine.subscribeToEvent("REG.SP", (newValue, oldValue) => {
-      if (oldValue === address || newValue === address) {
-        setIsCurrentStackPos(newValue === address);
-      }
+    voltaMachine.subscribeToEvent("REG.SP", (newValue) => {
+      setIsCurrentStackPos(newValue === address);
     });
     voltaMachine.subscribeToEvent(`STACK.${address}`, (newValue) => setValue(String(newValue)));
   }, [voltaMachine]);

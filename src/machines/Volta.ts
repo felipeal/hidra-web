@@ -362,9 +362,8 @@ export class Volta extends Machine {
     const validAddress = address & this.stackMask;
     const validValue = value & 0xFF;
 
-    const oldValue = this.stack[validAddress].getValue();
     this.stack[validAddress].setValue(validValue);
-    this.publishEvent(`STACK.${validAddress}`, validValue, oldValue);
+    this.publishEvent(`STACK.${validAddress}`, validValue);
   }
 
   public clearStack(): void {

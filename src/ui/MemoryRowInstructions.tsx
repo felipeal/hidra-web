@@ -22,10 +22,8 @@ export default function MemoryRowInstructions({ address, machine, assembler }: {
     setIsCurrentInstruction(computeIsCurrentInstruction(address, assembler));
 
     // Event subscriptions
-    machine.subscribeToEvent(`REG.${machine.getPCName()}`, (newValue, oldValue) => {
-      if (oldValue === address || newValue === address) { // TODO: Remove optimization in all files?
-        setIsCurrentPos(newValue === address);
-      }
+    machine.subscribeToEvent(`REG.${machine.getPCName()}`, (newValue) => {
+      setIsCurrentPos(newValue === address);
       setIsCurrentInstruction(computeIsCurrentInstruction(address, assembler));
     });
     machine.subscribeToEvent(`MEM.${address}`, (newValue) => setValue(String(newValue)));
