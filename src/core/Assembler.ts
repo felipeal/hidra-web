@@ -188,7 +188,7 @@ export class Assembler {
     return [];
   }
 
-  protected removeComment(line: string) {
+  protected removeComment(line: string): string {
     let isInsideString = false;
     for (const i of range(line.length)) {
       if (line[i] === "'") {
@@ -595,12 +595,12 @@ export class Assembler {
   // Listeners
   //////////////////////////////////////////////////
 
-  public subscribeToEvent(event: string, callback: EventCallback) {
+  public subscribeToEvent(event: string, callback: EventCallback): void {
     this.eventSubscriptions[event] = this.eventSubscriptions[event] ?? [];
     this.eventSubscriptions[event].push(callback);
   }
 
-  protected publishEvent(event: string, value: unknown) {
+  protected publishEvent(event: string, value: unknown): void {
     this.eventSubscriptions[event]?.forEach(callback => callback(value));
   }
 

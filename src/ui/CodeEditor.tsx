@@ -68,12 +68,12 @@ function makePCMarker() {
   return marker;
 }
 
-function toggleBreakpoint(codeMirror: Editor, lineNumber: number): void {
+function toggleBreakpoint(codeMirror: Editor, lineNumber: number) {
   const info = codeMirror.lineInfo(lineNumber);
   codeMirror.setGutterMarker(lineNumber, "breakpoints-gutter", info.gutterMarkers?.["breakpoints-gutter"] ? null : makeBreakpointMarker());
 }
 
-export function hasBreakpointAtLine(lineNumber: number) {
+export function hasBreakpointAtLine(lineNumber: number): boolean {
   const info = codeMirrorInstance.lineInfo(lineNumber);
   return Boolean(info?.gutterMarkers?.["breakpoints-gutter"]);
 }

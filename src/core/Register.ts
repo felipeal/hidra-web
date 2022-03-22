@@ -31,7 +31,7 @@ export class Register {
     return this.bitPattern;
   }
 
-  public getNumberOfBits() {
+  public getNumberOfBits(): number {
     return this.numOfBits;
   }
 

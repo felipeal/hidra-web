@@ -199,7 +199,7 @@ export class Texts {
     }
   }
 
-  public static buildErrorMessage(lineIndex: number, errorCode: AssemblerErrorCode) {
+  public static buildErrorMessage(lineIndex: number, errorCode: AssemblerErrorCode): string {
     return `Linha ${String(lineIndex + 1)}: ${Texts.getErrorCodeMessage(errorCode)}`;
   }
 

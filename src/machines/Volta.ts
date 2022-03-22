@@ -376,7 +376,7 @@ export class Volta extends Machine {
     return this.getRegisterValueByName("SP");
   }
 
-  public setSPValue(value: number) {
+  public setSPValue(value: number): void {
     this.setRegisterValueByName("SP", value);
   }
 

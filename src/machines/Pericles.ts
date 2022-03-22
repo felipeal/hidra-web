@@ -50,7 +50,7 @@ export class Pericles extends Machine {
     });
   }
 
-  public calculateInstructionNumBytes(instruction: Instruction, addressingModeCode: AddressingModeCode) {
+  public calculateInstructionNumBytes(instruction: Instruction, addressingModeCode: AddressingModeCode): number {
     if (instruction.getNumBytes() !== 0) {
       return instruction.getNumBytes();
     } else { // Variable number of bytes

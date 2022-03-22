@@ -307,7 +307,7 @@ export abstract class MachineState {
     this.setPCValue(this.pc.getValue() + units);
   }
 
-  public getPCNumberOfBits() {
+  public getPCNumberOfBits(): number {
     return this.pc.getNumberOfBits();
   }
 
@@ -365,7 +365,7 @@ export abstract class MachineState {
     return this.instructionCount;
   }
 
-  public incrementInstructionCount() {
+  public incrementInstructionCount(): void {
     this.instructionCount++;
     this.publishEvent("INS.COUNT", this.instructionCount);
   }
@@ -374,7 +374,7 @@ export abstract class MachineState {
     return this.accessCount;
   }
 
-  public incrementAccessCount() {
+  public incrementAccessCount(): void {
     this.accessCount++;
     this.publishEvent("ACC.COUNT", this.accessCount);
   }
@@ -412,12 +412,12 @@ export abstract class MachineState {
   // Listeners
   //////////////////////////////////////////////////
 
-  public subscribeToEvent(event: string, callback: EventCallback) {
+  public subscribeToEvent(event: string, callback: EventCallback): void {
     this.eventSubscriptions[event] = this.eventSubscriptions[event] ?? [];
     this.eventSubscriptions[event].push(callback);
   }
 
-  protected publishEvent(event: string, value: unknown) {
+  protected publishEvent(event: string, value: unknown): void {
     this.eventSubscriptions[event]?.forEach(callback => callback(value));
   }
 

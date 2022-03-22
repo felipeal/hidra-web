@@ -45,7 +45,7 @@ export abstract class Machine extends MachineState {
   }
 
   // Override this to support variable number of bytes
-  public calculateInstructionNumBytes(instruction: Instruction, _addressingModeCode: AddressingModeCode) {
+  public calculateInstructionNumBytes(instruction: Instruction, _addressingModeCode: AddressingModeCode): number {
     return instruction.getNumBytes();
   }
 
