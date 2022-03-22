@@ -61,16 +61,16 @@ export class Pericles extends Machine {
   public memoryGetOperandAddress(immediateAddress: number, addressingModeCode: AddressingModeCode): number {
     switch (addressingModeCode) {
       case AddressingModeCode.DIRECT:
-        return this.memoryReadTwoByteValue(immediateAddress);
+        return this.memoryReadTwoByteAddress(immediateAddress);
 
       case AddressingModeCode.INDIRECT:
-        return this.memoryReadTwoByteValue(this.memoryReadTwoByteValue(immediateAddress));
+        return this.memoryReadTwoByteAddress(this.memoryReadTwoByteAddress(immediateAddress));
 
       case AddressingModeCode.IMMEDIATE:
         return immediateAddress;
 
       case AddressingModeCode.INDEXED_BY_X:
-        return this.address(this.memoryReadTwoByteValue(immediateAddress) + this.getRegisterValueByName("X"));
+        return this.address(this.memoryReadTwoByteAddress(immediateAddress) + this.getRegisterValueByName("X"));
 
       default:
         return 0;
@@ -94,13 +94,13 @@ export class Pericles extends Machine {
 
     switch (addressingModeCode) {
       case AddressingModeCode.DIRECT:
-        finalOperandAddress = this.getMemoryTwoByteValue(immediateAddress);
+        finalOperandAddress = this.getMemoryTwoByteAddress(immediateAddress);
         break;
 
       case AddressingModeCode.INDIRECT:
-        intermediateAddress = this.getMemoryTwoByteValue(immediateAddress);
+        intermediateAddress = this.getMemoryTwoByteAddress(immediateAddress);
         intermediateAddress2 = this.address(intermediateAddress + 1); // Second byte
-        finalOperandAddress = this.getMemoryTwoByteValue(intermediateAddress);
+        finalOperandAddress = this.getMemoryTwoByteAddress(intermediateAddress);
         break;
 
       case AddressingModeCode.IMMEDIATE:
@@ -108,7 +108,7 @@ export class Pericles extends Machine {
         break;
 
       case AddressingModeCode.INDEXED_BY_X:
-        finalOperandAddress = this.address(this.getMemoryTwoByteValue(immediateAddress) + this.getRegisterValueByName("X"));
+        finalOperandAddress = this.address(this.getMemoryTwoByteAddress(immediateAddress) + this.getRegisterValueByName("X"));
         break;
 
       case AddressingModeCode.INDEXED_BY_PC:
@@ -125,7 +125,7 @@ export class Pericles extends Machine {
     const argumentsSize = this.calculateInstructionNumBytes(instruction, addressingModeCode) - 1;
 
     // Get argument
-    const argumentValue = (argumentsSize === 2) ? this.getMemoryTwoByteValue(address + 1) : this.getMemoryValue(address + 1);
+    const argumentValue = (argumentsSize === 2) ? this.getMemoryTwoByteAddress(address + 1) : this.getMemoryValue(address + 1);
     let argument = String(argumentValue);
 
     // Add addressing mode syntax

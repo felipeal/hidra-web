@@ -37,8 +37,9 @@ export abstract class MachineState {
   private breakpoint = -1; // TODO: Breakpoint now handled by code editor, remove?
   private instructionCount = 0;
   private accessCount = 0;
-  private memoryMask!: number; // Memory address mask, populated by setMemorySize
   private eventSubscriptions: Record<string, EventCallback[]> = {};
+
+  protected memoryMask!: number; // Memory address mask, populated by setMemorySize
 
   constructor(settings: MachineSettings) {
     // Assign settings

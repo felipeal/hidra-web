@@ -390,11 +390,11 @@ export abstract class Machine extends MachineState {
     return this.memoryGetOperandAddress(immediateAddress, addressingModeCode);
   }
 
-  public memoryReadTwoByteValue(address: number): number {
+  public memoryReadTwoByteAddress(address: number): number {
     if (this.isLittleEndian()) {
-      return this.memoryRead(address) + (this.memoryRead(address + 1) << 8);
+      return (this.memoryRead(address) + (this.memoryRead(address + 1) << 8)) & this.memoryMask;
     } else {
-      return (this.memoryRead(address) << 8) + this.memoryRead(address + 1); // TODO: Untested
+      return ((this.memoryRead(address) << 8) + this.memoryRead(address + 1)) & this.memoryMask; // TODO: Untested
     }
   }
 
@@ -426,7 +426,6 @@ export abstract class Machine extends MachineState {
     }
   }
 
-  // TODO: Fix Pericles
   public generateInstructionString(address: number): { memoryString: string, argumentsSize: number } {
     let memoryString = "";
     let argumentsSize = 0;
@@ -522,11 +521,11 @@ export abstract class Machine extends MachineState {
     return { intermediateAddress, intermediateAddress2, finalOperandAddress };
   }
 
-  public getMemoryTwoByteValue(address: number): number {
+  public getMemoryTwoByteAddress(address: number): number {
     if (this.isLittleEndian()) {
-      return this.getMemoryValue(address) + (this.getMemoryValue(address + 1) << 8);
+      return (this.getMemoryValue(address) + (this.getMemoryValue(address + 1) << 8)) & this.memoryMask;
     } else {
-      return (this.getMemoryValue(address) << 8) + this.getMemoryValue(address + 1);  // TODO: Untested
+      return ((this.getMemoryValue(address) << 8) + this.getMemoryValue(address + 1)) & this.memoryMask;  // TODO: Untested
     }
   }
 
