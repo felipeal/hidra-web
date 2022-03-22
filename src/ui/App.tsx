@@ -256,9 +256,9 @@ export default function App() {
 
                   if (hasBreakpointAtLine(assembler.getPCCorrespondingSourceLine())) {
                     machine.setRunning(false);
-                  } else {
-                    timeout = setTimeout(nextStep, 10);
                   }
+
+                  timeout = setTimeout(nextStep, 0);
                 }
               };
               nextStep();
