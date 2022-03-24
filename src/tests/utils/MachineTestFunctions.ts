@@ -4,16 +4,23 @@ import { Machine } from "../../core/Machine";
 import { Texts } from "../../core/Texts";
 
 export function makeFunction_expectBuildSuccess(assembler: Assembler, machine: Machine) {
-  return (line: string, expectedMemory: number[]) => {
-    expect(assembler.build(line).map(Texts.buildErrorMessageText)).toDeepEqual([], line);
+  return (lines: string|string[], expectedMemory: number[]) => {
+    const source = Array.isArray(lines) ? lines.join("\n") : lines;
+    expect(assembler.build(source).map(Texts.buildErrorMessageText)).toDeepEqual([], source);
     const actualMemory = Object.keys(expectedMemory).map((pos) => machine.getMemoryValue(Number(pos)));
-    expect(actualMemory).toDeepEqual(expectedMemory, line);
+    expect(actualMemory).toDeepEqual(expectedMemory, source);
+
+    // Next value should be zero
+    if (expectedMemory.length < machine.getMemorySize()) {
+      expect(machine.getMemoryValue(expectedMemory.length)).toDeepEqual(0, source);
+    }
   };
 }
 
 export function makeFunction_expectBuildError(assembler: Assembler) {
-  return (line: string, errorCode: AssemblerErrorCode, lineNumber = 1) => {
-    expect(assembler.build(line).map(Texts.buildErrorMessageText)).toDeepEqual([{lineNumber, errorCode}].map(Texts.buildErrorMessageText), line);
+  return (lines: string|string[], errorCode: AssemblerErrorCode, lineNumber = 1) => {
+    const source = Array.isArray(lines) ? lines.join("\n") : lines;
+    expect(assembler.build(source).map(Texts.buildErrorMessageText)).toDeepEqual([{lineNumber, errorCode}].map(Texts.buildErrorMessageText), source);
   };
 }
 

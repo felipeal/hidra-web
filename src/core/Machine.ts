@@ -323,7 +323,7 @@ export abstract class Machine extends MachineState {
   }
 
   // Returns a valid address based on a value, removing excess bits (overflow)
-  public address(value: number): number {
+  public address(value: number): number { // TODO: Use mask
     return (value & (this.getMemorySize() - 1)); // Bit-and, removes excess bits
   }
 

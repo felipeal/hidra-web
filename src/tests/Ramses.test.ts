@@ -21,7 +21,7 @@ describe("Ramses: Build", () => {
     expectBuildSuccess("or A 128", [0x40, 128]);
     expectBuildSuccess("and A 128", [0x50, 128]);
     expectBuildSuccess("not A", [0x60]);
-    expectBuildSuccess("sub A 128", [0x70]);
+    expectBuildSuccess("sub A 128", [0x70, 128]);
     expectBuildSuccess("jmp 128", [0x80, 128]);
     expectBuildSuccess("jn 128", [0x90, 128]);
     expectBuildSuccess("jz 128", [0xA0, 128]);
@@ -34,9 +34,9 @@ describe("Ramses: Build", () => {
 
   test("addressing modes: should build correct binary", () => {
     expectBuildSuccess("str A 128", [0x10, 128]); // Direct
-    expectBuildSuccess("str A 128,i", [0x11, 128]); // Indirect
+    expectBuildSuccess("str A 128,I", [0x11, 128]); // Indirect
     expectBuildSuccess("str A #128", [0x12, 128]); // Immediate
-    expectBuildSuccess("str A 128,x", [0x13, 128]); // Indexed by X
+    expectBuildSuccess("str A 128,X", [0x13, 128]); // Indexed by X
   });
 
   test("registers: should build correct binary", () => {
@@ -160,14 +160,14 @@ describe("Ramses: Run", () => {
     // Arithmetic
     expectRunState(["add A A10V20", ...addresses], 1, {r_A: 20});
     expectRunState(["add A A10V20,I", ...addresses], 1, {r_A: 30});
-    expectRunState(["add A #40", ...addresses], 1, {r_A: 40});
+    expectRunState(["add A #40"], 1, {r_A: 40});
     expectRunState(["ldr X #1", "add A A10V20,X", ...addresses], 2, {r_A: 21});
 
     // Jumps
-    expectRunState(["jmp A10V20", ...addresses], 1, {r_PC: 10});
+    expectRunState(["jmp 10"], 1, {r_PC: 10});
     expectRunState(["jmp A10V20,I", ...addresses], 1, {r_PC: 20});
-    expectRunState(["jmp #40", ...addresses], 1, {r_PC: 2}); // Ignored
-    expectRunState(["ldr X #1", "jmp A10V20,X", ...addresses], 2, {r_PC: 11});
+    expectRunState(["jmp #40"], 1, {r_PC: 2}); // Ignored
+    expectRunState(["ldr X #1", "jmp 10,X"], 2, {r_PC: 11});
   });
 
   test("registers: should work independently", () => {

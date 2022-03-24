@@ -19,7 +19,7 @@ describe("Ahmes: Build", () => {
     expectBuildSuccess("or 128", [64, 128]);
     expectBuildSuccess("and 128", [80, 128]);
     expectBuildSuccess("not", [96]);
-    expectBuildSuccess("sub 128", [112]);
+    expectBuildSuccess("sub 128", [112, 128]);
     expectBuildSuccess("jmp 128", [128, 128]);
     expectBuildSuccess("jn 128", [144, 128]);
     expectBuildSuccess("jp 128", [148, 128]);
