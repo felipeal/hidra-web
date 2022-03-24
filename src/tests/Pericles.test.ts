@@ -188,4 +188,11 @@ describe("Pericles: Run", () => {
     ], [], {m_0: 0});
   });
 
+  test("registers: should overflow at 256 (A, B, X) or 4096 (PC)", () => {
+    expectRunState(["ldr a V128", "add a V128"], values, {r_A: 0, f_N: false, f_Z: true});
+    expectRunState(["ldr b V128", "add b V128"], values, {r_A: 0, f_N: false, f_Z: true});
+    expectRunState(["ldr x V128", "add x V128"], values, {r_A: 0, f_N: false, f_Z: true});
+    expectRunState(["jmp 4095", ""], [], {r_PC: 0});
+  });
+
 });

@@ -182,4 +182,11 @@ describe("Ramses: Run", () => {
     ], [], {m_0: 0});
   });
 
+  test("registers: should overflow at 256", () => {
+    expectRunState(["ldr a V128", "add a V128"], values, {r_A: 0, f_N: false, f_Z: true});
+    expectRunState(["ldr b V128", "add b V128"], values, {r_A: 0, f_N: false, f_Z: true});
+    expectRunState(["ldr x V128", "add x V128"], values, {r_A: 0, f_N: false, f_Z: true});
+    expectRunState(["jmp 255", ""], [], {r_PC: 0});
+  });
+
 });
