@@ -69,6 +69,7 @@
   "overrides": [
     {
       "files": [ "*.ts" ],
+      "excludedFiles": "src/tests/**",
       "rules": {
         "@typescript-eslint/explicit-function-return-type": "warn"
       }

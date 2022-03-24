@@ -7,17 +7,17 @@ import { Ramses } from "../machines/Ramses";
 const machine = new Ramses();
 const assembler = new Assembler(machine);
 
-function expectSuccess(line: string, expectedMemory: number[]) {
+function expectSuccess(line: string, expectedMemory: number[]): void {
   expect(assembler.build(line)).toDeepEqual([], line);
   const actualMemory = Object.keys(expectedMemory).map((pos) => machine.getMemoryValue(Number(pos)));
   expect(actualMemory).toDeepEqual(expectedMemory, line);
 }
 
-function expectError(line: string, errorCode: AssemblerErrorCode, lineNumber = 1) {
+function expectError(line: string, errorCode: AssemblerErrorCode, lineNumber = 1): void {
   expect(assembler.build(line)).toDeepEqual([Texts.buildErrorMessage(lineNumber - 1, errorCode)], line);
 }
 
-describe("Transformations", () => {
+describe("Assembler: Transformations", () => {
 
   test("removeComments: should handle basic scenarios", () => {
     expect(assembler["removeComment"]("code")).toBe("code");
@@ -46,7 +46,7 @@ describe("Transformations", () => {
 
 });
 
-describe("Validations", () => {
+describe("Assembler: Validations", () => {
 
   test("isValidValue: should validate range", () => {
     expect(assembler["isValidValue"]("0", -10, 10)).toBe(true);
@@ -89,7 +89,7 @@ describe("Validations", () => {
 
 });
 
-describe("Build", () => {
+describe("Assembler: Build", () => {
 
   test("build: should ignore whitespace", () => {
     expectSuccess(" ADD A 0 ; 1", [48, 0]);
@@ -97,8 +97,8 @@ describe("Build", () => {
   });
 
   test("build: should be case-insensitive", () => {
-    expectSuccess("ADD A 0", [48, 0]);
-    expectSuccess("add a 0", [48, 0]);
+    expectSuccess("ADD A 0,I", [49, 0]);
+    expectSuccess("add a 0,i", [49, 0]);
     expectSuccess("LABEL: ADD A label", [48, 0]);
   });
 
@@ -126,7 +126,7 @@ describe("Build", () => {
 
 });
 
-describe("Labels", () => {
+describe("Assembler: Labels", () => {
 
   test("should validate label format", () => {
     expectSuccess("Label:", []);
@@ -160,7 +160,7 @@ describe("Labels", () => {
 
 });
 
-describe("Directives", () => {
+describe("Assembler: Directives", () => {
 
   test("ORG: should accept all valid usages", () => {
     expectSuccess("ORG 1\nDB 1", [0, 1]);
