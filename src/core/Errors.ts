@@ -30,3 +30,5 @@ export class AssemblerError extends Error {
   }
 
 }
+
+export type ErrorMessage = {lineNumber: number, errorCode: AssemblerErrorCode};

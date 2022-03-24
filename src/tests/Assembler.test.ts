@@ -1,21 +1,14 @@
 import { } from "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
 import { AssemblerErrorCode } from "../core/Errors";
-import { Texts } from "../core/Texts";
 import { Ramses } from "../machines/Ramses";
+import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess } from "./utils/MachineTestFunctions";
 
 const machine = new Ramses();
 const assembler = new Assembler(machine);
 
-function expectSuccess(line: string, expectedMemory: number[]): void {
-  expect(assembler.build(line)).toDeepEqual([], line);
-  const actualMemory = Object.keys(expectedMemory).map((pos) => machine.getMemoryValue(Number(pos)));
-  expect(actualMemory).toDeepEqual(expectedMemory, line);
-}
-
-function expectError(line: string, errorCode: AssemblerErrorCode, lineNumber = 1): void {
-  expect(assembler.build(line)).toDeepEqual([Texts.buildErrorMessage(lineNumber - 1, errorCode)], line);
-}
+const expectSuccess = makeFunction_expectBuildSuccess(assembler, machine);
+const expectError = makeFunction_expectBuildError(assembler);
 
 describe("Assembler: Transformations", () => {
 

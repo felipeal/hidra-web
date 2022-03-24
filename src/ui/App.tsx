@@ -25,6 +25,7 @@ import { Reg } from "../machines/Reg";
 import { Volta } from "../machines/Volta";
 import { Assembler } from "../core/Assembler";
 import { Texts } from "../core/Texts";
+import { ErrorMessage } from "../core/Errors";
 
 // Global pointer required for CodeMirror persistence between live-reloads
 declare global {
@@ -66,7 +67,7 @@ let timeout: NodeJS.Timeout;
 
 export default function App() {
   const [[machine, assembler], setState] = useState([initialMachine, initialAssembler]);
-  const [errorMessages, setErrorMessages] = useState([] as string[]);
+  const [errorMessages, setErrorMessages] = useState([] as ErrorMessage[]);
   const [isRunning, setRunning] = useState(machine.isRunning());
 
   useEffect(() => {
@@ -101,8 +102,11 @@ export default function App() {
 
         {/* Error messages */}
         {(errorMessages.length > 0) && <div className="error-messages-area monospace-font" style={{ flex: 0.125, marginTop: "16px", overflow: "auto", padding: "4px" }}>
-          {errorMessages.map((message, index) => {
-            return <span className="error-message" key={index}>{message}<br/></span>;
+          {errorMessages.map((errorMessage, index) => {
+            return <span className="error-message" key={index} onClick={() => {
+              codeMirrorInstance.setSelection({line: errorMessage.lineNumber - 1, ch: Infinity}, {line: errorMessage.lineNumber - 1, ch: 0});
+              codeMirrorInstance.focus();
+            }}>{Texts.buildErrorMessageText(errorMessage)}<br/></span>;
           })}
         </div>}
 
@@ -190,6 +194,7 @@ export default function App() {
           const newMachine = buildMachine(event.target.value);
           showBusy();
           setTimeout(() => {
+            setErrorMessages([]);
             setState([newMachine, new Assembler(newMachine)]);
           });
         }}>

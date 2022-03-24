@@ -1,9 +1,8 @@
-import { AssemblerError, AssemblerErrorCode } from "./Errors";
+import { AssemblerError, AssemblerErrorCode, ErrorMessage } from "./Errors";
 import { Register } from "./Register";
 import { Instruction } from "./Instruction";
 import { AddressingModeCode } from "./AddressingMode";
 import { buildArray, range, EventCallback, QRegExp } from "./Utils";
-import { Texts } from "./Texts";
 import { Byte } from "./Byte";
 import { Machine } from "./Machine";
 
@@ -42,11 +41,11 @@ export class Assembler {
   //////////////////////////////////////////////////
 
   // Returns an array of error messages on failure
-  public build(sourceCode: string): string[] {
+  public build(sourceCode: string): ErrorMessage[] {
     this.buildSuccessful = false;
     this.firstErrorLine = -1;
 
-    const errorMessages: string[] = [];
+    const errorMessages: ErrorMessage[] = [];
 
     //////////////////////////////////////////////////
     // Simplify source code
@@ -129,7 +128,7 @@ export class Assembler {
           if (this.firstErrorLine === -1) {
             this.firstErrorLine = lineIndex;
           }
-          errorMessages.push(Texts.buildErrorMessage(lineIndex, error.errorCode));
+          errorMessages.push({lineNumber: lineIndex + 1, errorCode: error.errorCode});
         } else {
           throw error;
         }
@@ -168,7 +167,7 @@ export class Assembler {
           if (this.firstErrorLine === -1) {
             this.firstErrorLine = lineIndex;
           }
-          errorMessages.push(Texts.buildErrorMessage(lineIndex, error.errorCode));
+          errorMessages.push({lineNumber: lineIndex + 1, errorCode: error.errorCode});
         } else {
           throw error;
         }

@@ -94,6 +94,10 @@ select, fieldset, button, table, input, .pc-sp-arrow {
 }
 .error-message {
   color: #a00;
+  cursor: pointer;
+}
+.error-message:hover {
+  color: #e00;
 }
 
 /******************************************************************************

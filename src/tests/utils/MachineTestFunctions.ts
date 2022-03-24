@@ -5,7 +5,7 @@ import { Texts } from "../../core/Texts";
 
 export function makeFunction_expectBuildSuccess(assembler: Assembler, machine: Machine) {
   return (line: string, expectedMemory: number[]) => {
-    expect(assembler.build(line)).toDeepEqual([], line);
+    expect(assembler.build(line).map(Texts.buildErrorMessageText)).toDeepEqual([], line);
     const actualMemory = Object.keys(expectedMemory).map((pos) => machine.getMemoryValue(Number(pos)));
     expect(actualMemory).toDeepEqual(expectedMemory, line);
   };
@@ -13,7 +13,7 @@ export function makeFunction_expectBuildSuccess(assembler: Assembler, machine: M
 
 export function makeFunction_expectBuildError(assembler: Assembler) {
   return (line: string, errorCode: AssemblerErrorCode, lineNumber = 1) => {
-    expect(assembler.build(line)).toDeepEqual([Texts.buildErrorMessage(lineNumber - 1, errorCode)], line);
+    expect(assembler.build(line).map(Texts.buildErrorMessageText)).toDeepEqual([{lineNumber, errorCode}].map(Texts.buildErrorMessageText), line);
   };
 }
 

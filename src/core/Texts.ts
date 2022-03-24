@@ -1,4 +1,4 @@
-import { AssemblerErrorCode } from "./Errors";
+import { AssemblerErrorCode, ErrorMessage } from "./Errors";
 import { AddressingModeCode } from "./AddressingMode";
 import { Machine } from "./Machine";
 import { FlagCode } from "./Flag";
@@ -199,8 +199,8 @@ export class Texts {
     }
   }
 
-  public static buildErrorMessage(lineIndex: number, errorCode: AssemblerErrorCode): string {
-    return `Linha ${String(lineIndex + 1)}: ${Texts.getErrorCodeMessage(errorCode)}`;
+  public static buildErrorMessageText(errorMessage: ErrorMessage): string {
+    return `Linha ${errorMessage.lineNumber}: ${Texts.getErrorCodeMessage(errorMessage.errorCode)}`;
   }
 
   private static getErrorCodeMessage(errorCode: AssemblerErrorCode): string {
