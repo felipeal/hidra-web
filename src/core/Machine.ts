@@ -128,6 +128,7 @@ export abstract class Machine extends MachineState {
         result = (-value1) & 0xFF;
 
         this.setRegisterValueByName(registerName, result);
+        this.setBorrowOrCarry(value1 !== 0); // Borrows when (0 - value1) is negative
         this.updateFlags(result);
         break;
 
