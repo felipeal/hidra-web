@@ -68,116 +68,116 @@ describe("Pericles: Run", () => {
 
   test("instructions: should reach expected state after running", () => {
 
-    expectRunState(["nop"], 1, {r_A: 0, r_PC: 1});
+    expectRunState(["nop"], [], {r_A: 0, r_PC: 1});
 
     // Load/Store
-    expectRunState(["ldr A V255", ...values], 1, {r_A: 255, r_PC: 3});
-    expectRunState(["ldr A V255", "str A 2000", ...values], 2, {r_A: 0XFF, r_PC: 6, m_2000: 0xFF});
+    expectRunState(["ldr A V255"], values, {r_A: 255, r_PC: 3});
+    expectRunState(["ldr A V255", "str A 2000"], values, {r_A: 0XFF, r_PC: 6, m_2000: 0xFF});
 
     // Arithmetic/Logic
-    expectRunState(["ldr A V255", "add A V255", ...values], 2, {r_A: 254, r_PC: 6});
-    expectRunState(["ldr A VhF0", "or A Vh88", ...hexValues], 2, {r_A: 0xF8, r_PC: 6});
-    expectRunState(["ldr A VhF0", "and A Vh88", ...hexValues], 2, {r_A: 0x80, r_PC: 6});
-    expectRunState(["ldr A VhF0", "not A", ...hexValues], 2, {r_A: 0x0F, r_PC: 4});
-    expectRunState(["ldr A V128", "sub A V255", ...values], 2, {r_A: 129, r_PC: 6});
+    expectRunState(["ldr A V255", "add A V255"], values, {r_A: 254, r_PC: 6});
+    expectRunState(["ldr A VhF0", "or A Vh88"], hexValues, {r_A: 0xF8, r_PC: 6});
+    expectRunState(["ldr A VhF0", "and A Vh88"], hexValues, {r_A: 0x80, r_PC: 6});
+    expectRunState(["ldr A VhF0", "not A"], hexValues, {r_A: 0x0F, r_PC: 4});
+    expectRunState(["ldr A V128", "sub A V255"], values, {r_A: 129, r_PC: 6});
 
     // Jumps
-    expectRunState(["jmp 16"], 1, {r_A: 0, r_PC: 16});
-    expectRunState(["ldr A V127", "jn 2000", ...values], 2, {r_A: 127, r_PC: 6, f_N: false});
-    expectRunState(["ldr A V128", "jn 2000", ...values], 2, {r_A: 128, r_PC: 2000, f_N: true});
-    expectRunState(["ldr A V255", "jz 2000", ...values], 2, {r_A: 255, r_PC: 6, f_Z: false});
-    expectRunState(["ldr A V0", "jz 2000", ...values], 2, {r_A: 0, r_PC: 2000, f_Z: true});
-    expectRunState(["sub A V255", "jc 2000", ...values], 2, {r_A: 1, r_PC: 6, f_C: false});
-    expectRunState(["sub A V0", "jc 2000", ...values], 2, {r_A: 0, r_PC: 2000, f_C: true});
-    expectRunState(["nop", "jsr 2000"], 2, {r_PC: 2001, m_2000: 4});
+    expectRunState(["jmp 16"], [], {r_A: 0, r_PC: 16});
+    expectRunState(["ldr A V127", "jn 2000"], values, {r_A: 127, r_PC: 6, f_N: false});
+    expectRunState(["ldr A V128", "jn 2000"], values, {r_A: 128, r_PC: 2000, f_N: true});
+    expectRunState(["ldr A V255", "jz 2000"], values, {r_A: 255, r_PC: 6, f_Z: false});
+    expectRunState(["ldr A V0", "jz 2000"], values, {r_A: 0, r_PC: 2000, f_Z: true});
+    expectRunState(["sub A V255", "jc 2000"], values, {r_A: 1, r_PC: 6, f_C: false});
+    expectRunState(["sub A V0", "jc 2000"], values, {r_A: 0, r_PC: 2000, f_C: true});
+    expectRunState(["nop", "jsr 2000"], [], {r_PC: 2001, m_2000: 4});
 
     // Logic
-    expectRunState(["ldr A V0", "neg A", ...values], 2, {r_A: 0, r_PC: 4});
-    expectRunState(["ldr A V127", "neg A", ...values], 2, {r_A: 129, r_PC: 4});
-    expectRunState(["ldr A V128", "neg A", ...values], 2, {r_A: 128, r_PC: 4});
-    expectRunState(["ldr A V255", "neg A", ...values], 2, {r_A: 1, r_PC: 4});
-    expectRunState(["ldr A Vb10000001", "shr A", ...binValues], 2, {r_PC: 4, r_A: 0b01000000, f_C: true});
-    expectRunState(["ldr A Vb10000001", "shr A", "shr A", ...binValues], 3, {r_PC: 5, r_A: 0b00100000, f_C: false});
+    expectRunState(["ldr A V0", "neg A"], values, {r_A: 0, r_PC: 4});
+    expectRunState(["ldr A V127", "neg A"], values, {r_A: 129, r_PC: 4});
+    expectRunState(["ldr A V128", "neg A"], values, {r_A: 128, r_PC: 4});
+    expectRunState(["ldr A V255", "neg A"], values, {r_A: 1, r_PC: 4});
+    expectRunState(["ldr A Vb10000001", "shr A"], binValues, {r_PC: 4, r_A: 0b01000000, f_C: true});
+    expectRunState(["ldr A Vb10000001", "shr A", "shr A"], binValues, {r_PC: 5, r_A: 0b00100000, f_C: false});
 
     // Halt
-    expectRunState(["nop", "nop"], 2, {isRunning: true, r_PC: 2});
-    expectRunState(["hlt", "nop"], 2, {isRunning: false, r_PC: 1});
+    expectRunState(["nop", "nop"], [], {isRunning: true, r_PC: 2});
+    expectRunState(["hlt", "nop"], [], {isRunning: false, r_PC: 1});
   });
 
   test("flags: N/Z should match last updated register", () => {
     // Load
-    expectRunState(["ldr a V0", ...values], 1, {f_N: false, f_Z: true});
-    expectRunState(["ldr a V127", ...values], 1, {f_N: false, f_Z: false});
-    expectRunState(["ldr a V128", ...values], 1, {f_N: true, f_Z: false});
+    expectRunState(["ldr a V0"], values, {f_N: false, f_Z: true});
+    expectRunState(["ldr a V127"], values, {f_N: false, f_Z: false});
+    expectRunState(["ldr a V128"], values, {f_N: true, f_Z: false});
 
     // Load with different registers
-    expectRunState(["ldr a V0", "ldr b V128", ...values], 2, {f_N: true, f_Z: false});
-    expectRunState(["ldr b V0", "ldr x V128", ...values], 2, {f_N: true, f_Z: false});
-    expectRunState(["ldr x V0", "ldr a V128", ...values], 2, {f_N: true, f_Z: false});
+    expectRunState(["ldr a V0", "ldr b V128"], values, {f_N: true, f_Z: false});
+    expectRunState(["ldr b V0", "ldr x V128"], values, {f_N: true, f_Z: false});
+    expectRunState(["ldr x V0", "ldr a V128"], values, {f_N: true, f_Z: false});
 
     // Arithmetic/Logic with different registers
-    expectRunState(["ldr a V255", "add b V0", ...values], 2, {f_N: false, f_Z: true});
-    expectRunState(["ldr a V255", "or b V0", ...values], 2, {f_N: false, f_Z: true});
-    expectRunState(["ldr a V255", "and b V0", ...values], 2, {f_N: false, f_Z: true});
-    expectRunState(["ldr a V0", "not b", ...values], 2, {f_N: true, f_Z: false});
+    expectRunState(["ldr a V255", "add b V0"], values, {f_N: false, f_Z: true});
+    expectRunState(["ldr a V255", "or b V0"], values, {f_N: false, f_Z: true});
+    expectRunState(["ldr a V255", "and b V0"], values, {f_N: false, f_Z: true});
+    expectRunState(["ldr a V0", "not b"], values, {f_N: true, f_Z: false});
   });
 
   test("flags: C should match last carry operation", () => {
     // Arithmetic/Logic
-    expectRunState(["ldr a V128", "add a V127", ...values], 2, {r_A: 255, f_C: false});
-    expectRunState(["ldr a V128", "add a V128", ...values], 2, {r_A: 0, f_C: true});
-    expectRunState(["ldr a V127", "sub a V127", ...values], 2, {r_A: 0, f_C: true});
-    expectRunState(["ldr a V127", "sub a V128", ...values], 2, {r_A: 255, f_C: false});
-    expectRunState(["ldr a V0", "neg a", ...values], 2, {r_A: 0, f_C: true});
-    expectRunState(["ldr a V127", "neg a", ...values], 2, {r_A: 129, f_C: false});
-    expectRunState(["ldr a V127", "neg a", "neg a", ...values], 3, {r_A: 127, f_C: false});
-    expectRunState(["ldr a V128", "neg a", ...values], 2, {r_A: 128, f_C: false});
-    expectRunState(["ldr a V255", "neg a", ...values], 2, {r_A: 1, f_C: false});
-    expectRunState(["ldr a V255", "neg a", "neg a", ...values], 3, {r_A: 255, f_C: false});
-    expectRunState(["ldr A V127", "shr A", ...values], 2, {f_C: true});
-    expectRunState(["ldr A V128", "shr A", ...values], 2, {f_C: false});
+    expectRunState(["ldr a V128", "add a V127"], values, {r_A: 255, f_C: false});
+    expectRunState(["ldr a V128", "add a V128"], values, {r_A: 0, f_C: true});
+    expectRunState(["ldr a V127", "sub a V127"], values, {r_A: 0, f_C: true});
+    expectRunState(["ldr a V127", "sub a V128"], values, {r_A: 255, f_C: false});
+    expectRunState(["ldr a V0", "neg a"], values, {r_A: 0, f_C: true});
+    expectRunState(["ldr a V127", "neg a"], values, {r_A: 129, f_C: false});
+    expectRunState(["ldr a V127", "neg a", "neg a"], values, {r_A: 127, f_C: false});
+    expectRunState(["ldr a V128", "neg a"], values, {r_A: 128, f_C: false});
+    expectRunState(["ldr a V255", "neg a"], values, {r_A: 1, f_C: false});
+    expectRunState(["ldr a V255", "neg a", "neg a"], values, {r_A: 255, f_C: false});
+    expectRunState(["ldr A V127", "shr A"], values, {f_C: true});
+    expectRunState(["ldr A V128", "shr A"], values, {f_C: false});
 
     // Arithmetic/Logic with different registers
-    expectRunState(["ldr a V255", "add a V255", "add b V0", ...values], 3, {f_C: false}); // Updates carry
-    expectRunState(["ldr a V255", "add a V255", "or b V0", ...values], 3, {f_C: true});
-    expectRunState(["ldr a V255", "add a V255", "and b V0", ...values], 3, {f_C: true});
-    expectRunState(["ldr a V255", "add a V255", "not b", ...values], 3, {f_C: true});
-    expectRunState(["ldr a V255", "add a V255", "sub b V127", ...values], 3, {f_C: false}); // Updates carry
-    expectRunState(["ldr a V255", "add a V0", "neg b", ...values], 3, {f_C: true}); // Updates carry
-    expectRunState(["ldr a V255", "add a V255", "shr b", ...values], 3, {f_C: false}); // Updates carry
+    expectRunState(["ldr a V255", "add a V255", "add b V0"], values, {f_C: false}); // Updates carry
+    expectRunState(["ldr a V255", "add a V255", "or b V0"], values, {f_C: true});
+    expectRunState(["ldr a V255", "add a V255", "and b V0"], values, {f_C: true});
+    expectRunState(["ldr a V255", "add a V255", "not b"], values, {f_C: true});
+    expectRunState(["ldr a V255", "add a V255", "sub b V127"], values, {f_C: false}); // Updates carry
+    expectRunState(["ldr a V255", "add a V0", "neg b"], values, {f_C: true}); // Updates carry
+    expectRunState(["ldr a V255", "add a V255", "shr b"], values, {f_C: false}); // Updates carry
   });
 
   test("addressing modes: should map to correct address/value", () => {
     // Load
-    expectRunState(["ldr A A2000V30", ...addresses], 1, {r_A: 30});
-    expectRunState(["ldr A A1000V2000,I", ...addresses], 1, {r_A: 30});
-    expectRunState(["ldr A #40", ...addresses], 1, {r_A: 40});
-    expectRunState(["ldr X #2", "ldr A A1000V2000,X", ...addresses], 2, {r_A: 21});
+    expectRunState(["ldr A A2000V30"], addresses, {r_A: 30});
+    expectRunState(["ldr A A1000V2000,I"], addresses, {r_A: 30});
+    expectRunState(["ldr A #40"], addresses, {r_A: 40});
+    expectRunState(["ldr X #2", "ldr A A1000V2000,X"], addresses, {r_A: 21});
 
     // Store
-    expectRunState(["ldr A #16", "str A 1000"], 2, {m_1000: 16});
-    expectRunState(["ldr A #16", "str A A1000V2000,I", ...addresses], 2, {m_2000: 16});
-    expectRunState(["ldr A #16", "str A #32"], 2, {r_A: 16, m_3: 16, m_32: 0}); // Value 32 is unused
-    expectRunState(["ldr A #16", "ldr X #2", "str A A1000V2000,X", ...addresses], 3, {m_1002: 16});
+    expectRunState(["ldr A #16", "str A 1000"], [], {m_1000: 16});
+    expectRunState(["ldr A #16", "str A A1000V2000,I"], addresses, {m_2000: 16});
+    expectRunState(["ldr A #16", "str A #32"], [], {r_A: 16, m_3: 16, m_32: 0}); // Value 32 is unused
+    expectRunState(["ldr A #16", "ldr X #2", "str A A1000V2000,X"], addresses, {m_1002: 16});
 
     // Indexing by X should be done using two's complement
-    expectRunState(["ldr A #32", "ldr X #255", "str A 1000,X"], 3, {m_1255: 0, m_999: 32});
+    expectRunState(["ldr A #32", "ldr X #255", "str A 1000,X"], [], {m_1255: 0, m_999: 32});
 
     // Arithmetic
-    expectRunState(["add A A2000V30", ...addresses], 1, {r_A: 30});
-    expectRunState(["add A A1000V2000,I", ...addresses], 1, {r_A: 30});
-    expectRunState(["add A #40", ...addresses], 1, {r_A: 40});
-    expectRunState(["ldr X #2", "add A A1000V2000,X", ...addresses], 2, {r_A: 21});
+    expectRunState(["add A A2000V30"], addresses, {r_A: 30});
+    expectRunState(["add A A1000V2000,I"], addresses, {r_A: 30});
+    expectRunState(["add A #40"], addresses, {r_A: 40});
+    expectRunState(["ldr X #2", "add A A1000V2000,X"], addresses, {r_A: 21});
 
     // Jumps
-    expectRunState(["jmp 1000"], 1, {r_PC: 1000});
-    expectRunState(["jmp A1000V2000,I", ...addresses], 1, {r_PC: 2000});
-    expectRunState(["jmp #40"], 1, {r_PC: 2}); // Ignored
-    expectRunState(["ldr X #-2", "jmp 2000,X"], 2, {r_PC: 1998});
+    expectRunState(["jmp 1000"], [], {r_PC: 1000});
+    expectRunState(["jmp A1000V2000,I"], addresses, {r_PC: 2000});
+    expectRunState(["jmp #40"], [], {r_PC: 2}); // Ignored
+    expectRunState(["ldr X #-2", "jmp 2000,X"], [], {r_PC: 1998});
   });
 
   test("registers: should work independently", () => {
-    expectRunState(["ldr a #10", "ldr b #20", "ldr x #30"], 3, {r_A: 10, r_B: 20, r_X: 30});
+    expectRunState(["ldr a #10", "ldr b #20", "ldr x #30"], [], {r_A: 10, r_B: 20, r_X: 30});
   });
 
   test("registers: should not expose a 4th register on bit pattern ....11..", () => {
@@ -185,7 +185,7 @@ describe("Pericles: Run", () => {
     expectRunState([
       "dab 46, 10", // LDR ? #10
       "dab 28, 0" // STR ? 0
-    ], 2, {m_0: 0});
+    ], [], {m_0: 0});
   });
 
 });

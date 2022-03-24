@@ -25,12 +25,13 @@ export function makeFunction_expectBuildError(assembler: Assembler) {
 }
 
 export function makeFunction_expectRunState(assembler: Assembler, machine: Machine) {
-  return (lines: string[], steps: number, state: Record<string, number|boolean>) => {
-    const source = lines.join("\n");
+  return (instructionLines: string[], dataLines: string[], state: Record<string, number|boolean>) => {
+    const source = instructionLines.join("\n") + "\n\n" + dataLines.join("\n");
     expect(assembler.build(source)).toDeepEqual([], source);
 
     machine.setRunning(true);
-    while (machine.isRunning() && steps--) {
+    let remainingInstructions = instructionLines.length;
+    while (machine.isRunning() && remainingInstructions--) {
       machine.step();
     }
 
