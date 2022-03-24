@@ -114,7 +114,7 @@ export abstract class MachineState {
     this.publishEvent(`MEM.${address}`, this.memory[validAddress].getValue());
   }
 
-  // Has byte changed last look-up
+  // Has byte changed since last look-up
   public hasByteChanged(address: number): boolean {
     if (this.changed[address & this.memoryMask]) {
       this.changed[address & this.memoryMask] = false;

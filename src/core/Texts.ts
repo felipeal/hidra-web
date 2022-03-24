@@ -91,7 +91,7 @@ export class Texts {
       case "and r a": return ["And", "Realiza um 'e' lógico entre cada bit de 'a' e o bit correspondente no registrador 'r'."];
       case "not r": return ["Not", "Inverte (complementa para 1) o valor dos bits do registrador 'r'."];
       case "sub r a": return ["Subtract", "Subtrai o valor no endereço 'a' do registrador 'r'."];
-      case "jsr a": return ["Jump to Subroutine", "Desvia para subrotina, armazenando o valor atual de PC em 'a' e desviando a execução para o endereço 'a' + 1."];
+      case "jsr a": return ["Jump to Subroutine", "Desvio para sub-rotina: armazena o endereço de retorno (instrução seguinte) em 'a' e desvia a execução para o endereço 'a' + 1."];
       case "neg r": return ["Negate", "Troca o sinal do valor em complemento de 2 do registrador 'r' entre positivo e negativo."];
       case "shr r": return ["Shift Right", "Realiza shift lógico dos bits do registrador 'r' para a direita, passando o estado do bit menos significativo para a flag C (carry) e preenchendo o bit mais significativo com 0."];
 
@@ -149,11 +149,11 @@ export class Texts {
       case "sle": return ["Skip if Less Than / Equal To", "Retira A e B da pilha e pula a próxima instrução se B ≤ A."];
 
       // Others
-      case "rts": return ["Return from Subroutine", "Desvia para o endereço indicado pelo topo da pilha, desempilhando-o (retorno de sub-rotina)."];
+      case "rts": return ["Return from Subroutine", "Retorno de sub-rotina: desvia para o endereço indicado pelo topo da pilha, desempilhando-o."];
       case "psh a": return ["Push", "Empilha o valor do endereço de memória 'a'."];
       case "pop a": return ["Pop", "Desempilha o topo da pilha, armazenando-o no endereço de memória 'a'."];
       case "jmp a": return ["Jump", "Desvia a execução para o endereço 'a' (desvio incondicional)."];
-      case "jsr a": return ["Jump to Subroutine", "Empilha PC e desvia para o endereço 'a' (desvio para sub-rotina)."];
+      case "jsr a": return ["Jump to Subroutine", "Desvio para sub-rotina: empilha endereço de retorno (instrução seguinte) e desvia para o endereço 'a'."];
       case "hlt": return ["Halt", "Termina a execução."];
 
       default: return ["", ""];
