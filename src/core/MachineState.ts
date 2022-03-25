@@ -3,8 +3,8 @@ import { Flag, FlagCode } from "./Flag";
 import { Instruction } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
 import { Byte } from "./Byte";
-import { Conversion } from "./Conversion";
 import { buildArray, range, EventCallback, Q_ASSERT, validateSize } from "./Utils";
+import { bitPatternToByteValue } from "./Conversions";
 
 interface MachineSettings {
   name: string,
@@ -345,7 +345,7 @@ export abstract class MachineState {
       throw new Error(`Invalid addressing mode code: ${addressingModeCode}`);
     }
 
-    return Conversion.bitPatternToByteValue(addressingMode.getBitPattern());
+    return bitPatternToByteValue(addressingMode.getBitPattern());
   }
 
   public getAddressingModePattern(addressingModeCode: AddressingModeCode): string {

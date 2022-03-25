@@ -8,7 +8,7 @@ export function Q_ASSERT(condition: boolean, message: string): asserts condition
 
 export class QRegExp extends RegExp {
 
-  private lastMatch: RegExpMatchArray|null = null;
+  private lastMatch: RegExpMatchArray | null = null;
 
   exactMatch(str: string): boolean {
     this.lastMatch = str.match(this);

@@ -1,4 +1,4 @@
-import { Conversion } from "./Conversion";
+import { bitPatternToByteValue, byteValueToBitPattern } from "./Conversions";
 import { QRegExp } from "./Utils";
 
 export class Register {
@@ -40,7 +40,7 @@ export class Register {
     if (this.bitPattern === "") {
       return Register.NO_BIT_CODE;
     } else {
-      return Conversion.bitPatternToByteValue(this.bitPattern);
+      return bitPatternToByteValue(this.bitPattern);
     }
   }
 
@@ -64,7 +64,7 @@ export class Register {
 
   public matchByte(byte: number): boolean {
     const bitPatternRegExp = new QRegExp(this.bitPattern);
-    return bitPatternRegExp.exactMatch(Conversion.byteValueToBitPattern(byte));
+    return bitPatternRegExp.exactMatch(byteValueToBitPattern(byte));
   }
 
   public isData(): boolean {

@@ -1,4 +1,4 @@
-import { Conversion } from "./Conversion";
+import { bitPatternToByteValue, byteValueToBitPattern } from "./Conversions";
 import { QRegExp } from "./Utils";
 
 export enum InstructionCode {
@@ -43,7 +43,7 @@ export class Instruction {
   }
 
   public matchByte(byte: number): boolean {
-    return this.byteRegExp.exactMatch(Conversion.byteValueToBitPattern(byte));
+    return this.byteRegExp.exactMatch(byteValueToBitPattern(byte));
   }
 
   public getMnemonic(): string {
@@ -59,7 +59,7 @@ export class Instruction {
   }
 
   public getByteValue(): number {
-    return Conversion.bitPatternToByteValue(this.bitPattern);
+    return bitPatternToByteValue(this.bitPattern);
   }
 
   public getNumBytes(): number {

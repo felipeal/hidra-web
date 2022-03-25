@@ -4,6 +4,7 @@ import { Instruction, InstructionCode } from "../core/Instruction";
 import { AddressingMode, AddressingModeCode } from "../core/AddressingMode";
 import { Byte } from "../core/Byte";
 import { buildArray, range, validateSize } from "../core/Utils";
+import { unsignedByteToSignedByte as toSigned } from "../core/Conversions";
 
 export class Volta extends Machine {
 
@@ -119,7 +120,7 @@ export class Volta extends Machine {
         break;
 
       case InstructionCode.VOLTA_NEG:
-        value1 = this.toSigned(this.stackPop());
+        value1 = toSigned(this.stackPop());
         result = -value1;
         this.stackPush(result);
         break;
@@ -182,28 +183,28 @@ export class Volta extends Machine {
         break;
 
       case InstructionCode.VOLTA_SPL:
-        value1 = this.toSigned(this.stackPop());
+        value1 = toSigned(this.stackPop());
         if (value1 > 0) {
           this.skipNextInstruction();
         }
         break;
 
       case InstructionCode.VOLTA_SMI:
-        value1 = this.toSigned(this.stackPop());
+        value1 = toSigned(this.stackPop());
         if (value1 < 0) {
           this.skipNextInstruction();
         }
         break;
 
       case InstructionCode.VOLTA_SPZ:
-        value1 = this.toSigned(this.stackPop());
+        value1 = toSigned(this.stackPop());
         if (value1 >= 0) {
           this.skipNextInstruction();
         }
         break;
 
       case InstructionCode.VOLTA_SMZ:
-        value1 = this.toSigned(this.stackPop());
+        value1 = toSigned(this.stackPop());
         if (value1 <= 0) {
           this.skipNextInstruction();
         }
@@ -230,32 +231,32 @@ export class Volta extends Machine {
         break;
 
       case InstructionCode.VOLTA_SGR:
-        value1 = this.toSigned(this.stackPop());
-        value2 = this.toSigned(this.stackPop());
+        value1 = toSigned(this.stackPop());
+        value2 = toSigned(this.stackPop());
         if (value2 > value1) {
           this.skipNextInstruction();
         }
         break;
 
       case InstructionCode.VOLTA_SLS:
-        value1 = this.toSigned(this.stackPop());
-        value2 = this.toSigned(this.stackPop());
+        value1 = toSigned(this.stackPop());
+        value2 = toSigned(this.stackPop());
         if (value2 < value1) {
           this.skipNextInstruction();
         }
         break;
 
       case InstructionCode.VOLTA_SGE:
-        value1 = this.toSigned(this.stackPop());
-        value2 = this.toSigned(this.stackPop());
+        value1 = toSigned(this.stackPop());
+        value2 = toSigned(this.stackPop());
         if (value2 >= value1) {
           this.skipNextInstruction();
         }
         break;
 
       case InstructionCode.VOLTA_SLE:
-        value1 = this.toSigned(this.stackPop());
-        value2 = this.toSigned(this.stackPop());
+        value1 = toSigned(this.stackPop());
+        value2 = toSigned(this.stackPop());
         if (value2 <= value1) {
           this.skipNextInstruction();
         }

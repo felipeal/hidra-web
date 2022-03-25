@@ -1,4 +1,4 @@
-import { Conversion } from "./Conversion";
+import { bitPatternToByteValue } from "./Conversions";
 import { QRegExp } from "./Utils";
 
 export enum AddressingModeCode {
@@ -26,7 +26,7 @@ export class AddressingMode {
   }
 
   public getBitCode(): number {
-    return Conversion.bitPatternToByteValue(this.bitPattern);
+    return bitPatternToByteValue(this.bitPattern);
   }
 
   public getAddressingModeCode(): AddressingModeCode {

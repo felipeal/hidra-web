@@ -3,6 +3,7 @@ import { Register } from "../core/Register";
 import { Flag, FlagCode } from "../core/Flag";
 import { Instruction, InstructionCode } from "../core/Instruction";
 import { AddressingMode, AddressingModeCode } from "../core/AddressingMode";
+import { unsignedByteToSignedByte } from "../core/Conversions";
 
 export class Pericles extends Machine {
 
@@ -71,7 +72,7 @@ export class Pericles extends Machine {
 
       case AddressingModeCode.INDEXED_BY_X:
         // Sum should be done in two's complement
-        return this.address(this.memoryReadTwoByteAddress(immediateAddress) + this.toSigned(this.getRegisterValueByName("X")));
+        return this.address(this.memoryReadTwoByteAddress(immediateAddress) + unsignedByteToSignedByte(this.getRegisterValueByName("X")));
 
       default:
         return 0;
@@ -110,7 +111,7 @@ export class Pericles extends Machine {
 
       case AddressingModeCode.INDEXED_BY_X: // TODO: Duplicate?
         // Sum should be done in two's complement
-        finalOperandAddress = this.address(this.getMemoryTwoByteAddress(immediateAddress) + this.toSigned(this.getRegisterValueByName("X")));
+        finalOperandAddress = this.address(this.getMemoryTwoByteAddress(immediateAddress) + unsignedByteToSignedByte(this.getRegisterValueByName("X")));
         break;
 
       case AddressingModeCode.INDEXED_BY_PC:

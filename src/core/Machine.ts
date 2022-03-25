@@ -3,7 +3,7 @@ import { FlagCode } from "./Flag";
 import { Instruction, InstructionCode } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
 import { QRegExp } from "./Utils";
-import { Conversion } from "./Conversion";
+import { byteValueToBitPattern, unsignedByteToSignedByte as toSigned } from "../core/Conversions";
 
 export abstract class Machine extends MachineState {
 
@@ -82,7 +82,7 @@ export abstract class Machine extends MachineState {
 
         this.setRegisterValueByName(registerName, result);
         this.setCarry(value1 + value2 > 0xFF);
-        this.setOverflow(this.toSigned(value1) + this.toSigned(value2) !== this.toSigned(result));
+        this.setOverflow(toSigned(value1) + toSigned(value2) !== toSigned(result));
         this.updateFlags(result);
         break;
 
@@ -119,7 +119,7 @@ export abstract class Machine extends MachineState {
 
         this.setRegisterValueByName(registerName, result);
         this.setBorrowOrCarry(value1 < value2);
-        this.setOverflow(this.toSigned(value1) - this.toSigned(value2) !== this.toSigned(result));
+        this.setOverflow(toSigned(value1) - toSigned(value2) !== toSigned(result));
         this.updateFlags(result);
         break;
 
@@ -281,7 +281,7 @@ export abstract class Machine extends MachineState {
     for (const addressingMode of this.getAddressingModes()) {
       const matchAddressingMode = new QRegExp(addressingMode.getBitPattern());
 
-      if (matchAddressingMode.exactMatch(Conversion.byteValueToBitPattern(fetchedValue))) {
+      if (matchAddressingMode.exactMatch(byteValueToBitPattern(fetchedValue))) {
         return addressingMode.getAddressingModeCode();
       }
     }
@@ -318,21 +318,13 @@ export abstract class Machine extends MachineState {
 
   // Updates N and Z
   public updateFlags(value: number): void {
-    this.setFlagValueByName("N", this.toSigned(value) < 0);
+    this.setFlagValueByName("N", toSigned(value) < 0);
     this.setFlagValueByName("Z", value === 0);
   }
 
   // Returns a valid address based on a value, removing excess bits (overflow)
   public address(value: number): number { // TODO: Use mask
     return (value & (this.getMemorySize() - 1)); // Bit-and, removes excess bits
-  }
-
-  public toSigned(unsignedByte: number): number {
-    if (unsignedByte <= 127) { // Max signed byte
-      return unsignedByte;
-    } else {
-      return unsignedByte - 256;
-    }
   }
 
   //////////////////////////////////////////////////
