@@ -322,11 +322,6 @@ export abstract class Machine extends MachineState {
     this.setFlagValueByName("Z", value === 0);
   }
 
-  // Returns a valid address based on a value, removing excess bits (overflow)
-  public address(value: number): number { // TODO: Use mask
-    return (value & (this.getMemorySize() - 1)); // Bit-and, removes excess bits
-  }
-
   //////////////////////////////////////////////////
   // Memory read/write with access count
   //////////////////////////////////////////////////
@@ -363,10 +358,10 @@ export abstract class Machine extends MachineState {
         return immediateAddress;
 
       case AddressingModeCode.INDEXED_BY_X:
-        return this.address(this.memoryRead(immediateAddress) + this.getRegisterValueByName("X"));
+        return this.toValidAddress(this.memoryRead(immediateAddress) + this.getRegisterValueByName("X"));
 
       case AddressingModeCode.INDEXED_BY_PC:
-        return this.address(this.memoryRead(immediateAddress) + this.getRegisterValueByName("PC"));
+        return this.toValidAddress(this.memoryRead(immediateAddress) + this.getRegisterValueByName("PC"));
 
       default:
         return 0;
@@ -385,9 +380,9 @@ export abstract class Machine extends MachineState {
 
   public memoryReadTwoByteAddress(address: number): number {
     if (this.isLittleEndian()) {
-      return (this.memoryRead(address) + (this.memoryRead(address + 1) << 8)) & this.memoryMask;
+      return this.toValidAddress(this.memoryRead(address) + (this.memoryRead(address + 1) << 8));
     } else {
-      return ((this.memoryRead(address) << 8) + this.memoryRead(address + 1)) & this.memoryMask; // TODO: Untested
+      return this.toValidAddress((this.memoryRead(address) << 8) + this.memoryRead(address + 1)); // TODO: Untested
     }
   }
 
@@ -486,7 +481,7 @@ export abstract class Machine extends MachineState {
       return { intermediateAddress, intermediateAddress2, finalOperandAddress };
     }
 
-    const immediateAddress = this.address(this.getPCValue() + 1);
+    const immediateAddress = this.toValidAddress(this.getPCValue() + 1);
 
     switch (addressingModeCode) {
       case AddressingModeCode.DIRECT:
@@ -503,11 +498,11 @@ export abstract class Machine extends MachineState {
         break;
 
       case AddressingModeCode.INDEXED_BY_X: // Indexed addressing mode
-        finalOperandAddress = this.address(this.getMemoryValue(immediateAddress) + this.getRegisterValueByName("X"));
+        finalOperandAddress = this.toValidAddress(this.getMemoryValue(immediateAddress) + this.getRegisterValueByName("X"));
         break;
 
       case AddressingModeCode.INDEXED_BY_PC:
-        finalOperandAddress = this.address(this.getMemoryValue(immediateAddress) + this.getRegisterValueByName("PC"));
+        finalOperandAddress = this.toValidAddress(this.getMemoryValue(immediateAddress) + this.getRegisterValueByName("PC"));
         break;
     }
 
@@ -516,9 +511,9 @@ export abstract class Machine extends MachineState {
 
   public getMemoryTwoByteAddress(address: number): number {
     if (this.isLittleEndian()) {
-      return (this.getMemoryValue(address) + (this.getMemoryValue(address + 1) << 8)) & this.memoryMask;
+      return this.toValidAddress(this.getMemoryValue(address) + (this.getMemoryValue(address + 1) << 8));
     } else {
-      return ((this.getMemoryValue(address) << 8) + this.getMemoryValue(address + 1)) & this.memoryMask;  // TODO: Untested
+      return this.toValidAddress((this.getMemoryValue(address) << 8) + this.getMemoryValue(address + 1));  // TODO: Untested
     }
   }
 

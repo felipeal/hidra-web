@@ -72,7 +72,7 @@ export class Pericles extends Machine {
 
       case AddressingModeCode.INDEXED_BY_X:
         // Sum should be done in two's complement
-        return this.address(this.memoryReadTwoByteAddress(immediateAddress) + unsignedByteToSignedByte(this.getRegisterValueByName("X")));
+        return this.toValidAddress(this.memoryReadTwoByteAddress(immediateAddress) + unsignedByteToSignedByte(this.getRegisterValueByName("X")));
 
       default:
         return 0;
@@ -101,7 +101,7 @@ export class Pericles extends Machine {
 
       case AddressingModeCode.INDIRECT:
         intermediateAddress = this.getMemoryTwoByteAddress(immediateAddress);
-        intermediateAddress2 = this.address(intermediateAddress + 1); // Second byte
+        intermediateAddress2 = this.toValidAddress(intermediateAddress + 1); // Second byte
         finalOperandAddress = this.getMemoryTwoByteAddress(intermediateAddress);
         break;
 
@@ -111,10 +111,10 @@ export class Pericles extends Machine {
 
       case AddressingModeCode.INDEXED_BY_X: // TODO: Duplicate?
         // Sum should be done in two's complement
-        finalOperandAddress = this.address(this.getMemoryTwoByteAddress(immediateAddress) + unsignedByteToSignedByte(this.getRegisterValueByName("X")));
+        finalOperandAddress = this.toValidAddress(this.getMemoryTwoByteAddress(immediateAddress) + unsignedByteToSignedByte(this.getRegisterValueByName("X")));
         break;
 
-      case AddressingModeCode.INDEXED_BY_PC:
+      default:
         break;
     }
 

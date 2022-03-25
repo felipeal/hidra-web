@@ -37,9 +37,9 @@ export abstract class MachineState {
   private breakpoint = -1; // TODO: Breakpoint now handled by code editor, remove?
   private instructionCount = 0;
   private accessCount = 0;
-  private eventSubscriptions: Record<string, EventCallback[]> = {};
+  private memoryMask!: number; // Memory address mask, populated by setMemorySize
 
-  protected memoryMask!: number; // Memory address mask, populated by setMemorySize
+  private eventSubscriptions: Record<string, EventCallback[]> = {};
 
   constructor(settings: MachineSettings) {
     // Assign settings
@@ -103,11 +103,11 @@ export abstract class MachineState {
   }
 
   public getMemoryValue(address: number): number {
-    return this.memory[address & this.memoryMask].getValue();
+    return this.memory[this.toValidAddress(address)].getValue();
   }
 
   public setMemoryValue(address: number, value: number): void {
-    const validAddress = address & this.memoryMask;
+    const validAddress = this.toValidAddress(address);
 
     this.memory[validAddress].setValue(value);
     this.changed[validAddress] = true;
@@ -116,8 +116,10 @@ export abstract class MachineState {
 
   // Has byte changed since last look-up
   public hasByteChanged(address: number): boolean {
-    if (this.changed[address & this.memoryMask]) {
-      this.changed[address & this.memoryMask] = false;
+    const validAddress = this.toValidAddress(address);
+
+    if (this.changed[validAddress]) {
+      this.changed[validAddress] = false;
       return true;
     } else {
       return false;
@@ -131,12 +133,13 @@ export abstract class MachineState {
   }
 
   public getInstructionString(address: number): string {
-    return this.instructionStrings[address & this.memoryMask];
+    return this.instructionStrings[this.toValidAddress(address)];
   }
 
   protected setInstructionString(address: number, str: string): void {
-    this.instructionStrings[address & this.memoryMask] = str;
-    this.publishEvent(`INS.STR.${address}`, str);
+    const validAddress = this.toValidAddress(address);
+    this.instructionStrings[validAddress] = str;
+    this.publishEvent(`INS.STR.${validAddress}`, str);
   }
 
   public clearInstructionStrings(): void {
@@ -406,6 +409,11 @@ export abstract class MachineState {
     this.clearInstructionStrings();
 
     this.setRunning(false);
+  }
+
+  // Returns a valid address, removing excess bits
+  public toValidAddress(value: number): number {
+    return (value & this.memoryMask);
   }
 
   //////////////////////////////////////////////////
