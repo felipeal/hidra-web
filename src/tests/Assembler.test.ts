@@ -225,6 +225,7 @@ describe("Assembler: Directives", () => {
     expectSuccess("DAB ''''0'''0''''", [39, 48, 39, 48, 39]); // String with escaped single quotes
     expectSuccess("DAB '1-1'", [49, 45, 49]); // String with hyphen
     expectSuccess("DAB '1:1'", [49, 58, 49]); // String with colon
+    expectSuccess("DAB '1   1'", [49, 32, 32, 32, 49]); // String with multiple spaces
     expectSuccess("DAB [2]\nDB 1", [0, 0, 1]); // Allocate only
     expectSuccess("DAB -128", [128]); // Lower bound
     expectSuccess("DAB 255", [255]); // Upper bound
@@ -250,6 +251,7 @@ describe("Assembler: Directives", () => {
     expectSuccess("DAW ''''0'''0''''", [0, 39, 0, 48, 0, 39, 0, 48, 0, 39]); // String with escaped single quotes
     expectSuccess("DAW '1-1'", [0, 49, 0, 45, 0, 49]); // String with hyphen
     expectSuccess("DAW '1:1'", [0, 49, 0, 58, 0, 49]); // String with colon
+    expectSuccess("DAB '1   1'", [49, 32, 32, 32, 49]); // String with multiple spaces
     expectSuccess("DAW [2]\nDB 1", [0, 0, 0, 0, 1]); // Allocate only
     expectSuccess("DAW -32768", [128, 0]); // Lower bound
     expectSuccess("DAW 65535", [255, 255]); // Upper bound

@@ -53,6 +53,7 @@ export class Assembler {
     const errorMessages: ErrorMessage[] = [];
 
     const labelMatcher = new RegExpMatcher(/^(\w+):/); // Also captures invalid labels to inform errors
+    const firstTokenMatcher = new RegExpMatcher(/^(\S+)\s*/);
 
     //////////////////////////////////////////////////
     // Simplify source code
@@ -103,22 +104,22 @@ export class Assembler {
         // Reserve memory for instructions/directives
         //////////////////////////////////////////////////
 
-        if (sourceLines[lineIndex].length > 0) {
-          const mnemonic = sourceLines[lineIndex].split(Assembler.WHITESPACE)[0].toLowerCase();
+        if (firstTokenMatcher.match(sourceLines[lineIndex])) {
+          const mnemonic = firstTokenMatcher.cap(1).toLowerCase();
+          const args = sourceLines[lineIndex].slice(firstTokenMatcher.cap(0).length); // Everything after mnemonic
 
           const instruction = this.machine.getInstructionFromMnemonic(mnemonic);
           if (instruction !== null) {
             let numBytes = instruction.getNumBytes();
 
             if (numBytes === 0) { // If instruction has variable number of bytes
-              const addressArgument = sourceLines[lineIndex].split(Assembler.WHITESPACE).slice(-1).join(" "); // Last argument
-              const { addressingModeCode } = this.extractArgumentAddressingModeCode(addressArgument);
+              const valueArgument = args.split(Assembler.WHITESPACE)[instruction.getArguments().indexOf("a")] || "";
+              const { addressingModeCode } = this.extractArgumentAddressingModeCode(valueArgument);
               numBytes = this.machine.calculateInstructionNumBytes(instruction, addressingModeCode);
             }
 
             this.reserveAssemblerMemory(numBytes, lineIndex);
           } else if (Assembler.DIRECTIVES.includes(mnemonic)) {
-            const args = sourceLines[lineIndex].split(Assembler.WHITESPACE).slice(1).join(" "); // Everything after mnemonic
             this.obeyDirective(mnemonic, args, true, lineIndex);
           } else {
             throw new AssemblerError(AssemblerErrorCode.INVALID_MNEMONIC);
@@ -153,9 +154,9 @@ export class Assembler {
       try {
         this.sourceLineCorrespondingAddress[lineIndex] = this.getPCValue();
 
-        if (sourceLines[lineIndex].length > 0) {
-          const mnemonic = sourceLines[lineIndex].split(Assembler.WHITESPACE)[0].toLowerCase();
-          const args = sourceLines[lineIndex].split(Assembler.WHITESPACE).slice(1).join(" "); // Everything after mnemonic
+        if (firstTokenMatcher.match(sourceLines[lineIndex])) {
+          const mnemonic = firstTokenMatcher.cap(1).toLowerCase();
+          const args = sourceLines[lineIndex].slice(firstTokenMatcher.cap(0).length); // Everything after mnemonic
 
           const instruction: Instruction | null = this.machine.getInstructionFromMnemonic(mnemonic);
           if (instruction !== null) {
@@ -216,7 +217,6 @@ export class Assembler {
     return result;
   }
 
-  // Mnemonic must be lowercase
   protected obeyDirective(mnemonic: string, args: string, reserveOnly: boolean, sourceLine: number): void {
     assert(Assembler.DIRECTIVES.includes(mnemonic), `Unexpected argument for obeyDirective: ${mnemonic}`);
 
@@ -243,11 +243,10 @@ export class Assembler {
         argumentList.push("0"); // Default to argument 0 in case of DB and DW
       }
 
+      // Validate number of arguments
       if (!isDefineArray && argumentList.length > 1) {
         throw new AssemblerError(AssemblerErrorCode.TOO_MANY_ARGUMENTS); // TODO: Error specific to strings too?
-      }
-
-      if (isDefineArray && argumentList.length < 1) { // No arguments
+      } else if (isDefineArray && argumentList.length < 1) {
         throw new AssemblerError(AssemblerErrorCode.TOO_FEW_ARGUMENTS);
       }
 
@@ -257,7 +256,7 @@ export class Assembler {
           throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
         } else if (reserveOnly) {
           this.reserveAssemblerMemory(Number(argumentList[0]) * bytesPerArgument, sourceLine);
-        } else { // Skip bytes
+        } else { // Skip already reserved bytes
           this.incrementPCValue(Number(argumentList[0]) * bytesPerArgument);
         }
       } else if (reserveOnly) {
@@ -285,7 +284,9 @@ export class Assembler {
 
   protected buildInstruction(instruction: Instruction, args: string): void {
     const argumentList = args.split(Assembler.WHITESPACE).filter(argument => /\S/.test(argument)); // Filters out empty strings
-    const instructionArguments = instruction.getArguments(); let isImmediate = false;
+    const instructionArguments: string[] = instruction.getArguments();
+
+    let isImmediate = false;
     let registerBitCode = 0b00000000;
     let addressingModeBitCode = 0b00000000;
 
@@ -298,7 +299,7 @@ export class Assembler {
 
     // If argumentList contains a register
     if (instructionArguments.includes("r")) {
-      registerBitCode = this.machine.getRegisterBitCode(argumentList[0]);
+      registerBitCode = this.machine.getRegisterBitCode(argumentList[instructionArguments.indexOf("r")]);
 
       if (registerBitCode === Register.NO_BIT_CODE) {
         throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT); // Register not found (or invisible)
@@ -307,8 +308,8 @@ export class Assembler {
 
     // If argumentList contains an address/value
     if (instructionArguments.includes("a")) {
-      const { argument: newArgument, addressingModeCode } = this.extractArgumentAddressingModeCode(argumentList[argumentList.length - 1]); // Removes addressing mode from argument
-      argumentList[argumentList.length - 1] = newArgument; // TODO: Refactor
+      const { argument: extractedArgument, addressingModeCode } = this.extractArgumentAddressingModeCode(argumentList[instructionArguments.indexOf("a")]);
+      argumentList[instructionArguments.indexOf("a")] = extractedArgument;
       addressingModeBitCode = this.machine.getAddressingModeBitCode(addressingModeCode);
       isImmediate = (addressingModeCode === AddressingModeCode.IMMEDIATE);
     }
@@ -318,11 +319,11 @@ export class Assembler {
 
     // Write second byte (if 1-byte address/immediate value)
     if (instruction.getNumBytes() === 2 || isImmediate) {
-      this.setAssemblerMemoryNext(this.argumentToValue(argumentList[argumentList.length - 1], isImmediate)); // Converts labels, chars, etc.
+      this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instructionArguments.indexOf("a")], isImmediate)); // Converts labels, chars, etc.
 
     // Write second and third bytes (if 2-byte addresses)
     } else if (instructionArguments.includes("a")) {
-      const address = this.argumentToValue(argumentList[argumentList.length - 1], isImmediate);
+      const address = this.argumentToValue(argumentList[instructionArguments.indexOf("a")], isImmediate);
 
       this.setAssemblerMemoryNext(address & 0xFF); // Least significant byte (little-endian)
       this.setAssemblerMemoryNext((address >> 8) & 0xFF); // Most significant byte
