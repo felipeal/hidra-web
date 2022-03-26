@@ -15,9 +15,15 @@ export class QRegExp extends RegExp {
     return Boolean(str === this.lastMatch?.[0]);
   }
 
-  // Returns capture "index" from the last exactMatch call (0 = full string)
+  match(str: string): boolean {
+    this.lastMatch = str.match(this);
+    return Boolean(this.lastMatch);
+  }
+
+  // Returns capture "index" from the last exactMatch/match call (0 = full string)
   cap(index: number): string {
     Q_ASSERT(!!this.lastMatch, "Capture accessed without lastMatch.");
+    Q_ASSERT(this.lastMatch[index] !== undefined, `No match for group ${index}.`);
     return this.lastMatch[index];
   }
 

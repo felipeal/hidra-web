@@ -23,6 +23,11 @@ describe("Assembler: Transformations", () => {
   test("removeComments: should ignore comments inside strings", () => {
     expect(assembler["removeComment"]("code ';code' ; comment")).toBe("code ';code' ");
     expect(assembler["removeComment"]("code ';code' ';code' ; comment")).toBe("code ';code' ';code' ");
+    expect(assembler["removeComment"]("code '")).toBe("code '");
+    expect(assembler["removeComment"]("code ';")).toBe("code ';");
+    expect(assembler["removeComment"]("''''code'''code'''' ;'''")).toBe("''''code'''code'''' ");
+    expect(assembler["removeComment"]("''''' ;'")).toBe("''''' ");
+    expect(assembler["removeComment"]("''''' ';' ;'")).toBe("''''' ';' ");
   });
 
   test("removeComments: should replace the correct part of the string", () => {
@@ -97,8 +102,8 @@ describe("Assembler: Build", () => {
 
   test("build: should validate instructions", () => {
     expectSuccess("HLT", [240]);
-    expectError("NOPX", AssemblerErrorCode.INVALID_INSTRUCTION);
-    expectError("XNOP", AssemblerErrorCode.INVALID_INSTRUCTION);
+    expectError("NOPX", AssemblerErrorCode.INVALID_MNEMONIC);
+    expectError("XNOP", AssemblerErrorCode.INVALID_MNEMONIC);
   });
 
   test("build: should validate number of arguments for instructions", () => {
@@ -127,10 +132,10 @@ describe("Assembler: Labels", () => {
     expectSuccess("Label:\nDB 1", [1]);
     expectSuccess(" Label:\nDB 1", [1]);
     expectSuccess("_: DB 1", [1]);
-    expectError(": DB 1", AssemblerErrorCode.INVALID_LABEL); // Empty label
-    expectError("La bel: DB 1", AssemblerErrorCode.INVALID_LABEL); // Space inside label
-    expectError("Label :\nDB 1", AssemblerErrorCode.INVALID_LABEL); // Space before colon
     expectError("1: DB 1", AssemblerErrorCode.INVALID_LABEL); // Starting with number
+    expectError("Label :\nDB 1", AssemblerErrorCode.INVALID_MNEMONIC); // Space before colon
+    expectError(": DB 1", AssemblerErrorCode.INVALID_MNEMONIC); // Empty label
+    expectError("La bel: DB 1", AssemblerErrorCode.INVALID_MNEMONIC); // Space inside label
   });
 
   test("should validate label's existence", () => {
@@ -151,6 +156,10 @@ describe("Assembler: Labels", () => {
     expectSuccess("ORG 2\nLabel: JMP Label", [0, 0, 128, 2]); // Label after ORG
   });
 
+  test("should parse correctly", () => {
+    expectSuccess("a: DAB 'a:'", [97, 58]); // Label repeated inside string
+  });
+
 });
 
 describe("Assembler: Directives", () => {
@@ -164,6 +173,7 @@ describe("Assembler: Directives", () => {
     expectError("ORG 1 2", AssemblerErrorCode.TOO_MANY_ARGUMENTS);
     expectError("ORG 256", AssemblerErrorCode.INVALID_ADDRESS);
     expectError("ORG h100", AssemblerErrorCode.INVALID_ADDRESS);
+    expectError("Label: DB 10\nORG Label", AssemblerErrorCode.INVALID_ADDRESS, 2); // Labels not allowed
   });
 
   test("DB: should accept all valid usages", () => {
@@ -213,12 +223,15 @@ describe("Assembler: Directives", () => {
     expectSuccess("DAB '0', '12', 3, h4, '''", [48, 49, 50, 3, 4, 39]); // Mixed formats (commas)
     expectSuccess("DAB '0' '12' 3 h4 '''", [48, 49, 50, 3, 4, 39]); // Mixed formats (commas)
     expectSuccess("DAB ''''0'''0''''", [39, 48, 39, 48, 39]); // String with escaped single quotes
+    expectSuccess("DAB '1-1'", [49, 45, 49]); // String with hyphen
+    expectSuccess("DAB '1:1'", [49, 58, 49]); // String with colon
     expectSuccess("DAB [2]\nDB 1", [0, 0, 1]); // Allocate only
     expectSuccess("DAB -128", [128]); // Lower bound
     expectSuccess("DAB 255", [255]); // Upper bound
     expectError("DAB 0, -129, 2", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
     expectError("DAB 0, 256, 2", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
     expectError("DAB", AssemblerErrorCode.TOO_FEW_ARGUMENTS); // No argument: invalid
+    expectError("DAB [h2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate hex (invalid)
     expectError("DAB ''", AssemblerErrorCode.INVALID_STRING); // Empty string
     expectError("DAB '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
     expectError("DAB %", AssemblerErrorCode.INVALID_ARGUMENT); // Unexpected argument
@@ -235,12 +248,15 @@ describe("Assembler: Directives", () => {
     expectSuccess("DAW '0', '12', 3, h4, '''", [0, 48, 0, 49, 0, 50, 0, 3, 0, 4, 0, 39]); // Mixed formats (commas)
     expectSuccess("DAW '0' '12' 3 h4 '''", [0, 48, 0, 49, 0, 50, 0, 3, 0, 4, 0, 39]); // Mixed formats (commas)
     expectSuccess("DAW ''''0'''0''''", [0, 39, 0, 48, 0, 39, 0, 48, 0, 39]); // String with escaped single quotes
+    expectSuccess("DAW '1-1'", [0, 49, 0, 45, 0, 49]); // String with hyphen
+    expectSuccess("DAW '1:1'", [0, 49, 0, 58, 0, 49]); // String with colon
     expectSuccess("DAW [2]\nDB 1", [0, 0, 0, 0, 1]); // Allocate only
     expectSuccess("DAW -32768", [128, 0]); // Lower bound
     expectSuccess("DAW 65535", [255, 255]); // Upper bound
     expectError("DAW 0, -32769, 2", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
     expectError("DAW 0, 65536, 2", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
     expectError("DAW", AssemblerErrorCode.TOO_FEW_ARGUMENTS); // No argument: invalid
+    expectError("DAB [h2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate hex (invalid)
     expectError("DAW ''", AssemblerErrorCode.INVALID_STRING); // Empty string
     expectError("DAW '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
     expectError("DAW %", AssemblerErrorCode.INVALID_ARGUMENT); // Unexpected argument

@@ -207,7 +207,7 @@ export class Texts {
     switch (errorCode) {
       case AssemblerErrorCode.TOO_FEW_ARGUMENTS: return "Número de argumentos menor do que o esperado.";
       case AssemblerErrorCode.TOO_MANY_ARGUMENTS: return "Número de argumentos maior do que o esperado.";
-      case AssemblerErrorCode.INVALID_INSTRUCTION: return "Mnemônico inválido.";
+      case AssemblerErrorCode.INVALID_MNEMONIC: return "Mnemônico inválido.";
       case AssemblerErrorCode.INVALID_ADDRESS: return "Endereço inválido.";
       case AssemblerErrorCode.INVALID_VALUE: return "Valor inválido.";
       case AssemblerErrorCode.INVALID_STRING: return "String inválido.";

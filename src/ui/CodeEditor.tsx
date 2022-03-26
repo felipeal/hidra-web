@@ -41,13 +41,12 @@ function processToken(stream: CodeMirror.StringStream, instructions: string[], d
     }
   }
 
-  // If string
-  if (stream.match(/'''([^']|$)/, false)) { // Literal single quote (''')
-    stream.match(/'''/);
+  const stringMatch = stream.match(Assembler.STRING_PATTERN, false);
+  if (stringMatch) {
+    stream.match(`'${stringMatch[1]}'`);
     return "hidra-string";
-  } else if (stream.eat("'")) {
-    stream.match(/('''|[^'])+/);
-    stream.eat("'");
+  } else if (stream.eat("'")) { // Unclosed string
+    stream.skipToEnd();
     return "hidra-string";
   }
 

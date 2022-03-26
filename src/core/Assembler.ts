@@ -2,15 +2,19 @@ import { AssemblerError, AssemblerErrorCode, ErrorMessage } from "./Errors";
 import { Register } from "./Register";
 import { Instruction } from "./Instruction";
 import { AddressingModeCode } from "./AddressingMode";
-import { buildArray, range, EventCallback, QRegExp } from "./Utils";
+import { buildArray, range, EventCallback, QRegExp, Q_ASSERT } from "./Utils";
 import { Byte } from "./Byte";
 import { Machine } from "./Machine";
 
 export class Assembler {
 
-  // Constants
-  protected static readonly WHITESPACE = new QRegExp("\\s+");
-  protected static readonly QUOTE_SYMBOL = "\uFFFF"; // Reserved unicode character
+  // Patterns
+  public static readonly WHITESPACE = /\s+/;
+  public static readonly LABEL_PATTERN = "[a-z_][a-z0-9_]*";
+  public static readonly STRING_PATTERN = /^'('|([^']|''')+)'([,\s]+|$)/m; // '(string)'(separator)
+  public static readonly VALUE_PATTERN = /^([^'\s,]+)([,\s]+|$)/m; // (value)(separator)
+
+  public static readonly DIRECTIVES = ["org", "db", "dw", "dab", "daw"];
 
   protected readonly machine: Machine;
   protected reserved: boolean[];
@@ -47,22 +51,17 @@ export class Assembler {
 
     const errorMessages: ErrorMessage[] = [];
 
+    const labelMatcher = new QRegExp(/^(\w+):/); // Also captures invalid labels to inform errors
+
     //////////////////////////////////////////////////
     // Simplify source code
     //////////////////////////////////////////////////
 
     const sourceLines = sourceCode.split(/\r?\n/); // Split source code to individual lines
 
-    // Strip comments and extra spaces
+    // Strip comments and trim whitespace
     for (const lineIndex of range(sourceLines.length)) {
-      // Convert literal quotes to special symbol
-      sourceLines[lineIndex] = sourceLines[lineIndex].replaceAll("''''", "'" + Assembler.QUOTE_SYMBOL); // '''' . 'QUOTE_SYMBOL
-      sourceLines[lineIndex] = sourceLines[lineIndex].replaceAll("'''", Assembler.QUOTE_SYMBOL); // ''' . QUOTE_SYMBOL
-
-      // Remove comments
       sourceLines[lineIndex] = this.removeComment(sourceLines[lineIndex]);
-
-      // Trim whitespace
       sourceLines[lineIndex] = sourceLines[lineIndex].trim();
     }
 
@@ -80,8 +79,9 @@ export class Assembler {
         // Read labels
         //////////////////////////////////////////////////
 
-        if (sourceLines[lineIndex].includes(":")) { // If getLabel found a label
-          const labelName = sourceLines[lineIndex].split(":")[0];
+        // If line starts with a label pattern
+        if (labelMatcher.match(sourceLines[lineIndex])) {
+          const labelName = labelMatcher.cap(1);
 
           // Check for invalid label name
           if (!this.isValidLabelFormat(labelName)) {
@@ -95,7 +95,7 @@ export class Assembler {
 
           this.labelPCMap.set(labelName.toLowerCase(), this.getPCValue()); // Add to map
           this.setAddressCorrespondingLabel(this.getPCValue(), labelName);
-          sourceLines[lineIndex] = sourceLines[lineIndex].replaceAll(labelName + ":", "").trim(); // Remove label from line
+          sourceLines[lineIndex] = sourceLines[lineIndex].slice(labelMatcher.cap(0).length).trim(); // Consume label
         }
 
         //////////////////////////////////////////////////
@@ -116,9 +116,11 @@ export class Assembler {
             }
 
             this.reserveAssemblerMemory(numBytes, lineIndex);
-          } else { // Directive
+          } else if (Assembler.DIRECTIVES.includes(mnemonic)) {
             const args = sourceLines[lineIndex].split(Assembler.WHITESPACE).slice(1).join(" "); // Everything after mnemonic
             this.obeyDirective(mnemonic, args, true, lineIndex);
+          } else {
+            throw new AssemblerError(AssemblerErrorCode.INVALID_MNEMONIC);
           }
         }
 
@@ -157,8 +159,10 @@ export class Assembler {
           const instruction: Instruction | null = this.machine.getInstructionFromMnemonic(mnemonic);
           if (instruction !== null) {
             this.buildInstruction(instruction, args);
-          } else { // Directive
+          } else if (Assembler.DIRECTIVES.includes(mnemonic)) {
             this.obeyDirective(mnemonic, args, false, lineIndex);
+          } else {
+            throw new AssemblerError(AssemblerErrorCode.INVALID_MNEMONIC); // Should be unreachable on second pass
           }
         }
       } catch (error: unknown) {
@@ -188,19 +192,33 @@ export class Assembler {
   }
 
   protected removeComment(line: string): string {
-    let isInsideString = false;
-    for (const i of range(line.length)) {
-      if (line[i] === "'") {
-        isInsideString = !isInsideString;
-      } else if (line[i] === ";" && !isInsideString) {
-        return line.slice(0, i);
+    const stringMatcher = new QRegExp(Assembler.STRING_PATTERN);
+    const codeMatcher = new QRegExp(/^[^;']+/); // Neither string nor comment
+
+    let result = "";
+
+    while (line) {
+      if (line.startsWith(";")) {
+        break;
+      } else if (codeMatcher.match(line)) {
+        result += codeMatcher.cap(0);
+        line = line.slice(codeMatcher.cap(0).length);
+      } else if (stringMatcher.match(line)) {
+        result += stringMatcher.cap(0);
+        line = line.slice(stringMatcher.cap(0).length);
+      } else {
+        result += line; // Unclosed string, abort
+        break;
       }
     }
-    return line;
+
+    return result;
   }
 
   // Mnemonic must be lowercase
   protected obeyDirective(mnemonic: string, args: string, reserveOnly: boolean, sourceLine: number): void {
+    Q_ASSERT(Assembler.DIRECTIVES.includes(mnemonic), `Unexpected argument for obeyDirective: ${mnemonic}`);
+
     if (mnemonic === "org") {
       const argumentList = args.trim().split(Assembler.WHITESPACE).filter(argument => /\S/.test(argument)); // Filters out empty strings
       const numberOfArguments = argumentList.length;
@@ -214,7 +232,7 @@ export class Assembler {
       }
 
       this.setPCValue(this.stringToInt(argumentList[0]));
-    } else if (new QRegExp("db|dw|dab|daw").exactMatch(mnemonic)) {
+    } else {
       const { argumentList, isAllocate } = this.splitArguments(args);
 
       const bytesPerArgument = (mnemonic === "db" || mnemonic === "dab") ? 1 : 2;
@@ -261,8 +279,6 @@ export class Assembler {
           }
         }
       }
-    } else {
-      throw new AssemblerError(AssemblerErrorCode.INVALID_INSTRUCTION);
     }
   }
 
@@ -349,7 +365,7 @@ export class Assembler {
 
   // Validates label names (must start with a letter/underline, may have numbers)
   protected isValidLabelFormat(labelName: string): boolean {
-    const validLabel = new QRegExp("[a-z_][a-z0-9_]*");
+    const validLabel = new QRegExp(Assembler.LABEL_PATTERN);
     return validLabel.exactMatch(labelName.toLowerCase());
   }
 
@@ -390,7 +406,7 @@ export class Assembler {
     }
   }
 
-  // TODO: Shouldn't it also allow positive offsets to overflow memory?
+  // TODO: Create isValidOffset and adjust boundaries here
   protected isValidAddress(addressString: string): boolean { // Allows negative values for offsets
     return this.isValidValue(addressString, -this.machine.getMemorySize(), this.machine.getMemorySize() - 1);
   }
@@ -400,17 +416,12 @@ export class Assembler {
   }
 
   protected splitArguments(args: string): { argumentList: string[], isAllocate: boolean } {
-    const finalArgumentList: string[] = [];
+    let finalArgumentList: string[] = [];
 
     // Regular expressions
-    const matchBrackets = new QRegExp("\\[(\\d+)\\]"); // Digits between brackets
-
-    const VALUE = "([^'\\s,]+)";
-    const STRING = "('[^']+')";
-    const SEPARATOR = "([,\\s]*|$)";
-
-    const matchArgumentString = "(" + VALUE + "|" + STRING + ")" + SEPARATOR;
-    const matchArgument = new RegExp(matchArgumentString, "gi");
+    const allocateMatcher = new QRegExp(/\[(\d+)\]/); // Digits between brackets
+    const valueMatcher = new QRegExp(Assembler.VALUE_PATTERN); // (value)(separator)
+    const stringMatcher = new QRegExp(Assembler.STRING_PATTERN); // '(string)'(separator)
 
     args = args.trim(); // Trim whitespace
 
@@ -418,37 +429,28 @@ export class Assembler {
     // Byte/Word allocation
     //////////////////////////////////////////////////
 
-    if (matchBrackets.exactMatch(args)) {
-      return { argumentList: [matchBrackets.cap(1)], isAllocate: true };
+    if (allocateMatcher.exactMatch(args)) {
+      return { argumentList: [allocateMatcher.cap(1)], isAllocate: true };
     }
 
     //////////////////////////////////////////////////
-    // Process string
+    // String/Value arguments
     //////////////////////////////////////////////////
 
-    let currentMatch = matchArgument.exec(args);
-    let totalMatchedLength = 0;
-
-    while (currentMatch) { // While there are arguments
-      let argument = currentMatch[1];
-
-      // Ascii string
-      if (argument.includes("'")) {
-        argument = argument.replaceAll("'", "");
-        for (const character of argument.split("")) {
-          finalArgumentList.push(`'${character}'`); // Char between single quotes
-        }
-      } else { // Value
-        finalArgumentList.push(argument);
+    while (args.length > 0) {
+      if (valueMatcher.match(args)) {
+        finalArgumentList.push(valueMatcher.cap(1));
+        args = args.slice(valueMatcher.cap(0).length);
+      } else if (stringMatcher.match(args)) {
+        const withParsedQuotes = stringMatcher.cap(1).replaceAll("'''", "'");
+        const asCharList = withParsedQuotes.split("").map(c => `'${c}'`);
+        finalArgumentList = finalArgumentList.concat(asCharList);
+        args = args.slice(stringMatcher.cap(0).length);
+      } else if (args.startsWith("'")) {
+        throw new AssemblerError(AssemblerErrorCode.INVALID_STRING);
+      } else {
+        throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
       }
-
-      totalMatchedLength += currentMatch[0].length;
-
-      currentMatch = matchArgument.exec(args);
-    }
-
-    if (totalMatchedLength !== args.length) { // If not fully matched, an error occurred
-      throw new AssemblerError(AssemblerErrorCode.INVALID_STRING);
     }
 
     return { argumentList: finalArgumentList, isAllocate: false };
@@ -472,17 +474,17 @@ export class Assembler {
 
   protected argumentToValue(argument: string, isImmediate: boolean, immediateNumBytes = 1): number {
     const matchChar = new QRegExp("'.'");
-    const labelOffset = new QRegExp("(.+)(\\+|\\-)(.+)"); // (label) (+|-) (offset)
+    const labelOffset = new QRegExp(`(${Assembler.LABEL_PATTERN})(\\+|-)(\\w+)`); // (label) (+|-) (offset)
 
     // Convert label with +/- offset to number
     if (labelOffset.exactMatch(argument.toLowerCase())) {
       const sign = (labelOffset.cap(2) === "+") ? +1 : -1;
 
       if (!this.labelPCMap.has(labelOffset.cap(1))) { // Validate label's existence
-        throw new AssemblerError(AssemblerErrorCode.INVALID_LABEL); // TODO: Distinguish between not found vs invalid syntax?
+        throw new AssemblerError(AssemblerErrorCode.INVALID_LABEL);
       }
       if (!this.isValidAddress(labelOffset.cap(3))) { // Validate offset
-        throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
+        throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT); // TODO: Shouldn't it validate the result instead?
       }
 
       // Argument = Label + Offset
@@ -495,9 +497,7 @@ export class Assembler {
     }
 
     if (isImmediate) {
-      if (argument.includes(Assembler.QUOTE_SYMBOL)) { // Immediate quote
-        return "'".charCodeAt(0);
-      } else if (matchChar.exactMatch(argument)) { // Immediate char
+      if (matchChar.exactMatch(argument)) { // Immediate char
         return argument[1].charCodeAt(0); // TODO: Original (number)argument[1].toLatin1();
       } else if (this.isValidNBytesValue(argument, immediateNumBytes)) { // Immediate hex/dec value
         return this.stringToInt(argument);
