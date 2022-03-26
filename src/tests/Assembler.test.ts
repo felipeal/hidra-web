@@ -186,8 +186,12 @@ describe("Assembler: Directives", () => {
     expectSuccess("DB hFF", [255]); // Hexadecimal
     expectSuccess("DB -128", [128]); // Lower bound
     expectSuccess("DB 255", [255]); // Upper bound
+    expectSuccess("DB A128-256\nORG 128\nA128: DB", [128]); // Lower bound with offset
+    expectSuccess("DB A128+127\nORG 128\nA128: DB", [255]); // Upper bound with offset
     expectError("DB -129", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
     expectError("DB 256", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
+    expectError("Zero: DB Zero-129", AssemblerErrorCode.INVALID_VALUE); // Out of bounds with offset
+    expectError("Zero: DB Zero+256", AssemblerErrorCode.INVALID_VALUE); // Out of bounds with offset
     expectError("DB 1 2", AssemblerErrorCode.TOO_MANY_ARGUMENTS); // Extra arguments
     expectError("DB [2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate syntax: invalid
     expectError("DB '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
@@ -205,8 +209,12 @@ describe("Assembler: Directives", () => {
     expectSuccess("DW hFF", [0, 255]); // Hexadecimal
     expectSuccess("DW -32768", [128, 0]); // Lower bound
     expectSuccess("DW 65535", [255, 255]); // Upper bound
+    expectSuccess("DW A2-32770\nA2: DB", [128, 0]); // Lower bound with offset
+    expectSuccess("DW A2+65533\nA2: DB", [255, 255]); // Upper bound with offset
     expectError("DW -32769", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
     expectError("DW 65536", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
+    expectError("Zero: DW Zero-32769", AssemblerErrorCode.INVALID_VALUE); // Out of bounds with offset
+    expectError("Zero: DW Zero+65536", AssemblerErrorCode.INVALID_VALUE); // Out of bounds with offset
     expectError("DW 1 2", AssemblerErrorCode.TOO_MANY_ARGUMENTS); // Extra arguments
     expectError("DW [2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate syntax: invalid
     expectError("DW '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string

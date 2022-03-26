@@ -409,8 +409,8 @@ export class Assembler {
     }
   }
 
-  // TODO: Create isValidOffset and adjust boundaries here
-  protected isValidAddress(addressString: string): boolean { // Allows negative values for offsets
+  protected isValidAddress(addressString: string): boolean {
+    // Allows negative values to refer to memory end. Daedalus does not impose boundaries.
     return this.isValidValue(addressString, -this.machine.getMemorySize(), this.machine.getMemorySize() - 1);
   }
 
@@ -491,8 +491,8 @@ export class Assembler {
         throw new AssemblerError(AssemblerErrorCode.LABEL_NOT_ALLOWED);
       } else if (!this.labelPCMap.has(offsetMatcher.cap(1))) { // Validate label's existence
         throw new AssemblerError(AssemblerErrorCode.INVALID_LABEL);
-      } else if (!this.isValidAddress(offsetMatcher.cap(3))) { // Validate offset
-        throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT); // TODO: Shouldn't it validate the result instead?
+      } else if (!this.isValidValueFormat(offsetMatcher.cap(3))) { // Validate offset format
+        throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
       }
 
       // Argument = Label + Offset
