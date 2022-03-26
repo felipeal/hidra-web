@@ -217,6 +217,7 @@ export class Texts {
       case AssemblerErrorCode.DUPLICATE_LABEL: return "Label já definido.";
       case AssemblerErrorCode.LABEL_NOT_ALLOWED: return "Uso de labels não permitido para este mnemônico.";
       case AssemblerErrorCode.MEMORY_OVERLAP: return "Sobreposição de memória.";
+      case AssemblerErrorCode.MEMORY_LIMIT_EXCEEDED: return "Limite de memória excedido.";
       case AssemblerErrorCode.NOT_IMPLEMENTED: return "Funcionalidade não implementada.";
 
       default: return "Erro indefinido.";

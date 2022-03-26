@@ -311,10 +311,6 @@ export abstract class MachineState {
     this.setPCValue(this.pc.getValue() + units);
   }
 
-  public getPCNumberOfBits(): number {
-    return this.pc.getNumberOfBits();
-  }
-
   public getInstructions(): ReadonlyArray<Instruction> {
     return this.instructions;
   }

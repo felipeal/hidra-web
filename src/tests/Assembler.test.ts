@@ -120,6 +120,14 @@ describe("Assembler: Build", () => {
 
   test("build: should validate memory overlap", () => {
     expectError("JMP 128\nORG 1\nDB 0", AssemblerErrorCode.MEMORY_OVERLAP, 3);
+    expectError("ORG 1\nADD A 0\nORG 0\nADD A 0", AssemblerErrorCode.MEMORY_OVERLAP, 4); // Overlap on second byte only
+  });
+
+  test("build: should validate memory exceeded", () => {
+    expectSuccess("ORG 255\nHLT", [0]); // Instruction ends inside memory
+    expectError("ORG 255\nADD A 0", AssemblerErrorCode.MEMORY_LIMIT_EXCEEDED, 2); // Instruction ends outside memory
+    expectError("ORG 254\nDAW 1, 2", AssemblerErrorCode.MEMORY_LIMIT_EXCEEDED, 2); // Word starts outside memory
+    expectError("ORG 253\nDAW 1, 2", AssemblerErrorCode.MEMORY_LIMIT_EXCEEDED, 2); // Word ends outside memory
   });
 
 });

@@ -22,7 +22,7 @@ export class Assembler {
   protected buildSuccessful = false;
   protected firstErrorLine = -1;
 
-  private readonly pc: Register;
+  private pcValue = 0;
   private assemblerMemory: Byte[] = [];
   private addressCorrespondingSourceLine: number[];
   private sourceLineCorrespondingAddress: number[] = [];
@@ -32,7 +32,6 @@ export class Assembler {
 
   constructor(machine: Machine) {
     this.machine = machine;
-    this.pc = new Register("PC", "", machine.getPCNumberOfBits(), false);
 
     // Initialize memory arrays
     this.assemblerMemory = buildArray(machine.getMemorySize(), () => new Byte());
@@ -591,15 +590,18 @@ export class Assembler {
   }
 
   protected getPCValue(): number {
-    return this.pc.getValue();
+    if (this.pcValue >= this.machine.getMemorySize() || this.pcValue < 0) {
+      throw new AssemblerError(AssemblerErrorCode.MEMORY_LIMIT_EXCEEDED);
+    }
+    return this.pcValue;
   }
 
   protected setPCValue(value: number): void {
-    this.pc.setValue(value);
+    this.pcValue = value; // Overflow is allowed until this new value is used (getPCValue).
   }
 
   protected incrementPCValue(units = 1): void {
-    this.setPCValue(this.pc.getValue() + units);
+    this.pcValue += units;
   }
 
   //////////////////////////////////////////////////

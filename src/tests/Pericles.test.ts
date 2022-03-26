@@ -57,6 +57,20 @@ describe("Pericles: Build", () => {
     expectBuildSuccess("dw h1020", [0x20, 0x10]);
   });
 
+  test("build: should validate memory overlap", () => {
+    expectBuildSuccess("ADD A #1\nORG 2\nADD A #2", [0x32, 1, 0x32, 2]); // No overlap for immediate
+    expectBuildError("ORG 2\nADD A 0\nORG 0\nADD A 0", AssemblerErrorCode.MEMORY_OVERLAP, 4); // Overlap on third byte only
+  });
+
+  test("build: should validate memory exceeded", () => {
+    expectBuildSuccess("ORG 4093\nADD A 0", [0]); // Instruction ends inside memory
+    expectBuildSuccess("ORG 4094\nADD A #0", [0]); // Instruction with immediate address ends inside memory
+    expectBuildError("ORG 4094\nDAW 1, 2", AssemblerErrorCode.MEMORY_LIMIT_EXCEEDED, 2); // Word starts outside memory
+    expectBuildError("ORG 4093\nDAW 1, 2", AssemblerErrorCode.MEMORY_LIMIT_EXCEEDED, 2); // Word ends outside memory
+    expectBuildError("ORG 4094\nADD A 0", AssemblerErrorCode.MEMORY_LIMIT_EXCEEDED, 2); // Instruction ends outside memory
+    expectBuildError("ORG 4095\nADD A #0", AssemblerErrorCode.MEMORY_LIMIT_EXCEEDED, 2); // Instruction ends outside memory
+  });
+
 });
 
 describe("Pericles: Run", () => {
