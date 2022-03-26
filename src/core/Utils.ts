@@ -26,7 +26,7 @@ export class RegExpMatcher extends RegExp {
   // Returns capture "index" from the last fullMatch/match call (0 = full string)
   cap(index: number): string {
     assert(this.lastMatch, "Capture accessed without lastMatch.");
-    assert(this.lastMatch[index] ?? false, `No match for group ${index}.`);
+    assert(this.lastMatch[index] !== undefined, `No match for group ${index}.`);
     return this.lastMatch[index];
   }
 

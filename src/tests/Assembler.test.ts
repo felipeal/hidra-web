@@ -228,14 +228,15 @@ describe("Assembler: Directives", () => {
     expectSuccess("DAB '0'", [48]); // Single character
     expectSuccess("DAB '''", [39]); // Single quote character
     expectSuccess("DAB '012'", [48, 49, 50]); // String
-    expectSuccess("DAB 1, 2, 3", [1, 2, 3]); // Multiple arguments (commas)
     expectSuccess("DAB 1 2 3", [1, 2, 3]); // Multiple arguments (spaces)
+    expectSuccess("DAB 1,2,3", [1, 2, 3]); // Multiple arguments (commas)
+    expectSuccess("DAB 1,  2  ,3  ,  4", [1, 2, 3, 4]); // Multiple arguments (commas+spaces)
     expectSuccess("DAB '0', '12', 3, h4, '''", [48, 49, 50, 3, 4, 39]); // Mixed formats (commas)
     expectSuccess("DAB '0' '12' 3 h4 '''", [48, 49, 50, 3, 4, 39]); // Mixed formats (commas)
     expectSuccess("DAB ''''0'''0''''", [39, 48, 39, 48, 39]); // String with escaped single quotes
     expectSuccess("DAB '1-1'", [49, 45, 49]); // String with hyphen
     expectSuccess("DAB '1:1'", [49, 58, 49]); // String with colon
-    expectSuccess("DAB '1   1'", [49, 32, 32, 32, 49]); // String with multiple spaces
+    expectSuccess("DAB '1  1'", [49, 32, 32, 49]); // String with multiple spaces
     expectSuccess("DAB [2]\nDB 1", [0, 0, 1]); // Allocate only
     expectSuccess("DAB -128", [128]); // Lower bound
     expectSuccess("DAB 255", [255]); // Upper bound
@@ -245,6 +246,7 @@ describe("Assembler: Directives", () => {
     expectError("DAB [h2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate hex
     expectError("DAB ''", AssemblerErrorCode.INVALID_STRING); // Empty string
     expectError("DAB '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
+    expectError("DAB 1,, 2", AssemblerErrorCode.INVALID_SEPARATOR); // Invalid comma usage
     expectError("Label: DAB Label", AssemblerErrorCode.LABEL_NOT_ALLOWED); // Label
     expectError("Label: DAB Label+1", AssemblerErrorCode.LABEL_NOT_ALLOWED); // Label with offset
     expectError("DAB %", AssemblerErrorCode.INVALID_ARGUMENT); // Unexpected argument
@@ -256,21 +258,22 @@ describe("Assembler: Directives", () => {
     expectSuccess("DAW '0'", [0, 48]); // Single character
     expectSuccess("DAW '''", [0, 39]); // Single quote character
     expectSuccess("DAW '012'", [0, 48, 0, 49, 0, 50]); // String
-    expectSuccess("DAW 1, 2, 3", [0, 1, 0, 2, 0, 3]); // Multiple arguments (commas)
     expectSuccess("DAW 1 2 3", [0, 1, 0, 2, 0, 3]); // Multiple arguments (spaces)
+    expectSuccess("DAW 1,2,3", [0, 1, 0, 2, 0, 3]); // Multiple arguments (commas)
+    expectSuccess("DAW 1,  2  ,3  ,  4", [0, 1, 0, 2, 0, 3, 0, 4]); // Multiple arguments (commas+spaces)
     expectSuccess("DAW '0', '12', 3, h4, '''", [0, 48, 0, 49, 0, 50, 0, 3, 0, 4, 0, 39]); // Mixed formats (commas)
     expectSuccess("DAW '0' '12' 3 h4 '''", [0, 48, 0, 49, 0, 50, 0, 3, 0, 4, 0, 39]); // Mixed formats (commas)
     expectSuccess("DAW ''''0'''0''''", [0, 39, 0, 48, 0, 39, 0, 48, 0, 39]); // String with escaped single quotes
     expectSuccess("DAW '1-1'", [0, 49, 0, 45, 0, 49]); // String with hyphen
     expectSuccess("DAW '1:1'", [0, 49, 0, 58, 0, 49]); // String with colon
-    expectSuccess("DAB '1   1'", [49, 32, 32, 32, 49]); // String with multiple spaces
+    expectSuccess("DAW '1  1'", [0, 49, 0, 32, 0, 32, 0, 49]); // String with multiple spaces
     expectSuccess("DAW [2]\nDB 1", [0, 0, 0, 0, 1]); // Allocate only
     expectSuccess("DAW -32768", [128, 0]); // Lower bound
     expectSuccess("DAW 65535", [255, 255]); // Upper bound
     expectError("DAW 0, -32769, 2", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
     expectError("DAW 0, 65536, 2", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
     expectError("DAW", AssemblerErrorCode.TOO_FEW_ARGUMENTS); // No argument
-    expectError("DAB [h2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate hex
+    expectError("DAW [h2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate hex
     expectError("DAW ''", AssemblerErrorCode.INVALID_STRING); // Empty string
     expectError("DAW '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
     expectError("Label: DAW Label", AssemblerErrorCode.LABEL_NOT_ALLOWED); // Label

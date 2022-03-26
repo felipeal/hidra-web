@@ -12,8 +12,8 @@ export class Assembler {
   // Patterns
   public static readonly WHITESPACE = /\s+/;
   public static readonly LABEL_PATTERN = "[a-z_][a-z0-9_]*";
-  public static readonly STRING_PATTERN = /^'('|([^']|''')+)'([,\s]+|$)/m; // '(string)'(separator)
-  public static readonly VALUE_PATTERN = /^([^'\s,]+)([,\s]+|$)/m; // (value)(separator)
+  public static readonly STRING_PATTERN = /^'('|([^']|''')+)'([,\s]+|$)/m; // '(1=string)'(3=separator)
+  public static readonly VALUE_PATTERN = /^([^'\s,]+)([,\s]+|$)/m; // (1=value)(2=separator)
 
   public static readonly DIRECTIVES = ["org", "db", "dw", "dab", "daw"];
 
@@ -410,7 +410,7 @@ export class Assembler {
   }
 
   protected isValidAddress(addressString: string): boolean {
-    // Allows negative values to refer to memory end. Daedalus does not impose boundaries.
+    // Allows negative values to refer to memory end. Note: Daedalus does not have lower/upper bounds.
     return this.isValidValue(addressString, -this.machine.getMemorySize(), this.machine.getMemorySize() - 1);
   }
 
@@ -423,8 +423,8 @@ export class Assembler {
 
     // Regular expressions
     const allocateMatcher = new RegExpMatcher(/\[(\d+)\]/); // Digits between brackets
-    const valueMatcher = new RegExpMatcher(Assembler.VALUE_PATTERN); // (value)(separator)
-    const stringMatcher = new RegExpMatcher(Assembler.STRING_PATTERN); // '(string)'(separator)
+    const valueMatcher = new RegExpMatcher(Assembler.VALUE_PATTERN); // (1=value)(2=separator)
+    const stringMatcher = new RegExpMatcher(Assembler.STRING_PATTERN); // '(1=string)'(3=separator)
 
     args = args.trim(); // Trim whitespace
 
@@ -442,9 +442,11 @@ export class Assembler {
 
     while (args.length > 0) {
       if (valueMatcher.match(args)) {
+        this.validateSeparator(valueMatcher.cap(2));
         finalArgumentList.push(valueMatcher.cap(1));
         args = args.slice(valueMatcher.cap(0).length);
       } else if (stringMatcher.match(args)) {
+        this.validateSeparator(stringMatcher.cap(3));
         const stringContent = stringMatcher.cap(1);
         const parsedStringContent = stringContent.replaceAll("'''", "'"); // Replace escaped single quotes
         const charList = parsedStringContent.split("").map(c => `'${c}'`);
@@ -458,6 +460,13 @@ export class Assembler {
     }
 
     return { argumentList: finalArgumentList, isAllocate: false };
+  }
+
+  protected validateSeparator(separator: string): void {
+    // Forbids multiple commas between arguments. Note: Allowed in Daedalus.
+    if (separator.split(",").length > 2) {
+      throw new AssemblerError(AssemblerErrorCode.INVALID_SEPARATOR);
+    }
   }
 
   protected extractArgumentAddressingModeCode(argument: string): { argument: string, addressingModeCode: AddressingModeCode } {
