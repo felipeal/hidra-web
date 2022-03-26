@@ -3,7 +3,7 @@ import { Flag, FlagCode } from "./Flag";
 import { Instruction } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
 import { Byte } from "./Byte";
-import { buildArray, range, EventCallback, Q_ASSERT, validateSize } from "./Utils";
+import { buildArray, range, EventCallback, assert, validateSize } from "./Utils";
 import { bitPatternToByteValue } from "./Conversions";
 
 interface MachineSettings {
@@ -48,7 +48,7 @@ export abstract class MachineState {
     this.littleEndian = settings.littleEndian ?? false;
 
     this.pc = this.registers.find(register => register.getName() === "PC")!;
-    Q_ASSERT(Boolean(this.pc), "Register PC not found.");
+    assert(this.pc, "Register PC not found.");
   }
 
   //////////////////////////////////////////////////
@@ -417,7 +417,7 @@ export abstract class MachineState {
   }
 
   //////////////////////////////////////////////////
-  // Listeners
+  // Events
   //////////////////////////////////////////////////
 
   public subscribeToEvent(event: string, callback: EventCallback): void {

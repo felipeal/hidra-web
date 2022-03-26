@@ -1,5 +1,5 @@
 import { bitPatternToByteValue } from "./Conversions";
-import { QRegExp } from "./Utils";
+import { RegExpMatcher } from "./Utils";
 
 export enum AddressingModeCode {
   DIRECT, INDIRECT, IMMEDIATE, INDEXED_BY_X, INDEXED_BY_PC
@@ -12,13 +12,13 @@ export class AddressingMode {
   private readonly bitPattern: string;
   private readonly addressingModeCode: AddressingModeCode;
   private readonly assemblyPattern: string;
-  private readonly assemblyRegExp: QRegExp;
+  private readonly patternMatcher: RegExpMatcher | null;
 
   constructor(bitPattern: string, addressingModeCode: AddressingModeCode, assemblyPattern: string) {
     this.bitPattern = bitPattern;
     this.addressingModeCode = addressingModeCode;
     this.assemblyPattern = assemblyPattern;
-    this.assemblyRegExp = new QRegExp(assemblyPattern, "i");
+    this.patternMatcher = assemblyPattern ? new RegExpMatcher(assemblyPattern, "i") : null;
   }
 
   public getBitPattern(): string {
@@ -37,8 +37,8 @@ export class AddressingMode {
     return this.assemblyPattern;
   }
 
-  public getAssemblyRegExp(): QRegExp {
-    return this.assemblyRegExp;
+  public extractMatchingValue(argument: string): string | null {
+    return this.patternMatcher?.fullMatch(argument) ? this.patternMatcher.cap(1) : null;
   }
 
 }

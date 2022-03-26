@@ -21,3 +21,11 @@ export function byteValueToBitPattern(value: number): string {
 export function unsignedByteToSignedByte(unsignedValue: number): number {
   return unsignedValue << 24 >> 24;
 }
+
+export function valueStringToNumber(decOrHex: string): number {
+  if (decOrHex.toLowerCase().startsWith("h")) {
+    return parseInt(decOrHex.slice(1), 16); // Slice removes "h" prefix
+  } else {
+    return parseInt(decOrHex, 10);
+  }
+}

@@ -2,9 +2,10 @@ import { AssemblerError, AssemblerErrorCode, ErrorMessage } from "./Errors";
 import { Register } from "./Register";
 import { Instruction } from "./Instruction";
 import { AddressingModeCode } from "./AddressingMode";
-import { buildArray, range, EventCallback, QRegExp, Q_ASSERT } from "./Utils";
+import { buildArray, range, EventCallback, RegExpMatcher, assert } from "./Utils";
 import { Byte } from "./Byte";
 import { Machine } from "./Machine";
+import { valueStringToNumber } from "./Conversions";
 
 export class Assembler {
 
@@ -51,7 +52,7 @@ export class Assembler {
 
     const errorMessages: ErrorMessage[] = [];
 
-    const labelMatcher = new QRegExp(/^(\w+):/); // Also captures invalid labels to inform errors
+    const labelMatcher = new RegExpMatcher(/^(\w+):/); // Also captures invalid labels to inform errors
 
     //////////////////////////////////////////////////
     // Simplify source code
@@ -192,8 +193,8 @@ export class Assembler {
   }
 
   protected removeComment(line: string): string {
-    const stringMatcher = new QRegExp(Assembler.STRING_PATTERN);
-    const codeMatcher = new QRegExp(/^[^;']+/); // Neither string nor comment
+    const stringMatcher = new RegExpMatcher(Assembler.STRING_PATTERN);
+    const codeMatcher = new RegExpMatcher(/^[^;']+/); // Neither string nor comment
 
     let result = "";
 
@@ -217,7 +218,7 @@ export class Assembler {
 
   // Mnemonic must be lowercase
   protected obeyDirective(mnemonic: string, args: string, reserveOnly: boolean, sourceLine: number): void {
-    Q_ASSERT(Assembler.DIRECTIVES.includes(mnemonic), `Unexpected argument for obeyDirective: ${mnemonic}`);
+    assert(Assembler.DIRECTIVES.includes(mnemonic), `Unexpected argument for obeyDirective: ${mnemonic}`);
 
     if (mnemonic === "org") {
       const argumentList = args.trim().split(Assembler.WHITESPACE).filter(argument => /\S/.test(argument)); // Filters out empty strings
@@ -231,7 +232,7 @@ export class Assembler {
         throw new AssemblerError(AssemblerErrorCode.INVALID_ADDRESS);
       }
 
-      this.setPCValue(this.stringToInt(argumentList[0]));
+      this.setPCValue(valueStringToNumber(argumentList[0]));
     } else {
       const { argumentList, isAllocate } = this.splitArguments(args);
 
@@ -365,8 +366,8 @@ export class Assembler {
 
   // Validates label names (must start with a letter/underline, may have numbers)
   protected isValidLabelFormat(labelName: string): boolean {
-    const validLabel = new QRegExp(Assembler.LABEL_PATTERN);
-    return validLabel.exactMatch(labelName.toLowerCase());
+    const labelMatcher = new RegExpMatcher(Assembler.LABEL_PATTERN);
+    return labelMatcher.fullMatch(labelName.toLowerCase());
   }
 
   // Returns true if conversion ok and value between min and max (closed interval)
@@ -378,7 +379,7 @@ export class Assembler {
     valueString = valueString.toLowerCase();
 
     if (valueString.startsWith("h")) {
-      return /^h[0-9a-f]{1,6}$/.test(valueString); // TODO: Forbid negative on Hidra C++?
+      return /^h[0-9a-f]{1,6}$/.test(valueString);
     } else {
       return /^-?\d{1,6}$/.test(valueString);
     }
@@ -419,9 +420,9 @@ export class Assembler {
     let finalArgumentList: string[] = [];
 
     // Regular expressions
-    const allocateMatcher = new QRegExp(/\[(\d+)\]/); // Digits between brackets
-    const valueMatcher = new QRegExp(Assembler.VALUE_PATTERN); // (value)(separator)
-    const stringMatcher = new QRegExp(Assembler.STRING_PATTERN); // '(string)'(separator)
+    const allocateMatcher = new RegExpMatcher(/\[(\d+)\]/); // Digits between brackets
+    const valueMatcher = new RegExpMatcher(Assembler.VALUE_PATTERN); // (value)(separator)
+    const stringMatcher = new RegExpMatcher(Assembler.STRING_PATTERN); // '(string)'(separator)
 
     args = args.trim(); // Trim whitespace
 
@@ -429,7 +430,7 @@ export class Assembler {
     // Byte/Word allocation
     //////////////////////////////////////////////////
 
-    if (allocateMatcher.exactMatch(args)) {
+    if (allocateMatcher.fullMatch(args)) {
       return { argumentList: [allocateMatcher.cap(1)], isAllocate: true };
     }
 
@@ -442,9 +443,10 @@ export class Assembler {
         finalArgumentList.push(valueMatcher.cap(1));
         args = args.slice(valueMatcher.cap(0).length);
       } else if (stringMatcher.match(args)) {
-        const withParsedQuotes = stringMatcher.cap(1).replaceAll("'''", "'");
-        const asCharList = withParsedQuotes.split("").map(c => `'${c}'`);
-        finalArgumentList = finalArgumentList.concat(asCharList);
+        const stringContent = stringMatcher.cap(1);
+        const parsedStringContent = stringContent.replaceAll("'''", "'"); // Replace escaped single quotes
+        const charList = parsedStringContent.split("").map(c => `'${c}'`);
+        finalArgumentList = finalArgumentList.concat(charList);
         args = args.slice(stringMatcher.cap(0).length);
       } else if (args.startsWith("'")) {
         throw new AssemblerError(AssemblerErrorCode.INVALID_STRING);
@@ -457,38 +459,37 @@ export class Assembler {
   }
 
   protected extractArgumentAddressingModeCode(argument: string): { argument: string, addressingModeCode: AddressingModeCode } {
-    let addressingModeCode = this.machine.getDefaultAddressingModeCode();
-
     for (const addressingMode of this.machine.getAddressingModes()) {
-      const matchAddressingMode = addressingMode.getAssemblyRegExp();
+      const extractedValue = addressingMode.extractMatchingValue(argument);
 
-      if (matchAddressingMode.exactMatch(argument)) {
-        argument = matchAddressingMode.cap(1); // Remove addressing mode
-        addressingModeCode = addressingMode.getAddressingModeCode();
-        break;
+      if (extractedValue) {
+        return {
+          argument: extractedValue,
+          addressingModeCode: addressingMode.getAddressingModeCode()
+        };
       }
     }
 
-    return { argument, addressingModeCode };
+    return { argument, addressingModeCode: this.machine.getDefaultAddressingModeCode() };
   }
 
   protected argumentToValue(argument: string, isImmediate: boolean, immediateNumBytes = 1): number {
-    const matchChar = new QRegExp("'.'");
-    const labelOffset = new QRegExp(`(${Assembler.LABEL_PATTERN})(\\+|-)(\\w+)`); // (label) (+|-) (offset)
+    const charMatcher = new RegExpMatcher("'(.)'");
+    const offsetMatcher = new RegExpMatcher(`(${Assembler.LABEL_PATTERN})(\\+|-)(\\w+)`); // (label)(+|-)(offset)
 
     // Convert label with +/- offset to number
-    if (labelOffset.exactMatch(argument.toLowerCase())) {
-      const sign = (labelOffset.cap(2) === "+") ? +1 : -1;
+    if (offsetMatcher.fullMatch(argument.toLowerCase())) {
+      const sign = (offsetMatcher.cap(2) === "+") ? +1 : -1;
 
-      if (!this.labelPCMap.has(labelOffset.cap(1))) { // Validate label's existence
+      if (!this.labelPCMap.has(offsetMatcher.cap(1))) { // Validate label's existence
         throw new AssemblerError(AssemblerErrorCode.INVALID_LABEL);
       }
-      if (!this.isValidAddress(labelOffset.cap(3))) { // Validate offset
+      if (!this.isValidAddress(offsetMatcher.cap(3))) { // Validate offset
         throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT); // TODO: Shouldn't it validate the result instead?
       }
 
       // Argument = Label + Offset
-      argument = String(this.labelPCMap.get(labelOffset.cap(1))! + sign * this.stringToInt(labelOffset.cap(3)));
+      argument = String(this.labelPCMap.get(offsetMatcher.cap(1))! + sign * valueStringToNumber(offsetMatcher.cap(3)));
     }
 
     // Convert label to number string
@@ -497,10 +498,10 @@ export class Assembler {
     }
 
     if (isImmediate) {
-      if (matchChar.exactMatch(argument)) { // Immediate char
-        return argument[1].charCodeAt(0); // TODO: Original (number)argument[1].toLatin1();
+      if (charMatcher.fullMatch(argument)) { // Immediate char
+        return charMatcher.cap(1).charCodeAt(0); // TODO: Restrict to ASCII
       } else if (this.isValidNBytesValue(argument, immediateNumBytes)) { // Immediate hex/dec value
-        return this.stringToInt(argument);
+        return valueStringToNumber(argument);
       } else if (this.isValidValueFormat(argument)) {
         throw new AssemblerError(AssemblerErrorCode.INVALID_VALUE);
       } else {
@@ -508,7 +509,7 @@ export class Assembler {
       }
     } else {
       if (this.isValidAddress(argument)) { // Address
-        return this.stringToInt(argument);
+        return valueStringToNumber(argument);
       } else if (this.isValidValueFormat(argument)) {
         throw new AssemblerError(AssemblerErrorCode.INVALID_ADDRESS);
       } else if (this.isValidLabelFormat(argument) && argument.length > 1) { // Assume label unless single character
@@ -516,15 +517,6 @@ export class Assembler {
       } else {
         throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
       }
-    }
-  }
-
-  // TODO: Move to conversions?
-  protected stringToInt(valueString: string): number {
-    if (valueString.toLowerCase().startsWith("h")) {
-      return parseInt(valueString.slice(1), 16); // Remove H
-    } else {
-      return parseInt(valueString, 10);
     }
   }
 
@@ -591,7 +583,7 @@ export class Assembler {
   }
 
   //////////////////////////////////////////////////
-  // Listeners
+  // Events
   //////////////////////////////////////////////////
 
   public subscribeToEvent(event: string, callback: EventCallback): void {

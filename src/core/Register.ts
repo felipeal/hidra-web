@@ -1,5 +1,5 @@
 import { bitPatternToByteValue, byteValueToBitPattern } from "./Conversions";
-import { QRegExp } from "./Utils";
+import { RegExpMatcher } from "./Utils";
 
 export class Register {
 
@@ -7,6 +7,7 @@ export class Register {
 
   private readonly name: string;
   private readonly bitPattern: string; // Empty string if not directly accessible
+  private readonly bitPatternMatcher: RegExpMatcher;
 
   private value: number;
   private readonly numOfBits: number;
@@ -21,6 +22,7 @@ export class Register {
 
     this.value = 0;
     this.valueMask = (1 << numOfBits) - 1; // 0xFF for 8-bit registers
+    this.bitPatternMatcher = new RegExpMatcher(this.bitPattern);
   }
 
   public getName(): string {
@@ -63,8 +65,7 @@ export class Register {
   }
 
   public matchByte(byte: number): boolean {
-    const bitPatternRegExp = new QRegExp(this.bitPattern);
-    return bitPatternRegExp.exactMatch(byteValueToBitPattern(byte));
+    return this.bitPatternMatcher.fullMatch(byteValueToBitPattern(byte));
   }
 
   public isData(): boolean {

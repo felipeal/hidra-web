@@ -1,5 +1,5 @@
 import { bitPatternToByteValue, byteValueToBitPattern } from "./Conversions";
-import { QRegExp } from "./Utils";
+import { RegExpMatcher } from "./Utils";
 
 export enum InstructionCode {
   NOP,
@@ -23,7 +23,7 @@ export class Instruction {
 
   private readonly numBytes: number;
   private readonly bitPattern: string;
-  private readonly byteRegExp: QRegExp;
+  private readonly byteRegExp: RegExpMatcher;
   private readonly mnemonic: string;
   private readonly assemblyFormat: string;
   private readonly arguments: string[];
@@ -32,7 +32,7 @@ export class Instruction {
   constructor(numBytes: number, bitPattern: string, instructionCode: InstructionCode, assemblyFormat: string) {
     this.numBytes = numBytes; // 0 if variable
     this.bitPattern = bitPattern;
-    this.byteRegExp = new QRegExp(bitPattern);
+    this.byteRegExp = new RegExpMatcher(bitPattern);
     this.instructionCode = instructionCode;
 
     const assemblyFormatList = assemblyFormat.split(" ");
@@ -43,7 +43,7 @@ export class Instruction {
   }
 
   public matchByte(byte: number): boolean {
-    return this.byteRegExp.exactMatch(byteValueToBitPattern(byte));
+    return this.byteRegExp.fullMatch(byteValueToBitPattern(byte));
   }
 
   public getMnemonic(): string {

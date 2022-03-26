@@ -1,16 +1,19 @@
 export type EventCallback = ((value: unknown) => void);
 
-export function Q_ASSERT(condition: boolean, message: string): asserts condition {
+// eslint-disable-next-line @typescript-eslint/ban-types
+type NullableObject = Object | null;
+
+export function assert(condition: boolean|NullableObject, message: string): asserts condition {
   if (!condition) {
     throw new Error(`Assertion failure: ${message}`);
   }
 }
 
-export class QRegExp extends RegExp {
+export class RegExpMatcher extends RegExp {
 
   private lastMatch: RegExpMatchArray | null = null;
 
-  exactMatch(str: string): boolean {
+  fullMatch(str: string): boolean {
     this.lastMatch = str.match(this);
     return Boolean(str === this.lastMatch?.[0]);
   }
@@ -20,10 +23,10 @@ export class QRegExp extends RegExp {
     return Boolean(this.lastMatch);
   }
 
-  // Returns capture "index" from the last exactMatch/match call (0 = full string)
+  // Returns capture "index" from the last fullMatch/match call (0 = full string)
   cap(index: number): string {
-    Q_ASSERT(!!this.lastMatch, "Capture accessed without lastMatch.");
-    Q_ASSERT(this.lastMatch[index] !== undefined, `No match for group ${index}.`);
+    assert(this.lastMatch, "Capture accessed without lastMatch.");
+    assert(this.lastMatch[index] ?? false, `No match for group ${index}.`);
     return this.lastMatch[index];
   }
 
@@ -34,7 +37,7 @@ export function validateSize(size: number): void {
     size /= 2;
   }
 
-  Q_ASSERT((size === 1), "Memory/Stack sizes must be powers of two for the masks to work.");
+  assert((size === 1), `Memory/stack size must be a power of two: ${size}`);
 }
 
 export function range(length: number): number[] {

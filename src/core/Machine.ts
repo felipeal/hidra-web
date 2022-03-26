@@ -2,7 +2,7 @@ import { MachineState } from "./MachineState";
 import { FlagCode } from "./Flag";
 import { Instruction, InstructionCode } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
-import { QRegExp } from "./Utils";
+import { RegExpMatcher } from "./Utils";
 import { byteValueToBitPattern, unsignedByteToSignedByte as toSigned } from "../core/Conversions";
 
 export abstract class Machine extends MachineState {
@@ -279,9 +279,9 @@ export abstract class Machine extends MachineState {
 
   public extractAddressingModeCode(fetchedValue: number): AddressingModeCode {
     for (const addressingMode of this.getAddressingModes()) {
-      const matchAddressingMode = new QRegExp(addressingMode.getBitPattern());
+      const addressingModeMatcher = new RegExpMatcher(addressingMode.getBitPattern());
 
-      if (matchAddressingMode.exactMatch(byteValueToBitPattern(fetchedValue))) {
+      if (addressingModeMatcher.fullMatch(byteValueToBitPattern(fetchedValue))) {
         return addressingMode.getAddressingModeCode();
       }
     }
@@ -391,7 +391,8 @@ export abstract class Machine extends MachineState {
   //////////////////////////////////////////////////
 
   public updateInstructionStrings(): void {
-    let address = 0, pendingArgumentBytes = 0; let pcReached = false;
+    let address = 0, pendingArgumentBytes = 0;
+    let pcReached = false;
 
     while (address < this.getMemorySize()) {
       // Realign interpretation to PC when PC is reached
