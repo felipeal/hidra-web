@@ -38,6 +38,7 @@ export abstract class MachineState {
   private instructionCount = 0;
   private accessCount = 0;
   private memoryMask!: number; // Memory address mask, populated by setMemorySize
+  private immediateNumBytes = 1; // Applies to all current machines, including Pericles
 
   private eventSubscriptions: Record<string, EventCallback[]> = {};
 
@@ -362,6 +363,10 @@ export abstract class MachineState {
 
   public isLittleEndian(): boolean {
     return this.littleEndian;
+  }
+
+  public getImmediateNumBytes(): number {
+    return this.immediateNumBytes;
   }
 
   public getInstructionCount(): number {

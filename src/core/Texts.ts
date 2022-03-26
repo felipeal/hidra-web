@@ -214,6 +214,7 @@ export class Texts {
       case AssemblerErrorCode.INVALID_LABEL: return "Label inválido.";
       case AssemblerErrorCode.INVALID_ARGUMENT: return "Argumento inválido.";
       case AssemblerErrorCode.DUPLICATE_LABEL: return "Label já definido.";
+      case AssemblerErrorCode.LABEL_NOT_ALLOWED: return "Uso de labels não permitido para este mnemônico.";
       case AssemblerErrorCode.MEMORY_OVERLAP: return "Sobreposição de memória.";
       case AssemblerErrorCode.NOT_IMPLEMENTED: return "Funcionalidade não implementada.";
 

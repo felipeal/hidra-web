@@ -182,6 +182,7 @@ describe("Assembler: Directives", () => {
     expectSuccess("DB '0'", [48]); // Single character
     expectSuccess("DB '''", [39]); // Single quote character
     expectSuccess("ORG 1\nLabel: DB Label", [0, 1]); // Label
+    expectSuccess("ORG 1\nLabel: DB Label+1", [0, 2]); // Label with offset
     expectSuccess("DB hFF", [255]); // Hexadecimal
     expectSuccess("DB -128", [128]); // Lower bound
     expectSuccess("DB 255", [255]); // Upper bound
@@ -200,6 +201,7 @@ describe("Assembler: Directives", () => {
     expectSuccess("DW '0'", [0, 48]); // Single character
     expectSuccess("DW '''", [0, 39]); // Single quote character
     expectSuccess("ORG 1\nLabel: DW Label", [0, 0, 1]); // Label
+    expectSuccess("ORG 1\nLabel: DW Label+1", [0, 0, 2]); // Label with offset
     expectSuccess("DW hFF", [0, 255]); // Hexadecimal
     expectSuccess("DW -32768", [128, 0]); // Lower bound
     expectSuccess("DW 65535", [255, 255]); // Upper bound
@@ -231,10 +233,12 @@ describe("Assembler: Directives", () => {
     expectSuccess("DAB 255", [255]); // Upper bound
     expectError("DAB 0, -129, 2", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
     expectError("DAB 0, 256, 2", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
-    expectError("DAB", AssemblerErrorCode.TOO_FEW_ARGUMENTS); // No argument: invalid
-    expectError("DAB [h2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate hex (invalid)
+    expectError("DAB", AssemblerErrorCode.TOO_FEW_ARGUMENTS); // No argument
+    expectError("DAB [h2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate hex
     expectError("DAB ''", AssemblerErrorCode.INVALID_STRING); // Empty string
     expectError("DAB '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
+    expectError("Label: DAB Label", AssemblerErrorCode.LABEL_NOT_ALLOWED); // Label
+    expectError("Label: DAB Label+1", AssemblerErrorCode.LABEL_NOT_ALLOWED); // Label with offset
     expectError("DAB %", AssemblerErrorCode.INVALID_ARGUMENT); // Unexpected argument
   });
 
@@ -257,10 +261,12 @@ describe("Assembler: Directives", () => {
     expectSuccess("DAW 65535", [255, 255]); // Upper bound
     expectError("DAW 0, -32769, 2", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
     expectError("DAW 0, 65536, 2", AssemblerErrorCode.INVALID_VALUE); // Out of bounds
-    expectError("DAW", AssemblerErrorCode.TOO_FEW_ARGUMENTS); // No argument: invalid
-    expectError("DAB [h2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate hex (invalid)
+    expectError("DAW", AssemblerErrorCode.TOO_FEW_ARGUMENTS); // No argument
+    expectError("DAB [h2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate hex
     expectError("DAW ''", AssemblerErrorCode.INVALID_STRING); // Empty string
     expectError("DAW '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
+    expectError("Label: DAW Label", AssemblerErrorCode.LABEL_NOT_ALLOWED); // Label
+    expectError("Label: DAW Label+1", AssemblerErrorCode.LABEL_NOT_ALLOWED); // Label with offset
     expectError("DAW %", AssemblerErrorCode.INVALID_ARGUMENT); // Unexpected argument
   });
 

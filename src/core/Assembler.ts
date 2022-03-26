@@ -238,6 +238,7 @@ export class Assembler {
 
       const bytesPerArgument = (mnemonic === "db" || mnemonic === "dab") ? 1 : 2;
       const isDefineArray = (mnemonic === "dab" || mnemonic === "daw");
+      const allowLabels = (mnemonic === "db" || mnemonic === "dw"); // Daedalus only allows labels for DB/DW
 
       if (!isDefineArray && argumentList.length === 0) {
         argumentList.push("0"); // Default to argument 0 in case of DB and DW
@@ -264,8 +265,7 @@ export class Assembler {
       } else {
         // Process each argument
         for (const argument of argumentList) {
-          // TODO: Should labels only be allowed in DB/DW and not in DAB/DAW to replicate Daedalus?
-          const value = this.argumentToValue(argument, true, bytesPerArgument);
+          const value = this.argumentToValue(argument, { isImmediate: true, defineNumBytes: bytesPerArgument, allowLabels });
 
           // Write value
           if (bytesPerArgument === 2 && this.machine.isLittleEndian()) {
@@ -319,19 +319,20 @@ export class Assembler {
 
     // Write second byte (if 1-byte address/immediate value)
     if (instruction.getNumBytes() === 2 || isImmediate) {
-      this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instructionArguments.indexOf("a")], isImmediate)); // Converts labels, chars, etc.
+      const value = this.argumentToValue(argumentList[instructionArguments.indexOf("a")], { isImmediate });
+      this.setAssemblerMemoryNext(value);
 
     // Write second and third bytes (if 2-byte addresses)
     } else if (instructionArguments.includes("a")) {
-      const address = this.argumentToValue(argumentList[instructionArguments.indexOf("a")], isImmediate);
+      const address = this.argumentToValue(argumentList[instructionArguments.indexOf("a")], { isImmediate });
 
       this.setAssemblerMemoryNext(address & 0xFF); // Least significant byte (little-endian)
       this.setAssemblerMemoryNext((address >> 8) & 0xFF); // Most significant byte
 
     // If instruction has two addresses (REG_IF), write both addresses
     } else if (instructionArguments.includes("a0") && instructionArguments.includes("a1")) {
-      this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instructionArguments.indexOf("a0")], false));
-      this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instructionArguments.indexOf("a1")], false));
+      this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instructionArguments.indexOf("a0")], { isImmediate }));
+      this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instructionArguments.indexOf("a1")], { isImmediate }));
     }
   }
 
@@ -474,18 +475,23 @@ export class Assembler {
     return { argument, addressingModeCode: this.machine.getDefaultAddressingModeCode() };
   }
 
-  protected argumentToValue(argument: string, isImmediate: boolean, immediateNumBytes = 1): number {
+  protected argumentToValue(
+    argument: string,
+    {isImmediate, defineNumBytes, allowLabels = true}: {isImmediate: boolean, defineNumBytes?: number, allowLabels?: boolean}
+  ): number {
     const charMatcher = new RegExpMatcher("'(.)'");
     const offsetMatcher = new RegExpMatcher(`(${Assembler.LABEL_PATTERN})(\\+|-)(\\w+)`); // (label)(+|-)(offset)
+    const immediateNumBytes = defineNumBytes ?? this.machine.getImmediateNumBytes();
 
     // Convert label with +/- offset to number
     if (offsetMatcher.fullMatch(argument.toLowerCase())) {
       const sign = (offsetMatcher.cap(2) === "+") ? +1 : -1;
 
-      if (!this.labelPCMap.has(offsetMatcher.cap(1))) { // Validate label's existence
+      if (!allowLabels) {
+        throw new AssemblerError(AssemblerErrorCode.LABEL_NOT_ALLOWED);
+      } else if (!this.labelPCMap.has(offsetMatcher.cap(1))) { // Validate label's existence
         throw new AssemblerError(AssemblerErrorCode.INVALID_LABEL);
-      }
-      if (!this.isValidAddress(offsetMatcher.cap(3))) { // Validate offset
+      } else if (!this.isValidAddress(offsetMatcher.cap(3))) { // Validate offset
         throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT); // TODO: Shouldn't it validate the result instead?
       }
 
@@ -495,6 +501,10 @@ export class Assembler {
 
     // Convert label to number string
     if (this.labelPCMap.has(argument.toLowerCase())) {
+      if (!allowLabels) {
+        throw new AssemblerError(AssemblerErrorCode.LABEL_NOT_ALLOWED);
+      }
+
       argument = String(this.labelPCMap.get(argument.toLowerCase()));
     }
 
