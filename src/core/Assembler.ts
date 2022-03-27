@@ -518,7 +518,7 @@ export class Assembler {
 
     if (isImmediate) {
       if (charMatcher.fullMatch(argument)) { // Immediate char
-        return charMatcher.cap(1).charCodeAt(0); // TODO: Restrict to ASCII
+        return this.charToInteger(charMatcher.cap(1)); // TODO: Restrict to ASCII
       } else if (this.isValidNBytesValue(argument, immediateNumBytes)) { // Immediate hex/dec value
         return valueStringToNumber(argument);
       } else if (this.isValidValueFormat(argument)) {
@@ -536,6 +536,17 @@ export class Assembler {
       } else {
         throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
       }
+    }
+  }
+
+  private charToInteger(char: string): number {
+    const charCode = char.charCodeAt(0);
+
+    // Restricted to ASCII to maximize compatibility
+    if (charCode >= 32 && charCode <= 126 && char.length === 1) {
+      return charCode;
+    } else {
+      throw new AssemblerError(AssemblerErrorCode.INVALID_CHARACTER);
     }
   }
 

@@ -203,6 +203,7 @@ describe("Assembler: Directives", () => {
     expectError("DB 1 2", AssemblerErrorCode.TOO_MANY_ARGUMENTS); // Extra arguments
     expectError("DB [2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate syntax: invalid
     expectError("DB '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
+    expectError("DB 'ã'", AssemblerErrorCode.INVALID_CHARACTER); // Non-ASCII character
     expectError("DW '012'", AssemblerErrorCode.TOO_MANY_ARGUMENTS); // Multiple characters: invalid
     expectError("DB %", AssemblerErrorCode.INVALID_ARGUMENT); // Unexpected argument
   });
@@ -226,6 +227,7 @@ describe("Assembler: Directives", () => {
     expectError("DW 1 2", AssemblerErrorCode.TOO_MANY_ARGUMENTS); // Extra arguments
     expectError("DW [2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate syntax: invalid
     expectError("DW '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
+    expectError("DW 'ã'", AssemblerErrorCode.INVALID_CHARACTER); // Non-ASCII character
     expectError("DW '012'", AssemblerErrorCode.TOO_MANY_ARGUMENTS); // Multiple characters: invalid
     expectError("DW %", AssemblerErrorCode.INVALID_ARGUMENT); // Unexpected argument
   });

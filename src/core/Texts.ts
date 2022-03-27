@@ -211,6 +211,7 @@ export class Texts {
       case AssemblerErrorCode.INVALID_ADDRESS: return "Endereço inválido.";
       case AssemblerErrorCode.INVALID_VALUE: return "Valor inválido.";
       case AssemblerErrorCode.INVALID_STRING: return "String inválido.";
+      case AssemblerErrorCode.INVALID_CHARACTER: return "Caractere inválido.";
       case AssemblerErrorCode.INVALID_LABEL: return "Label inválido.";
       case AssemblerErrorCode.INVALID_ARGUMENT: return "Argumento inválido.";
       case AssemblerErrorCode.INVALID_SEPARATOR: return "Separador de argumentos inválido.";
@@ -218,9 +219,6 @@ export class Texts {
       case AssemblerErrorCode.LABEL_NOT_ALLOWED: return "Uso de labels não permitido para este mnemônico.";
       case AssemblerErrorCode.MEMORY_OVERLAP: return "Sobreposição de memória.";
       case AssemblerErrorCode.MEMORY_LIMIT_EXCEEDED: return "Limite de memória excedido.";
-      case AssemblerErrorCode.NOT_IMPLEMENTED: return "Funcionalidade não implementada.";
-
-      default: return "Erro indefinido.";
     }
   }
 
