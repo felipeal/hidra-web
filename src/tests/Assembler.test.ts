@@ -137,6 +137,22 @@ describe("Assembler: Build", () => {
     expectSuccess("ADD A #'''", [50, 39]); // Literal single quote
   });
 
+  test("build: should return multiple first pass errors", () => {
+    const firstPassErrors = assembler.build("NOPX\nORG 512");
+    expect(firstPassErrors).toEqual([
+      {errorCode: AssemblerErrorCode.INVALID_MNEMONIC, lineNumber: 1},
+      {errorCode: AssemblerErrorCode.INVALID_ADDRESS, lineNumber: 2}
+    ]);
+  });
+
+  test("build: should return multiple second pass errors", () => {
+    const secondPassErrors = assembler.build("ADD A 512\nADD Z 0");
+    expect(secondPassErrors).toEqual([
+      {errorCode: AssemblerErrorCode.INVALID_ADDRESS, lineNumber: 1},
+      {errorCode: AssemblerErrorCode.INVALID_ARGUMENT, lineNumber: 2}
+    ]);
+  });
+
 });
 
 describe("Assembler: Labels", () => {
