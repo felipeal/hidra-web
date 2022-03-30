@@ -12,8 +12,8 @@ export class Assembler {
   // Patterns
   public static readonly WHITESPACE = /\s+/;
   public static readonly LABEL_PATTERN = "[a-z_][a-z0-9_]*";
-  public static readonly STRING_PATTERN = /^'('|([^']|''')+)'([,\s]+|$)/m; // '(1=string)'(3=separator)
-  public static readonly VALUE_PATTERN = /^([^'\s,]+)([,\s]+|$)/m; // (1=value)(2=separator)
+  public static readonly STRING_PATTERN = /^'('|([^']|''')+)'([,\s]+|$|(?=;))/m; // '(1=string)'(3=separator)
+  public static readonly VALUE_PATTERN = /^([^'\s,]+)([,\s]+|$|(?=;))/m; // (1=value)(2=separator)
 
   public static readonly DIRECTIVES = ["org", "db", "dw", "dab", "daw"];
 
@@ -131,7 +131,7 @@ export class Assembler {
           if (this.firstErrorLine === -1) {
             this.firstErrorLine = lineIndex;
           }
-          errorMessages.push({lineNumber: lineIndex + 1, errorCode: error.errorCode});
+          errorMessages.push({ lineNumber: lineIndex + 1, errorCode: error.errorCode });
         } else {
           throw error;
         }
@@ -170,7 +170,7 @@ export class Assembler {
           if (this.firstErrorLine === -1) {
             this.firstErrorLine = lineIndex;
           }
-          errorMessages.push({lineNumber: lineIndex + 1, errorCode: error.errorCode});
+          errorMessages.push({ lineNumber: lineIndex + 1, errorCode: error.errorCode });
         } else {
           throw error;
         }
@@ -483,7 +483,7 @@ export class Assembler {
 
   protected argumentToValue(
     argument: string,
-    {isImmediate, defineNumBytes, allowLabels = true}: {isImmediate: boolean, defineNumBytes?: number, allowLabels?: boolean}
+    { isImmediate, defineNumBytes, allowLabels = true }: {isImmediate: boolean, defineNumBytes?: number, allowLabels?: boolean}
   ): number {
     const charMatcher = new RegExpMatcher("'(.)'");
     const offsetMatcher = new RegExpMatcher(`(${Assembler.LABEL_PATTERN})(\\+|-)(\\w+)`); // (label)(+|-)(offset)
@@ -516,7 +516,7 @@ export class Assembler {
 
     if (isImmediate) {
       if (charMatcher.fullMatch(argument)) { // Immediate char
-        return this.charToInteger(charMatcher.cap(1)); // TODO: Restrict to ASCII
+        return this.charToInteger(charMatcher.cap(1));
       } else if (this.isValidNBytesValue(argument, immediateNumBytes)) { // Immediate hex/dec value
         return valueStringToNumber(argument);
       } else if (this.isValidValueFormat(argument)) {

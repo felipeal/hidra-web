@@ -23,19 +23,17 @@ describe("Assembler: Transformations", () => {
   test("removeComments: should ignore comments inside strings", () => {
     expect(assembler["removeComment"]("code ';code' ; comment")).toBe("code ';code' ");
     expect(assembler["removeComment"]("code ';code' ';code' ; comment")).toBe("code ';code' ';code' ");
+  });
+
+  test("removeComments: should properly handle mixed strings and comments edge cases", () => {
     expect(assembler["removeComment"]("code '")).toBe("code '");
     expect(assembler["removeComment"]("code ';")).toBe("code ';");
     expect(assembler["removeComment"]("''''code'''code'''' ;'''")).toBe("''''code'''code'''' ");
     expect(assembler["removeComment"]("''''' ;'")).toBe("''''' ");
     expect(assembler["removeComment"]("''''' ';' ;'")).toBe("''''' ';' ");
-  });
-
-  test("removeComments: should replace the correct part of the string", () => {
-    expect(assembler["removeComment"]("abc ';test' ;test")).toBe("abc ';test' ");
-  });
-
-  test("removeComments: should replace the correct part of the string", () => {
-    expect(assembler["removeComment"]("abc ';test' ;test")).toBe("abc ';test' ");
+    expect(assembler["removeComment"]("''''' ';' ;'")).toBe("''''' ';' ");
+    expect(assembler["removeComment"]("'123';")).toBe("'123'");
+    expect(assembler["removeComment"]("'''';''';'''';'")).toBe("'''';''';''''");
   });
 
   test("removeComments: should replace the correct part of the string", () => {
@@ -140,16 +138,16 @@ describe("Assembler: Build", () => {
   test("build: should return multiple first pass errors", () => {
     const firstPassErrors = assembler.build("NOPX\nORG 512");
     expect(firstPassErrors).toEqual([
-      {errorCode: AssemblerErrorCode.INVALID_MNEMONIC, lineNumber: 1},
-      {errorCode: AssemblerErrorCode.INVALID_ADDRESS, lineNumber: 2}
+      { errorCode: AssemblerErrorCode.INVALID_MNEMONIC, lineNumber: 1 },
+      { errorCode: AssemblerErrorCode.INVALID_ADDRESS, lineNumber: 2 }
     ]);
   });
 
   test("build: should return multiple second pass errors", () => {
     const secondPassErrors = assembler.build("ADD A 512\nADD Z 0");
     expect(secondPassErrors).toEqual([
-      {errorCode: AssemblerErrorCode.INVALID_ADDRESS, lineNumber: 1},
-      {errorCode: AssemblerErrorCode.INVALID_ARGUMENT, lineNumber: 2}
+      { errorCode: AssemblerErrorCode.INVALID_ADDRESS, lineNumber: 1 },
+      { errorCode: AssemblerErrorCode.INVALID_ARGUMENT, lineNumber: 2 }
     ]);
   });
 
