@@ -47,7 +47,8 @@ export default function MemoryRowData({ address, machine, assembler, displayChar
           setTimeout(() => (event.target as HTMLInputElement).select(), 0);
         }} />
       </td>
-      {displayChars && <td>{charCodeToString(Number(value))}</td>} {/* // TODO: Recheck on interaction with displayHex/Negative */}
+      {displayChars && <td>{charCodeToString(Number(value))}</td>}
+      {/* // TODO: Recheck "value" on interaction with displayHex/Negative */}
       <td style={{ maxWidth: "10rem", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</td>
     </tr>
   );

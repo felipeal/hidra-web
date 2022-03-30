@@ -1,5 +1,6 @@
 import React from "react";
 import Tippy from "@tippyjs/react";
+import { hideAll as tippyHideAll } from "tippy.js";
 import { hideOnPopperBlur } from "./extensions/hideOnPopperBlur";
 
 export function Menu({ title, children }: { title: string, children: React.ReactNode[] }) {
@@ -16,7 +17,10 @@ export function Menu({ title, children }: { title: string, children: React.React
 }
 
 export function SubMenuItem({ title, callback }: { title: string, callback: () => void }) {
-  return <button className="navbar-submenu-item" onClick={callback}>{title}</button>;
+  return <button className="navbar-submenu-item" onClick={() => {
+    callback();
+    tippyHideAll();
+  }}>{title}</button>;
 }
 
 export function SubMenuCheckBox({ title, checked, setChecked }: { title: string, checked: boolean, setChecked: (checked: boolean) => void }) {
@@ -27,7 +31,7 @@ export function SubMenuCheckBox({ title, checked, setChecked }: { title: string,
       if (event.key === " ") {
         setChecked(!checked);
       }
-    }}/>
+    }} onChange={() => {/* Comment to suppress warning: value is changed by parent element. */}}/>
     <label htmlFor={`drop-down-item-${title}-input`}>{title}</label>
   </div>;
 }
