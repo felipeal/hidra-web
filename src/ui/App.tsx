@@ -1,10 +1,9 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import codemirror from "codemirror";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import "tippy.js/themes/light-border.css";
 
-// Components
 import CodeEditor, { hasBreakpointAtLine } from "./CodeEditor";
 import MemoryRowInstructions from "./MemoryRowInstructions";
 import MemoryRowData from "./MemoryRowData";
@@ -12,15 +11,14 @@ import MemoryRowStack from "./MemoryRowStack";
 import FlagWidget from "./FlagWidget";
 import RegisterWidget from "./RegisterWidget";
 import Information from "./Information";
-
+import { Menu, SubMenuCheckBox, SubMenuItem, SubMenuSeparator } from "./Menus";
+import { buildMachine, buildMachineBasedOnFileName, generateFileNameForMachine, getMachineNames, resetPCAndSP } from "./MachineUtils";
 import { Machine } from "../core/Machine";
 import { Neander } from "../machines/Neander";
 import { Volta } from "../machines/Volta";
 import { Assembler } from "../core/Assembler";
 import { Texts } from "../core/Texts";
 import { ErrorMessage } from "../core/Errors";
-import { Menu, SubMenuCheckBox, SubMenuItem, SubMenuSeparator } from "./Menus";
-import { buildMachine, getMachineNames, resetPCAndSP } from "./MachineUtils";
 
 // Global pointer required for CodeMirror persistence between live-reloads
 declare global {
@@ -60,10 +58,15 @@ const hideBusy = () => document.body.classList.remove("is-busy");
 
 let timeout: NodeJS.Timeout;
 
+const navBarHeightPx = 50;
+
 export default function App() {
   const [[machine, assembler], setState] = useState([initialMachine, initialAssembler]);
   const [errorMessages, setErrorMessages] = useState([] as ErrorMessage[]);
   const [isRunning, setRunning] = useState(machine.isRunning());
+
+  const openFileInput = useRef<HTMLInputElement | null>(null);
+  const saveFileAnchor = useRef<HTMLAnchorElement | null>(null);
 
   // Display toggles
   const [displayHex, setDisplayHex] = useState(false);
@@ -71,8 +74,6 @@ export default function App() {
   const [displayChars, setDisplayChars] = useState(false);
   const [displayFast, setDisplayFast] = useState(false);
   const [displayFollowPC, setDisplayFollowPC] = useState(true);
-
-  const navBarHeightPx = 50;
 
   useEffect(() => {
     // Restore values on machine change
@@ -90,6 +91,19 @@ export default function App() {
     hideBusy();
   }, [machine, assembler]);
 
+  async function onFileOpened(event: ChangeEvent<HTMLInputElement>) {
+    event.stopPropagation();
+    event.preventDefault();
+    const file = event.target.files?.[0];
+    if (file) {
+      const fileContents = await file?.text();
+      codeMirrorInstance.setValue(fileContents);
+      machine.setRunning(false);
+      const newMachine = buildMachineBasedOnFileName(file.name, machine.getName());
+      setState([newMachine, new Assembler(newMachine)]);
+    }
+  }
+
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
 
@@ -102,8 +116,18 @@ export default function App() {
       }}>
         <span style={{ padding: "8px" }}>Hidra</span>
         <Menu title="Arquivo">
-          <SubMenuItem title="Abrir" callback={() => {}}/>
-          <SubMenuItem title="Salvar" callback={() => {}}/>
+          <SubMenuItem title="Abrir" callback={() => {
+            openFileInput.current?.click();
+          }}/>
+          <SubMenuItem title="Salvar" callback={() => {
+            const sourceCode = window.codeMirrorInstance.getValue();
+            const file = new Blob([sourceCode], { type: "plain-text" });
+            if (saveFileAnchor?.current) {
+              saveFileAnchor.current.href = URL.createObjectURL(file);
+              saveFileAnchor.current.download = generateFileNameForMachine(machine);
+              saveFileAnchor.current.click();
+            }
+          }}/>
           <SubMenuSeparator/>
           <SubMenuItem title="Importar memória" callback={() => {}}/>
           <SubMenuItem title="Exportar memória" callback={() => {}}/>
@@ -366,6 +390,10 @@ export default function App() {
 
           {/* Busy state */}
           <div className="show-if-busy" style={{ display: "flex", width: "100%", flex: 1, justifyContent: "center", alignItems: "center" }}>Inicializando...</div>
+
+          {/* File loaders (not visible) */}
+          <input type="file" id="open-file-input" ref={openFileInput} style={{ display: "none" }} onChange={onFileOpened}/>
+          <a id="save-file-anchor" ref={saveFileAnchor} style={{ display: "none" }}/>
 
         </div>
       </div>

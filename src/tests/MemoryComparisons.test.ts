@@ -1,10 +1,7 @@
 import fs from "fs";
 
-import { Machine } from "../core/Machine";
-import { Neander } from "../machines/Neander";
-import { Ahmes } from "../machines/Ahmes";
-import { Ramses } from "../machines/Ramses";
 import { Assembler } from "../core/Assembler";
+import { buildMachineBasedOnFileName } from "../ui/MachineUtils";
 
 const resourcesPath = "src/tests/resources";
 
@@ -23,15 +20,6 @@ function readMachineBinary(filePath: string) {
   return [memory, identifier];
 }
 
-function createMachineBasedOnExtension(fileExtension: string): Machine {
-  switch (fileExtension) {
-    case "ndr": return new Neander();
-    case "ahd": return new Ahmes();
-    case "rad": return new Ramses();
-    default: throw new Error(`No machine found for extension: ${fileExtension}`);
-  }
-}
-
 type MemoryComparison = { buildOnly?: boolean, instructions?: number; accesses?: number; extraAccesses?: number; }
 
 describe("Memory Comparisons", () => {
@@ -42,20 +30,20 @@ describe("Memory Comparisons", () => {
   // WRamses.exe does not count these extra accesses.
 
   test.each([
-    ["neander_instructions.ndr", { instructions: 39, accesses: 106, extraAccesses: 2 }],
+    ["neander_instructions.ned", { instructions: 39, accesses: 106, extraAccesses: 2 }],
     ["ahmes_instructions_1.ahd", { instructions: 56, accesses: 153, extraAccesses: 4 }],
     ["ahmes_instructions_2.ahd", { instructions: 67, accesses: 163, extraAccesses: 8 }],
     ["ramses_instructions.rad", { instructions: 80, accesses: 176, extraAccesses: 0 }],
     ["assembler.rad", { buildOnly: true }]
-  ])("%s: should match Daedalus and original simulators' output", (filePath, { instructions, accesses, extraAccesses, buildOnly }: MemoryComparison) => {
+  ])("%s: should match Daedalus and original simulators' output", (fileName, { instructions, accesses, extraAccesses, buildOnly }: MemoryComparison) => {
     // Build
-    const machine = createMachineBasedOnExtension(filePath.split(".")[1]);
+    const machine = buildMachineBasedOnFileName(fileName);
     const assembler = new Assembler(machine);
-    const sourceCode = readTextFile(`${filePath}`);
+    const sourceCode = readTextFile(`${fileName}`);
     const errorMessages = assembler.build(sourceCode);
 
     // Test build
-    const [expectedMemoryBeforeRunning, expectedIdentifier] = readMachineBinary(filePath.replace(/\..*/, ".build.mem"));
+    const [expectedMemoryBeforeRunning, expectedIdentifier] = readMachineBinary(fileName.replace(/\..*/, ".build.mem"));
     expect(machine.getIdentifier()).toStrictEqual(expectedIdentifier);
     expect(errorMessages).toStrictEqual([]);
     expect(assembler.getBuildSuccessful()).toBe(true);
@@ -74,7 +62,7 @@ describe("Memory Comparisons", () => {
     }
 
     // Test execute
-    const [expectedMemoryAfterRunning] = readMachineBinary(filePath.replace(/\..*/, ".run.mem"));
+    const [expectedMemoryAfterRunning] = readMachineBinary(fileName.replace(/\..*/, ".run.mem"));
     for (let i = 0; i < 256; i++) {
       expect(`MEM[${i}] = ${machine.getMemoryValue(i)}`).toBe(`MEM[${i}] = ${expectedMemoryAfterRunning[i]}`);
     }

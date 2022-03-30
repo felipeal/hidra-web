@@ -24,8 +24,53 @@ export function buildMachine(machineName: string): Machine {
   }
 }
 
+export function generateFileNameForMachine(machine: Machine): string {
+  const localDate = new Date().toLocaleString("sv"); // Similar to ISO
+  const sanitizedLocalDate = localDate.replace(" ", "_").replaceAll(":", "-");
+  const fileName = `${machine.getName()}_${sanitizedLocalDate}.${getMachineFileExtension(machine)}`;
+  return fileName;
+}
+
+function getMachineFileExtension(machine: Machine): string {
+  switch (machine.getName()) {
+    case "Neander": return "ned";
+    case "Ahmes": return "ahd";
+    case "Ramses": return "rad";
+    case "Cromag": return "cro"; // .crd .cmd N/A
+    case "Queops": return "qpd";
+    case "Pitagoras": return "ptd";
+    case "Pericles": return "prd"; // .pid .pit N/A
+    case "REG": return "red";
+    case "Volta": return "vod";
+    default: throw new Error(`No file extension for machine: ${machine.getName()}`);
+  }
+}
+
 export function getMachineNames(): string[] {
   return ["Neander", "Ahmes", "Ramses", "Cromag", "Queops", "Pitagoras", "Pericles", "REG", "Volta"];
+}
+
+// TODO: Map machine to extensions only once
+export function buildMachineBasedOnFileName(fileName: string, fallbackMachineName?: string): Machine {
+  const fileExtension = fileName.replace(/.*\./, "");
+
+  switch (fileExtension) {
+    case "ned": return new Neander();
+    case "ahd": return new Ahmes();
+    case "rad": return new Ramses();
+    case "cro": return new Cromag();
+    case "qpd": return new Queops();
+    case "ptd": return new Pitagoras();
+    case "prd": return new Pericles();
+    case "red": return new Reg();
+    case "vod": return new Volta();
+  }
+
+  if (fallbackMachineName) {
+    return buildMachine(fallbackMachineName);
+  } else {
+    throw new Error(`No machine found for extension: ${fileExtension}`);
+  }
 }
 
 export function resetPCAndSP(machine: Machine): void {
