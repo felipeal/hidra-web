@@ -130,6 +130,13 @@ describe("Assembler: Build", () => {
     expectError("ORG 253\nDAW 1, 2", AssemblerErrorCode.MEMORY_LIMIT_EXCEEDED, 2); // Word ends outside memory
   });
 
+  test("build: should allow immediate chars", () => {
+    expectSuccess("ADD A #'0'", [50, 48]); // Number
+    expectSuccess("ADD A #'a'", [50, 97]); // Uppercase
+    expectSuccess("ADD A #'A'", [50, 65]); // Lowercase
+    expectSuccess("ADD A #'''", [50, 39]); // Literal single quote
+  });
+
 });
 
 describe("Assembler: Labels", () => {
@@ -149,6 +156,15 @@ describe("Assembler: Labels", () => {
   test("should validate label's existence", () => {
     expectSuccess("Label1: JMP Label1", [128, 0]);
     expectError("Label1: JMP Label2", AssemblerErrorCode.INVALID_LABEL);
+    expectError("DB Label", AssemblerErrorCode.INVALID_ARGUMENT); // Label in directive
+    expectError("JMP Label+1", AssemblerErrorCode.INVALID_LABEL); // Label with offset
+  });
+
+  test("should validate offsets", () => {
+    expectSuccess("JMP Label-1\nLabel: DB 32", [128, 1, 32]);
+    expectSuccess("JMP Label+1\nLabel: DB 32", [128, 3, 32]);
+    expectError("Label: JMP 1+Label", AssemblerErrorCode.INVALID_ARGUMENT);
+    expectError("Label: JMP Label+Label", AssemblerErrorCode.INVALID_ARGUMENT);
   });
 
   test("should reject duplicate labels", () => {
@@ -189,8 +205,10 @@ describe("Assembler: Directives", () => {
     expectSuccess("DB\nDB 1", [0, 1]); // No argument: defaults to zero
     expectSuccess("DB '0'", [48]); // Single character
     expectSuccess("DB '''", [39]); // Single quote character
+    expectSuccess("DB '~'", [126]); // Last valid ASCII char
     expectSuccess("ORG 1\nLabel: DB Label", [0, 1]); // Label
     expectSuccess("ORG 1\nLabel: DB Label+1", [0, 2]); // Label with offset
+    expectSuccess("DB 1 , \nDB 2,", [1, 2]); // Trailing separator (currently allowed)
     expectSuccess("DB hFF", [255]); // Hexadecimal
     expectSuccess("DB -128", [128]); // Lower bound
     expectSuccess("DB 255", [255]); // Upper bound
@@ -201,6 +219,7 @@ describe("Assembler: Directives", () => {
     expectError("Zero: DB Zero-129", AssemblerErrorCode.INVALID_VALUE); // Out of bounds with offset
     expectError("Zero: DB Zero+256", AssemblerErrorCode.INVALID_VALUE); // Out of bounds with offset
     expectError("DB 1 2", AssemblerErrorCode.TOO_MANY_ARGUMENTS); // Extra arguments
+    expectError("DB ,", AssemblerErrorCode.INVALID_ARGUMENT); // Separator only
     expectError("DB [2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate syntax: invalid
     expectError("DB '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
     expectError("DB 'ã'", AssemblerErrorCode.INVALID_CHARACTER); // Non-ASCII character
@@ -213,8 +232,10 @@ describe("Assembler: Directives", () => {
     expectSuccess("DW\nDB 1", [0, 0, 1]); // No argument: defaults to zero
     expectSuccess("DW '0'", [0, 48]); // Single character
     expectSuccess("DW '''", [0, 39]); // Single quote character
+    expectSuccess("DW '~'", [0, 126]); // Last valid ASCII char
     expectSuccess("ORG 1\nLabel: DW Label", [0, 0, 1]); // Label
     expectSuccess("ORG 1\nLabel: DW Label+1", [0, 0, 2]); // Label with offset
+    expectSuccess("DB 1 , \nDB 2,", [1, 2]); // Trailing separator (currently allowed)
     expectSuccess("DW hFF", [0, 255]); // Hexadecimal
     expectSuccess("DW -32768", [128, 0]); // Lower bound
     expectSuccess("DW 65535", [255, 255]); // Upper bound
@@ -225,6 +246,8 @@ describe("Assembler: Directives", () => {
     expectError("Zero: DW Zero-32769", AssemblerErrorCode.INVALID_VALUE); // Out of bounds with offset
     expectError("Zero: DW Zero+65536", AssemblerErrorCode.INVALID_VALUE); // Out of bounds with offset
     expectError("DW 1 2", AssemblerErrorCode.TOO_MANY_ARGUMENTS); // Extra arguments
+    expectError("DW ,", AssemblerErrorCode.INVALID_ARGUMENT); // Separator only
+    expectError("DW a", AssemblerErrorCode.INVALID_ARGUMENT); // Invalid argument
     expectError("DW [2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate syntax: invalid
     expectError("DW '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
     expectError("DW 'ã'", AssemblerErrorCode.INVALID_CHARACTER); // Non-ASCII character
@@ -247,6 +270,7 @@ describe("Assembler: Directives", () => {
     expectSuccess("DAB '1-1'", [49, 45, 49]); // String with hyphen
     expectSuccess("DAB '1:1'", [49, 58, 49]); // String with colon
     expectSuccess("DAB '1  1'", [49, 32, 32, 49]); // String with multiple spaces
+    expectSuccess("DAB 'Aa'", [65, 97]); // String with mixed case
     expectSuccess("DAB [2]\nDB 1", [0, 0, 1]); // Allocate only
     expectSuccess("DAB -128", [128]); // Lower bound
     expectSuccess("DAB 255", [255]); // Upper bound
@@ -277,6 +301,7 @@ describe("Assembler: Directives", () => {
     expectSuccess("DAW '1-1'", [0, 49, 0, 45, 0, 49]); // String with hyphen
     expectSuccess("DAW '1:1'", [0, 49, 0, 58, 0, 49]); // String with colon
     expectSuccess("DAW '1  1'", [0, 49, 0, 32, 0, 32, 0, 49]); // String with multiple spaces
+    expectSuccess("DAW 'Aa'", [0, 65, 0, 97]); // String with mixed case
     expectSuccess("DAW [2]\nDB 1", [0, 0, 0, 0, 1]); // Allocate only
     expectSuccess("DAW -32768", [128, 0]); // Lower bound
     expectSuccess("DAW 65535", [255, 255]); // Upper bound
