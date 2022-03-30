@@ -20,8 +20,14 @@ export function SubMenuItem({ title, callback }: { title: string, callback: () =
 }
 
 export function SubMenuCheckBox({ title, checked, setChecked }: { title: string, checked: boolean, setChecked: (checked: boolean) => void }) {
-  return <div className="navbar-submenu-checkbox" style={{ display: "flex", flexDirection: "row", gap: "4px", alignItems: "center" }}>
-    <input id={`drop-down-item-${title}-input`} type="checkbox" checked={checked} onClick={() => setChecked(!checked)} />
+  return <div className="navbar-submenu-checkbox" style={{ display: "flex", flexDirection: "row", gap: "4px", alignItems: "center" }}
+    onMouseDown={() => setChecked(!checked)}
+  >
+    <input id={`drop-down-item-${title}-input`} type="checkbox" checked={checked} onKeyDown={(event) => {
+      if (event.key === " ") {
+        setChecked(!checked);
+      }
+    }}/>
     <label htmlFor={`drop-down-item-${title}-input`}>{title}</label>
   </div>;
 }

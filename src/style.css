@@ -86,7 +86,7 @@ select, fieldset, button, table, input, .pc-sp-arrow {
   background-color: white;
 }
 .navbar-submenu-checkbox input:checked {
-  background-color:  #ecf;;
+  background-color:  hsl(280, 50%, 75%);
 }
 
 /* Men separator */
