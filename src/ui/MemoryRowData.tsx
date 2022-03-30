@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Assembler } from "../core/Assembler";
+import { charCodeToString } from "../core/Conversions";
 import { Machine } from "../core/Machine";
 
 function focusInput(row: number) {
@@ -7,7 +8,7 @@ function focusInput(row: number) {
   (tableInputs[row] as HTMLInputElement)?.focus();
 }
 
-export default function MemoryRowData({ address, machine, assembler }: { address: number, machine: Machine, assembler: Assembler }) {
+export default function MemoryRowData({ address, machine, assembler, displayChars }: { address: number, machine: Machine, assembler: Assembler, displayChars: boolean }) {
   const [value, setValue] = useState(String(machine.getMemoryValue(address)));
   const [label, setLabel] = useState(assembler.getAddressCorrespondingLabel(address));
 
@@ -46,6 +47,7 @@ export default function MemoryRowData({ address, machine, assembler }: { address
           setTimeout(() => (event.target as HTMLInputElement).select(), 0);
         }} />
       </td>
+      {displayChars && <td>{charCodeToString(Number(value))}</td>} {/* // TODO: Recheck on interaction with displayHex/Negative */}
       <td style={{ maxWidth: "10rem", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</td>
     </tr>
   );

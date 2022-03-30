@@ -183,12 +183,13 @@ export default function App() {
             <tr>
               <th>End.</th>
               <th>Valor</th>
+              {displayChars && <th>Car.</th>}
               <th>Label</th>
             </tr>
           </thead>
           <tbody>
             {machine.getMemory().map((value, address) => {
-              return <MemoryRowData key={address} address={address} machine={machine} assembler={assembler} />;
+              return <MemoryRowData key={address} address={address} machine={machine} assembler={assembler} displayChars={displayChars} />;
             })}
           </tbody>
         </table>
@@ -200,11 +201,12 @@ export default function App() {
               <th>SP</th>
               <th>End.</th>
               <th>Valor</th>
+              {displayChars && <th>Car.</th>}
             </tr>
           </thead>
           <tbody>
             {machine.getStack().map((value, index) => {
-              return <MemoryRowStack key={index} row={index} address={machine.getStack().length - 1 - index} voltaMachine={machine} />;
+              return <MemoryRowStack key={index} row={index} address={machine.getStack().length - 1 - index} voltaMachine={machine} displayChars={displayChars} />;
             })}
           </tbody>
         </table>}

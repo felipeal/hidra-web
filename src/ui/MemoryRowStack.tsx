@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { charCodeToString } from "../core/Conversions";
 import { Volta } from "../machines/Volta";
 
 function focusInput(row: number) {
@@ -6,7 +7,7 @@ function focusInput(row: number) {
   (tableInputs[row] as HTMLInputElement)?.focus();
 }
 
-export default function MemoryRowStack({ row, address, voltaMachine }: { row: number, address: number, voltaMachine: Volta }) {
+export default function MemoryRowStack({ row, address, voltaMachine, displayChars }: { row: number, address: number, voltaMachine: Volta, displayChars: boolean }) {
   const [value, setValue] = useState(String(voltaMachine.getStackValue(address)));
   const [isCurrentStackPos, setIsCurrentStackPos] = useState(voltaMachine.getSPValue() === address);
   const [isAboveStackPos, setIsAboveStackPos] = useState(address > voltaMachine.getSPValue());
@@ -44,6 +45,7 @@ export default function MemoryRowStack({ row, address, voltaMachine }: { row: nu
           setTimeout(() => (event.target as HTMLInputElement).select(), 0);
         }} />
       </td>
+      {displayChars && <td>{charCodeToString(Number(value))}</td>} {/* // TODO: Recheck on interaction with displayHex/Negative */}
     </tr>
   );
 }

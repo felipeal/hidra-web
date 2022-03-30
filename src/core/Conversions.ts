@@ -29,3 +29,12 @@ export function valueStringToNumber(decOrHex: string): number {
     return parseInt(decOrHex, 10);
   }
 }
+
+export function charCodeToString(charCode: number): string {
+  // Restricted to ASCII to maximize compatibility
+  if (charCode >= 32 && charCode <= 126) {
+    return String.fromCharCode(charCode);
+  } else {
+    return "";
+  }
+}
