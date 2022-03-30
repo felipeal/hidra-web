@@ -1,15 +1,14 @@
 import React from "react";
 import Tippy from "@tippyjs/react";
+import { hideOnPopperBlur } from "./extensions/hideOnPopperBlur";
 
 export function Menu({ title, children }: { title: string, children: React.ReactNode[] }) {
   return <div>
-    <Tippy
-      trigger="click" interactive appendTo="parent" arrow={false} theme="light-border" placement="bottom-start"
-      content={
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-          {children}
-        </div>
-      }
+    <Tippy trigger="click" interactive appendTo="parent" arrow={false} theme="light-border" placement="bottom-start"
+      content={<div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        {children}
+      </div>}
+      plugins={[hideOnPopperBlur]}
     >
       <button className="navbar-item">{title} ▾</button>
     </Tippy>
