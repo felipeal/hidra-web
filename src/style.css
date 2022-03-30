@@ -29,12 +29,84 @@ select, fieldset, button, table, input, .pc-sp-arrow {
 }
 
 /******************************************************************************
+/* Navigation bar
+/******************************************************************************/
+
+.navbar {
+  background-color: rgb(143, 90, 168);
+  font-size: 17px;
+  color: white;
+}
+
+/* Menu item */
+.navbar-item {
+  border: none;
+  padding: 8px;
+  font-size: 17px;
+  cursor: pointer;
+  background-color: unset;
+  color: #ecf;
+}
+.navbar-item:hover {
+  color: #fdf
+}
+
+/* Submenu item */
+.navbar-submenu-item {
+  border: none;
+  border-radius: 4px;
+  padding: 8px;
+  cursor: pointer;
+  text-align: left;
+  background-color: white;
+}
+.navbar-submenu-item:hover {
+  background-color: #ecf;
+}
+
+/* Submenu checkbox */
+.navbar-submenu-checkbox {
+  border-radius: 4px;
+  padding: 8px;
+}
+.navbar-submenu-checkbox,
+.navbar-submenu-checkbox * {
+  cursor: pointer;
+}
+.navbar-submenu-checkbox:hover {
+  background-color: #ecf;
+}
+.navbar-submenu-checkbox input {
+  width: 1.25em;
+  height: 1.25em;
+  margin-right: 4px;
+  border: 2px solid #868;
+  border-radius: 3px;
+  appearance: none;
+  background-color: white;
+}
+.navbar-submenu-checkbox input:checked {
+  background-color:  #ecf;;
+}
+
+/* Men separator */
+.menu-separator {
+  width: calc(100%-8px);
+  margin: 4px;
+  border-top: 1px solid #bbb;
+}
+
+.tippy-box {
+  box-shadow: none !important;
+}
+
+/******************************************************************************
 /* Left area (code editor and error messages)
 /******************************************************************************/
 
 /* Code editor area */
 .code-editor {
-  border: 1px solid;
+  border: 1px solid #889;
 }
 .react-codemirror2, .CodeMirror {
   height: 100%;
@@ -90,7 +162,7 @@ select, fieldset, button, table, input, .pc-sp-arrow {
 
 /* Error messages area */
 .error-messages-area {
-  border: 1px solid;
+  border: 1px solid #889;
 }
 .error-message {
   color: #a00;
@@ -105,7 +177,7 @@ select, fieldset, button, table, input, .pc-sp-arrow {
 /******************************************************************************/
 
 table {
-  border: 1px solid rgb(103, 103, 116);
+  border: 1px solid #889;
   border-collapse: collapse;
 }
 
@@ -194,7 +266,7 @@ fieldset legend {
 }
 
 /* Buttons */
-button {
+.machine-button {
   background-color: #eee;
   color: #222;
   border: none;
@@ -202,13 +274,13 @@ button {
   padding: 8px;
   cursor: pointer;
 }
-button:hover:not([disabled]) {
+.machine-button:hover:not([disabled]) {
   background-color: #ddd;
 }
-button:active:not([disabled]) {
+.machine-button:active:not([disabled]) {
   background-color: #aaa;
 }
-button:disabled {
+.machine-button:disabled {
   cursor: auto;
   color: #aaa;
 }

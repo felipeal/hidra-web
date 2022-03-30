@@ -1,0 +1,32 @@
+import React from "react";
+import Tippy from "@tippyjs/react";
+
+export function Menu({ title, children }: { title: string, children: React.ReactNode[] }) {
+  return <div>
+    <Tippy
+      trigger="click" interactive appendTo="parent" arrow={false} theme="light-border" placement="bottom-start"
+      content={
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {children}
+        </div>
+      }
+    >
+      <button className="navbar-item">{title} ▾</button>
+    </Tippy>
+  </div>;
+}
+
+export function SubMenuItem({ title, callback }: { title: string, callback: () => void }) {
+  return <button className="navbar-submenu-item" onClick={callback}>{title}</button>;
+}
+
+export function SubMenuCheckBox({ title, checked, setChecked }: { title: string, checked: boolean, setChecked: (checked: boolean) => void }) {
+  return <div className="navbar-submenu-checkbox" style={{ display: "flex", flexDirection: "row", gap: "4px", alignItems: "center" }}>
+    <input id={`drop-down-item-${title}-input`} type="checkbox" checked={checked} onClick={() => setChecked(!checked)} />
+    <label htmlFor={`drop-down-item-${title}-input`}>{title}</label>
+  </div>;
+}
+
+export function SubMenuSeparator() {
+  return <div className="menu-separator"/>;
+}
