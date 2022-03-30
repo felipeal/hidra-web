@@ -13,21 +13,14 @@ import FlagWidget from "./FlagWidget";
 import RegisterWidget from "./RegisterWidget";
 import Information from "./Information";
 
-// Machines
 import { Machine } from "../core/Machine";
 import { Neander } from "../machines/Neander";
-import { Ahmes } from "../machines/Ahmes";
-import { Ramses } from "../machines/Ramses";
-import { Cromag } from "../machines/Cromag";
-import { Queops } from "../machines/Queops";
-import { Pitagoras } from "../machines/Pitagoras";
-import { Pericles } from "../machines/Pericles";
-import { Reg } from "../machines/Reg";
 import { Volta } from "../machines/Volta";
 import { Assembler } from "../core/Assembler";
 import { Texts } from "../core/Texts";
 import { ErrorMessage } from "../core/Errors";
 import { Menu, SubMenuCheckBox, SubMenuItem, SubMenuSeparator } from "./Menus";
+import { buildMachine, getMachineNames, resetPCAndSP } from "./MachineUtils";
 
 // Global pointer required for CodeMirror persistence between live-reloads
 declare global {
@@ -222,37 +215,17 @@ export default function App() {
             machine.setRunning(false);
             clearTimeout(timeout);
 
-            function buildMachine(machineName: string): Machine {
-              switch (machineName) {
-                case "Neander": return new Neander();
-                case "Ahmes": return new Ahmes();
-                case "Ramses": return new Ramses();
-                case "Cromag": return new Cromag();
-                case "Queops": return new Queops();
-                case "Pitagoras": return new Pitagoras();
-                case "Pericles": return new Pericles();
-                case "REG": return new Reg();
-                case "Volta": return new Volta();
-                default: throw new Error(`Invalid machine name: ${machineName}`);
-              }
-            }
-
             const newMachine = buildMachine(event.target.value);
+
             showBusy();
             setTimeout(() => {
               setErrorMessages([]);
               setState([newMachine, new Assembler(newMachine)]);
             });
           }}>
-            <option value="Neander">Neander</option>
-            <option value="Ahmes">Ahmes</option>
-            <option value="Ramses">Ramses</option>
-            <option value="Cromag">Cromag</option>
-            <option value="Queops">Queops</option>
-            <option value="Pitagoras">Pitagoras</option>
-            <option value="Pericles">Pericles</option>
-            <option value="REG">REG</option>
-            <option value="Volta">Volta</option>
+            {getMachineNames().map((name, index) => {
+              return <option key={index} value={name}>{name}</option>;
+            })}
           </select>
 
           {/* Flags */}
@@ -292,12 +265,7 @@ export default function App() {
             }}>Montar</button>
             <div style={{ display: "flex", gap: "8px" }}>
               <button className="machine-button" style={{ flex: 1 }} onClick={() => {
-                machine.setRunning(false);
-                machine.setPCValue(0);
-                if (machine.hasRegister("SP")) {
-                  machine.setRegisterValueByName("SP", 0);
-                }
-                machine.clearCounters();
+                resetPCAndSP(machine);
               }}>Zerar PC</button>
               <button className="machine-button" style={{ flex: 1 }} onClick={() => {
                 if (!machine.isRunning()) { // Run requested
