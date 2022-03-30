@@ -160,10 +160,8 @@ export class Assembler {
           const instruction: Instruction | null = this.machine.getInstructionFromMnemonic(mnemonic);
           if (instruction !== null) {
             this.buildInstruction(instruction, args);
-          } else if (Assembler.DIRECTIVES.includes(mnemonic)) {
-            this.obeyDirective(mnemonic, args, false, lineIndex);
           } else {
-            throw new AssemblerError(AssemblerErrorCode.INVALID_MNEMONIC); // Should be unreachable on second pass
+            this.obeyDirective(mnemonic, args, false, lineIndex);
           }
         }
       } catch (error: unknown) {
@@ -568,7 +566,7 @@ export class Assembler {
   }
 
   public getPCCorrespondingSourceLine(): number {
-    return (this.addressCorrespondingSourceLine.at(this.machine.getPCValue()) ?? -1);
+    return (this.addressCorrespondingSourceLine[this.machine.getPCValue()] ?? -1);
   }
 
   public getAddressCorrespondingSourceLine(address: number): number {

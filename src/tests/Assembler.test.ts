@@ -317,3 +317,49 @@ describe("Assembler: Directives", () => {
   });
 
 });
+
+describe("Assembler: Accessors", () => {
+
+  test("getFirstErrorLine: should report correct line", () => {
+    assembler.build("\nNOPX\nORG 512");
+    expect(assembler.getFirstErrorLine()).toEqual(1);
+  });
+
+  test("should correctly map memory and source code", () => {
+    assembler.build("\nSecondLine: ADD A 0\nADD A 0");
+
+    expect(assembler.getAddressCorrespondingSourceLine(2)).toEqual(2); // First byte
+    expect(assembler.getAddressCorrespondingSourceLine(3)).toEqual(2); // Second byte
+    expect(assembler.getAddressCorrespondingSourceLine(4)).toEqual(-1); // No corresponding source line
+
+    expect(assembler.getSourceLineCorrespondingAddress(2)).toEqual(2);
+    expect(assembler.getSourceLineCorrespondingAddress(3)).toEqual(-1); // No corresponding address
+
+    expect(assembler.getAddressCorrespondingLabel(0)).toEqual("SecondLine");
+    expect(assembler.getAddressCorrespondingLabel(1)).toEqual(""); // No corresponding address
+    expect(assembler.getAddressCorrespondingLabel(2)).toEqual(""); // No label
+  });
+
+  test("should invalidate mappers on build failure", () => {
+    assembler.build("Label: ADD A 0");
+    expect(assembler.getAddressCorrespondingSourceLine(0)).toEqual(0);
+    expect(assembler.getSourceLineCorrespondingAddress(0)).toEqual(0);
+    expect(assembler.getAddressCorrespondingLabel(0)).toEqual("Label");
+    expect(assembler.getPCCorrespondingSourceLine()).toEqual(0);
+
+    assembler.build("Label: NOPX");
+    expect(assembler.getAddressCorrespondingSourceLine(0)).toEqual(-1);
+    expect(assembler.getSourceLineCorrespondingAddress(1)).toEqual(-1);
+    expect(assembler.getAddressCorrespondingLabel(0)).toEqual("");
+    expect(assembler.getPCCorrespondingSourceLine()).toEqual(-1);
+  });
+
+  test("getPCCorrespondingSourceLine: should report correct line", () => {
+    assembler.build("\nADD A 0\nADD A 0");
+    machine.setPCValue(2);
+    expect(assembler.getPCCorrespondingSourceLine()).toEqual(2);
+    machine.setPCValue(4);
+    expect(assembler.getPCCorrespondingSourceLine()).toEqual(-1);
+  });
+
+});
