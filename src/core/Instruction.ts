@@ -1,4 +1,4 @@
-import { bitPatternToByteValue, byteValueToBitPattern } from "./Conversions";
+import { bitPatternToUnsignedByte, unsignedByteToBitPattern } from "./Conversions";
 import { RegExpMatcher } from "./Utils";
 
 export enum InstructionCode {
@@ -43,7 +43,7 @@ export class Instruction {
   }
 
   public matchByte(byte: number): boolean {
-    return this.byteRegExp.fullMatch(byteValueToBitPattern(byte));
+    return this.byteRegExp.fullMatch(unsignedByteToBitPattern(byte));
   }
 
   public getMnemonic(): string {
@@ -59,7 +59,7 @@ export class Instruction {
   }
 
   public getByteValue(): number {
-    return bitPatternToByteValue(this.bitPattern);
+    return bitPatternToUnsignedByte(this.bitPattern);
   }
 
   public getNumBytes(): number {

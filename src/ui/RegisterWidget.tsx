@@ -5,7 +5,7 @@ import { Machine } from "../core/Machine";
 export default function RegisterWidget({ name, machine, displayHex, displayNegative }:
   { name: string, machine: Machine, displayHex: boolean, displayNegative: boolean }
 ) {
-  const [value, setValue] = useState(String(machine.getRegisterValueByName(name)));
+  const [value, setValue] = useState(String(machine.getRegisterValue(name)));
 
   useEffect(() => {
     // Restore values on machine change

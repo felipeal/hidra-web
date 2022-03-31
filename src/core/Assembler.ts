@@ -5,7 +5,7 @@ import { AddressingModeCode } from "./AddressingMode";
 import { buildArray, range, EventCallback, RegExpMatcher, assert, UnsubscribeCallback } from "./Utils";
 import { Byte } from "./Byte";
 import { Machine } from "./Machine";
-import { valueStringToNumber } from "./Conversions";
+import { codeStringToNumber } from "./Conversions";
 
 export class Assembler {
 
@@ -229,7 +229,7 @@ export class Assembler {
         throw new AssemblerError(AssemblerErrorCode.INVALID_ADDRESS);
       }
 
-      this.setPCValue(valueStringToNumber(argumentList[0]));
+      this.setPCValue(codeStringToNumber(argumentList[0]));
     } else {
       const { argumentList, isAllocate } = this.splitArguments(args);
 
@@ -502,7 +502,7 @@ export class Assembler {
       }
 
       // Argument = Label + Offset
-      argument = String(this.labelPCMap.get(offsetMatcher.cap(1))! + sign * valueStringToNumber(offsetMatcher.cap(3)));
+      argument = String(this.labelPCMap.get(offsetMatcher.cap(1))! + sign * codeStringToNumber(offsetMatcher.cap(3)));
     }
 
     // Convert label to number string
@@ -518,7 +518,7 @@ export class Assembler {
       if (charMatcher.fullMatch(argument)) { // Immediate char
         return this.charToInteger(charMatcher.cap(1));
       } else if (this.isValidNBytesValue(argument, immediateNumBytes)) { // Immediate hex/dec value
-        return valueStringToNumber(argument);
+        return codeStringToNumber(argument);
       } else if (this.isValidValueFormat(argument)) {
         throw new AssemblerError(AssemblerErrorCode.INVALID_VALUE);
       } else {
@@ -526,7 +526,7 @@ export class Assembler {
       }
     } else {
       if (this.isValidAddress(argument)) { // Address
-        return valueStringToNumber(argument);
+        return codeStringToNumber(argument);
       } else if (this.isValidValueFormat(argument)) {
         throw new AssemblerError(AssemblerErrorCode.INVALID_ADDRESS);
       } else if (this.isValidLabelFormat(argument) && argument.length > 1) { // Assume label unless single character

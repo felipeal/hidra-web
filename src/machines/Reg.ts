@@ -3,7 +3,7 @@ import { Register } from "../core/Register";
 import { Instruction, InstructionCode } from "../core/Instruction";
 import { AddressingMode, AddressingModeCode } from "../core/AddressingMode";
 import { buildArray } from "../core/Utils";
-import { byteValueToBitPattern } from "../core/Conversions";
+import { unsignedByteToBitPattern } from "../core/Conversions";
 
 export class Reg extends Machine {
 
@@ -16,7 +16,7 @@ export class Reg extends Machine {
       ],
       registers: [
         ...buildArray(64, (registerId) => {
-          const bitPattern = ".." + byteValueToBitPattern(registerId).substring(2); // "..000000" to "..111111"
+          const bitPattern = ".." + unsignedByteToBitPattern(registerId).substring(2); // "..000000" to "..111111"
           return new Register("R" + String(registerId), bitPattern, 8);
         }),
         new Register("PC", "", 8, false)

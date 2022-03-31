@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Assembler } from "../core/Assembler";
-import { byteToString, addressToHexString } from "../core/Conversions";
+import { unsignedByteToString, addressToHex } from "../core/Conversions";
 import { Machine } from "../core/Machine";
 import { buildUnsubscribeCallback } from "../core/Utils";
 
@@ -18,14 +18,14 @@ function focusInput(row: number) {
 export default function MemoryRowInstructions({ address, machine, assembler, displayHex }:
   { address: number, machine: Machine, assembler: Assembler, displayHex: boolean}
 ) {
-  const [value, setValue] = useState(byteToString(machine.getMemoryValue(address), { displayHex }));
+  const [value, setValue] = useState(unsignedByteToString(machine.getMemoryValue(address), { displayHex }));
   const [instructionString, setInstructionString] = useState(String(machine.getInstructionString(address)));
   const [isCurrentPos, setIsCurrentPos] = useState(machine.getPCValue() === address);
   const [isCurrentInstruction, setIsCurrentInstruction] = useState(computeIsCurrentInstruction(address, assembler));
 
   useEffect(() => {
     // Restore values on external change
-    setValue(byteToString(machine.getMemoryValue(address), { displayHex }));
+    setValue(unsignedByteToString(machine.getMemoryValue(address), { displayHex }));
     setInstructionString(machine.getInstructionString(address));
     setIsCurrentPos(machine.getPCValue() === address);
     setIsCurrentInstruction(computeIsCurrentInstruction(address, assembler));
@@ -46,7 +46,7 @@ export default function MemoryRowInstructions({ address, machine, assembler, dis
       <td className="monospace-font pc-sp-arrow pc-cell" onClick={() => machine.setPCValue(address)}>
         {isCurrentPos ? "→" : ""}
       </td>
-      <td className="table-address">{displayHex ? addressToHexString(address, machine.getMemorySize()) : address}</td>
+      <td className="table-address">{displayHex ? addressToHex(address, machine.getMemorySize()) : address}</td>
       <td>
         <input className="table-value" inputMode="numeric" value={value} onChange={(event) => {
           setValue(String(event.target.value));

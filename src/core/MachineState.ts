@@ -4,7 +4,7 @@ import { Instruction } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
 import { Byte } from "./Byte";
 import { buildArray, range, EventCallback, assert, validateSize, UnsubscribeCallback } from "./Utils";
-import { bitPatternToByteValue } from "./Conversions";
+import { bitPatternToUnsignedByte } from "./Conversions";
 
 interface MachineSettings {
   name: string,
@@ -156,10 +156,6 @@ export abstract class MachineState {
     }
   }
 
-  public getNumberOfFlags(): number {
-    return this.flags.length;
-  }
-
   public getFlags(): ReadonlyArray<Flag> {
     return this.flags;
   }
@@ -168,7 +164,7 @@ export abstract class MachineState {
     return this.flags[id].getName();
   }
 
-  public getFlagValueByName(flagName: string): boolean {
+  public getFlagValue(flagName: string): boolean {
     const flag = this.flags.find(flag => flag.getName() === flagName);
     if (!flag) {
       throw new Error(`Invalid flag name: ${flagName}`);
@@ -177,7 +173,7 @@ export abstract class MachineState {
     return flag.getValue();
   }
 
-  public setFlagValueByName(flagName: string, value: boolean): void {
+  public setFlagValue(flagName: string, value: boolean): void {
     const flag = this.flags.find(flag => flag.getName() === flagName);
     if (!flag) {
       throw new Error(`Invalid flag name: ${flagName}`);
@@ -208,10 +204,6 @@ export abstract class MachineState {
     return this.flags.some(flag => flag.getFlagCode() === flagCode);
   }
 
-  public getNumberOfRegisters(): number {
-    return this.registers.length;
-  }
-
   public getRegisters(): ReadonlyArray<Register> {
     return this.registers;
   }
@@ -224,16 +216,6 @@ export abstract class MachineState {
     }
 
     return register.getBitCode();
-  }
-
-  public getRegisterName(id: number): string {
-    const name = this.registers[id].getName();
-
-    if (name !== "") {
-      return name;
-    } else {
-      return "R" + String(id); // Default to R0..R63
-    }
   }
 
   public hasRegister(registerName: string): boolean {
@@ -249,7 +231,7 @@ export abstract class MachineState {
     return register.getInfo();
   }
 
-  public getRegisterValueByName(registerName: string): number {
+  public getRegisterValue(registerName: string): number {
     if (registerName === "") { // Undefined register
       return 0;
     }
@@ -262,7 +244,7 @@ export abstract class MachineState {
     return register.getValue();
   }
 
-  public setRegisterValueByName(registerName: string, value: number): void {
+  public setRegisterValue(registerName: string, value: number): void {
     if (registerName === "") { // Undefined register
       return;
     }
@@ -334,7 +316,7 @@ export abstract class MachineState {
       throw new Error(`Invalid addressing mode code: ${addressingModeCode}`);
     }
 
-    return bitPatternToByteValue(addressingMode.getBitPattern());
+    return bitPatternToUnsignedByte(addressingMode.getBitPattern());
   }
 
   public getAddressingModePattern(addressingModeCode: AddressingModeCode): string {

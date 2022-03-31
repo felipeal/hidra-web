@@ -20,7 +20,7 @@ export function makeFunction_expectBuildSuccess(assembler: Assembler, machine: M
 export function makeFunction_expectBuildError(assembler: Assembler) {
   return (lines: string|string[], errorCode: AssemblerErrorCode, lineNumber = 1) => {
     const source = Array.isArray(lines) ? lines.join("\n") : lines;
-    expect(assembler.build(source).map(Texts.buildErrorMessageText)).toDeepEqual([{lineNumber, errorCode}].map(Texts.buildErrorMessageText), source);
+    expect(assembler.build(source).map(Texts.buildErrorMessageText)).toDeepEqual([{ lineNumber, errorCode }].map(Texts.buildErrorMessageText), source);
   };
 }
 
@@ -38,9 +38,9 @@ export function makeFunction_expectRunState(assembler: Assembler, machine: Machi
     for (const [key, expectedValue] of Object.entries(state)) {
       const [prefix, identifier] = key.split("_");
       if (prefix === "r") { // Register
-        expect(`${key}: ${machine.getRegisterValueByName(identifier)}`).toDeepEqual(`${key}: ${expectedValue}`, source);
+        expect(`${key}: ${machine.getRegisterValue(identifier)}`).toDeepEqual(`${key}: ${expectedValue}`, source);
       } else if (prefix === "f") { // Flag
-        expect(`${key}: ${machine.getFlagValueByName(identifier)}`).toDeepEqual(`${key}: ${expectedValue}`, source);
+        expect(`${key}: ${machine.getFlagValue(identifier)}`).toDeepEqual(`${key}: ${expectedValue}`, source);
       } else if (prefix === "m") { // Memory
         expect(`${key}: ${machine.getMemoryValue(Number(identifier))}`).toDeepEqual(`${key}: ${expectedValue}`, source);
       } else if (key === "isRunning") {

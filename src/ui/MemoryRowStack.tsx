@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { addressToHexString, byteToString, charCodeToString } from "../core/Conversions";
+import { addressToHex, unsignedByteToString, charCodeToString } from "../core/Conversions";
 import { buildUnsubscribeCallback } from "../core/Utils";
 import { Volta } from "../machines/Volta";
 
@@ -11,13 +11,13 @@ function focusInput(row: number) {
 export default function MemoryRowStack({ row, address, voltaMachine, displayHex, displayNegative, displayChars }:
   { row: number, address: number, voltaMachine: Volta, displayHex: boolean, displayNegative: boolean, displayChars: boolean }
 ) {
-  const [value, setValue] = useState(byteToString(voltaMachine.getStackValue(address), { displayHex, displayNegative }));
+  const [value, setValue] = useState(unsignedByteToString(voltaMachine.getStackValue(address), { displayHex, displayNegative }));
   const [isCurrentStackPos, setIsCurrentStackPos] = useState(voltaMachine.getSPValue() === address);
   const [isAboveStackPos, setIsAboveStackPos] = useState(address > voltaMachine.getSPValue());
 
   useEffect(() => {
     // Restore values on external change
-    setValue(byteToString(voltaMachine.getStackValue(address), { displayHex, displayNegative }));
+    setValue(unsignedByteToString(voltaMachine.getStackValue(address), { displayHex, displayNegative }));
     setIsCurrentStackPos(voltaMachine.getSPValue() === address);
     setIsAboveStackPos(address > voltaMachine.getSPValue());
 
@@ -27,14 +27,14 @@ export default function MemoryRowStack({ row, address, voltaMachine, displayHex,
         setIsCurrentStackPos((newSPAddress as number) === address);
         setIsAboveStackPos(address > (newSPAddress as number));
       }),
-      voltaMachine.subscribeToEvent(`STACK.${address}`, (newValue) => setValue(byteToString(newValue as number, { displayHex, displayNegative })))
+      voltaMachine.subscribeToEvent(`STACK.${address}`, (newValue) => setValue(unsignedByteToString(newValue as number, { displayHex, displayNegative })))
     ]);
   }, [voltaMachine, displayHex, displayNegative, address]);
 
   return (
     <tr>
       <td className="monospace-font pc-sp-arrow">{isCurrentStackPos ? "→" : ""}</td>
-      <td className="table-address">{displayHex ? addressToHexString(address, voltaMachine.getStackSize()) : address}</td>
+      <td className="table-address">{displayHex ? addressToHex(address, voltaMachine.getStackSize()) : address}</td>
       <td>
         <input className={`table-value ${isAboveStackPos ? "table-value-above-sp" : ""}`} inputMode="numeric" value={value} onChange={(event) => {
           setValue(String(event.target.value));

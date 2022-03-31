@@ -1,6 +1,6 @@
 import { RegisterInfo } from "./Register";
 
-export function bitPatternToByteValue(bitPattern: string): number {
+export function bitPatternToUnsignedByte(bitPattern: string): number {
   let value = 0;
 
   for (let i = 0; i < 8; i++) {
@@ -10,7 +10,7 @@ export function bitPatternToByteValue(bitPattern: string): number {
   return value;
 }
 
-export function byteValueToBitPattern(value: number): string {
+export function unsignedByteToBitPattern(value: number): string {
   let str = "";
 
   for (let i = 7; i >= 0; i--) {
@@ -20,11 +20,11 @@ export function byteValueToBitPattern(value: number): string {
   return str;
 }
 
-export function unsignedByteToSignedByte(unsignedValue: number): number {
+export function unsignedByteToSigned(unsignedValue: number): number {
   return unsignedValue << 24 >> 24;
 }
 
-export function valueStringToNumber(decOrHex: string): number {
+export function codeStringToNumber(decOrHex: string): number {
   if (decOrHex.toLowerCase().startsWith("h")) {
     return parseInt(decOrHex.slice(1), 16); // Slice removes "h" prefix
   } else {
@@ -45,16 +45,16 @@ export function numberToHex(value: number, numDigits: number): string {
   return value.toString(16).toUpperCase().padStart(numDigits, "0");
 }
 
-export function addressToHexString(value: number, memorySize: number): string {
+export function addressToHex(value: number, memorySize: number): string {
   const numDigits = (memorySize - 1).toString(16).length;
   return numberToHex(value, numDigits);
 }
 
-export function byteToString(value: number, { displayHex, displayNegative }: { displayHex?: boolean, displayNegative?: boolean}): string {
+export function unsignedByteToString(value: number, { displayHex, displayNegative }: { displayHex?: boolean, displayNegative?: boolean}): string {
   if (displayHex) {
     return numberToHex(value, 2);
   } else if (displayNegative) {
-    return String(unsignedByteToSignedByte(value));
+    return String(unsignedByteToSigned(value));
   } else {
     return String(value);
   }

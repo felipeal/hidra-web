@@ -1,4 +1,4 @@
-import { bitPatternToByteValue } from "./Conversions";
+import { bitPatternToUnsignedByte } from "./Conversions";
 import { RegExpMatcher } from "./Utils";
 
 export enum AddressingModeCode {
@@ -26,7 +26,7 @@ export class AddressingMode {
   }
 
   public getBitCode(): number {
-    return bitPatternToByteValue(this.bitPattern);
+    return bitPatternToUnsignedByte(this.bitPattern);
   }
 
   public getAddressingModeCode(): AddressingModeCode {

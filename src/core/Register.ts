@@ -1,4 +1,4 @@
-import { bitPatternToByteValue, byteValueToBitPattern } from "./Conversions";
+import { bitPatternToUnsignedByte, unsignedByteToBitPattern } from "./Conversions";
 import { RegExpMatcher } from "./Utils";
 
 export type RegisterInfo = { value: number, numBits: number, isData: boolean };
@@ -40,7 +40,7 @@ export class Register {
     if (this.bitPattern === "") {
       return Register.NO_BIT_CODE;
     } else {
-      return bitPatternToByteValue(this.bitPattern);
+      return bitPatternToUnsignedByte(this.bitPattern);
     }
   }
 
@@ -53,7 +53,7 @@ export class Register {
   }
 
   public matchByte(byte: number): boolean {
-    return this.bitPatternMatcher.fullMatch(byteValueToBitPattern(byte));
+    return this.bitPatternMatcher.fullMatch(unsignedByteToBitPattern(byte));
   }
 
   public getInfo(): RegisterInfo {

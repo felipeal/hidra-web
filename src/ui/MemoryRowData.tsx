@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Assembler } from "../core/Assembler";
-import { addressToHexString, byteToString, charCodeToString } from "../core/Conversions";
+import { addressToHex, unsignedByteToString, charCodeToString } from "../core/Conversions";
 import { Machine } from "../core/Machine";
 import { buildUnsubscribeCallback } from "../core/Utils";
 
@@ -12,24 +12,24 @@ function focusInput(row: number) {
 export default function MemoryRowData({ address, machine, assembler, displayHex, displayNegative, displayChars }:
   { address: number, machine: Machine, assembler: Assembler, displayHex: boolean, displayNegative: boolean, displayChars: boolean }
 ) {
-  const [value, setValue] = useState(byteToString(machine.getMemoryValue(address), { displayHex, displayNegative }));
+  const [value, setValue] = useState(unsignedByteToString(machine.getMemoryValue(address), { displayHex, displayNegative }));
   const [label, setLabel] = useState(assembler.getAddressCorrespondingLabel(address));
 
   useEffect(() => {
     // Restore values on external change
-    setValue(byteToString(machine.getMemoryValue(address), { displayHex, displayNegative }));
+    setValue(unsignedByteToString(machine.getMemoryValue(address), { displayHex, displayNegative }));
     setLabel(assembler.getAddressCorrespondingLabel(address));
 
     // Event subscriptions
     return buildUnsubscribeCallback([
-      machine.subscribeToEvent(`MEM.${address}`, (newValue) => setValue(byteToString(newValue as number, { displayHex, displayNegative }))),
+      machine.subscribeToEvent(`MEM.${address}`, (newValue) => setValue(unsignedByteToString(newValue as number, { displayHex, displayNegative }))),
       assembler.subscribeToEvent(`LABEL.${address}`, (newLabel) => setLabel(String(newLabel)))
     ]);
   }, [machine, assembler, displayHex, displayNegative, address]);
 
   return (
     <tr className={machine.getDefaultDataStartingAddress() === address ? "first-data-row" : undefined}>
-      <td className="table-address">{displayHex ? addressToHexString(address, machine.getMemorySize()) : address}</td>
+      <td className="table-address">{displayHex ? addressToHex(address, machine.getMemorySize()) : address}</td>
       <td>
         <input className="table-value" inputMode="numeric" value={value} onChange={(event) => {
           setValue(String(event.target.value));

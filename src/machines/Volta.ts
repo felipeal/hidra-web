@@ -4,7 +4,7 @@ import { Instruction, InstructionCode } from "../core/Instruction";
 import { AddressingMode, AddressingModeCode } from "../core/AddressingMode";
 import { Byte } from "../core/Byte";
 import { buildArray, range, validateSize } from "../core/Utils";
-import { unsignedByteToSignedByte as toSigned } from "../core/Conversions";
+import { unsignedByteToSigned as toSigned } from "../core/Conversions";
 
 export class Volta extends Machine {
 
@@ -374,11 +374,11 @@ export class Volta extends Machine {
   }
 
   public getSPValue(): number {
-    return this.getRegisterValueByName("SP");
+    return this.getRegisterValue("SP");
   }
 
   public setSPValue(value: number): void {
-    this.setRegisterValueByName("SP", value);
+    this.setRegisterValue("SP", value);
   }
 
   public clear(): void {

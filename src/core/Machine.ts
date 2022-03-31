@@ -3,7 +3,7 @@ import { FlagCode } from "./Flag";
 import { Instruction, InstructionCode } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
 import { RegExpMatcher } from "./Utils";
-import { byteValueToBitPattern, unsignedByteToSignedByte as toSigned } from "../core/Conversions";
+import { unsignedByteToBitPattern, unsignedByteToSigned as toSigned } from "../core/Conversions";
 
 export abstract class Machine extends MachineState {
 
@@ -62,12 +62,12 @@ export abstract class Machine extends MachineState {
 
       case InstructionCode.LDR:
         result = this.memoryGetOperandValue(immediateAddress, addressingModeCode);
-        this.setRegisterValueByName(registerName, result);
+        this.setRegisterValue(registerName, result);
         this.updateFlags(result);
         break;
 
       case InstructionCode.STR:
-        result = this.getRegisterValueByName(registerName);
+        result = this.getRegisterValue(registerName);
         this.memoryWrite(this.memoryGetOperandAddress(immediateAddress, addressingModeCode), result);
         break;
 
@@ -76,104 +76,104 @@ export abstract class Machine extends MachineState {
       //////////////////////////////////////////////////
 
       case InstructionCode.ADD:
-        value1 = this.getRegisterValueByName(registerName);
+        value1 = this.getRegisterValue(registerName);
         value2 = this.memoryGetOperandValue(immediateAddress, addressingModeCode);
         result = (value1 + value2) & 0xFF;
 
-        this.setRegisterValueByName(registerName, result);
+        this.setRegisterValue(registerName, result);
         this.setCarry(value1 + value2 > 0xFF);
         this.setOverflow(toSigned(value1) + toSigned(value2) !== toSigned(result));
         this.updateFlags(result);
         break;
 
       case InstructionCode.OR:
-        value1 = this.getRegisterValueByName(registerName);
+        value1 = this.getRegisterValue(registerName);
         value2 = this.memoryGetOperandValue(immediateAddress, addressingModeCode);
         result = (value1 | value2);
 
-        this.setRegisterValueByName(registerName, result);
+        this.setRegisterValue(registerName, result);
         this.updateFlags(result);
         break;
 
       case InstructionCode.AND:
-        value1 = this.getRegisterValueByName(registerName);
+        value1 = this.getRegisterValue(registerName);
         value2 = this.memoryGetOperandValue(immediateAddress, addressingModeCode);
         result = (value1 & value2);
 
-        this.setRegisterValueByName(registerName, result);
+        this.setRegisterValue(registerName, result);
         this.updateFlags(result);
         break;
 
       case InstructionCode.NOT:
-        value1 = this.getRegisterValueByName(registerName);
+        value1 = this.getRegisterValue(registerName);
         result = ~value1 & 0xFF;
 
-        this.setRegisterValueByName(registerName, result);
+        this.setRegisterValue(registerName, result);
         this.updateFlags(result);
         break;
 
       case InstructionCode.SUB:
-        value1 = this.getRegisterValueByName(registerName);
+        value1 = this.getRegisterValue(registerName);
         value2 = this.memoryGetOperandValue(immediateAddress, addressingModeCode);
         result = (value1 - value2) & 0xFF;
 
-        this.setRegisterValueByName(registerName, result);
+        this.setRegisterValue(registerName, result);
         this.setBorrowOrCarry(value1 < value2);
         this.setOverflow(toSigned(value1) - toSigned(value2) !== toSigned(result));
         this.updateFlags(result);
         break;
 
       case InstructionCode.NEG:
-        value1 = this.getRegisterValueByName(registerName);
+        value1 = this.getRegisterValue(registerName);
         result = (-value1) & 0xFF;
 
-        this.setRegisterValueByName(registerName, result);
+        this.setRegisterValue(registerName, result);
         this.setBorrowOrCarry(value1 !== 0); // Borrows when (0 - value1) is negative
         this.updateFlags(result);
         break;
 
       case InstructionCode.SHR:
-        value1 = this.getRegisterValueByName(registerName);
+        value1 = this.getRegisterValue(registerName);
         result = (value1 >> 1) & 0xFF; // Logical shift (unsigned)
 
-        this.setRegisterValueByName(registerName, result);
+        this.setRegisterValue(registerName, result);
         this.setCarry(value1 & 0x01);
         this.updateFlags(result);
         break;
 
       case InstructionCode.SHL:
-        value1 = this.getRegisterValueByName(registerName);
+        value1 = this.getRegisterValue(registerName);
         result = (value1 << 1) & 0xFF;
 
-        this.setRegisterValueByName(registerName, result);
+        this.setRegisterValue(registerName, result);
         this.setCarry((value1 & 0x80) ? 1 : 0);
         this.updateFlags(result);
         break;
 
       case InstructionCode.ROR:
-        value1 = this.getRegisterValueByName(registerName);
-        result = ((value1 >> 1) | (this.getFlagValueByName("C") === true ? 0x80 : 0x00)) & 0xFF;
+        value1 = this.getRegisterValue(registerName);
+        result = ((value1 >> 1) | (this.getFlagValue("C") === true ? 0x80 : 0x00)) & 0xFF;
 
-        this.setRegisterValueByName(registerName, result);
+        this.setRegisterValue(registerName, result);
         this.setCarry(value1 & 0x01);
         this.updateFlags(result);
         break;
 
       case InstructionCode.ROL:
-        value1 = this.getRegisterValueByName(registerName);
-        result = ((value1 << 1) | (this.getFlagValueByName("C") === true ? 0x01 : 0x00)) & 0xFF;
+        value1 = this.getRegisterValue(registerName);
+        result = ((value1 << 1) | (this.getFlagValue("C") === true ? 0x01 : 0x00)) & 0xFF;
 
-        this.setRegisterValueByName(registerName, result);
+        this.setRegisterValue(registerName, result);
         this.setCarry((value1 & 0x80) ? 1 : 0);
         this.updateFlags(result);
         break;
 
       case InstructionCode.INC:
-        this.setRegisterValueByName(registerName, this.getRegisterValueByName(registerName) + 1);
+        this.setRegisterValue(registerName, this.getRegisterValue(registerName) + 1);
         break;
 
       case InstructionCode.DEC:
-        this.setRegisterValueByName(registerName, this.getRegisterValueByName(registerName) - 1);
+        this.setRegisterValue(registerName, this.getRegisterValue(registerName) - 1);
         break;
 
       //////////////////////////////////////////////////
@@ -187,61 +187,61 @@ export abstract class Machine extends MachineState {
         break;
 
       case InstructionCode.JN:
-        if (this.getFlagValueByName("N") === true && !isImmediate) {
+        if (this.getFlagValue("N") === true && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JP:
-        if (this.getFlagValueByName("N") === false && !isImmediate) {
+        if (this.getFlagValue("N") === false && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JV:
-        if (this.getFlagValueByName("V") === true && !isImmediate) {
+        if (this.getFlagValue("V") === true && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JNV:
-        if (this.getFlagValueByName("V") === false && !isImmediate) {
+        if (this.getFlagValue("V") === false && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JZ:
-        if (this.getFlagValueByName("Z") === true && !isImmediate) {
+        if (this.getFlagValue("Z") === true && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JNZ:
-        if (this.getFlagValueByName("Z") === false && !isImmediate) {
+        if (this.getFlagValue("Z") === false && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JC:
-        if (this.getFlagValueByName("C") === true && !isImmediate) {
+        if (this.getFlagValue("C") === true && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JNC:
-        if (this.getFlagValueByName("C") === false && !isImmediate) {
+        if (this.getFlagValue("C") === false && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JB:
-        if (this.getFlagValueByName("B") === true && !isImmediate) {
+        if (this.getFlagValue("B") === true && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JNB:
-        if (this.getFlagValueByName("B") === false && !isImmediate) {
+        if (this.getFlagValue("B") === false && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
@@ -255,7 +255,7 @@ export abstract class Machine extends MachineState {
         break;
 
       case InstructionCode.REG_IF:
-        if (this.getRegisterValueByName(registerName) === 0) {
+        if (this.getRegisterValue(registerName) === 0) {
           this.setPCValue(this.getMemoryValue(immediateAddress));
         } else {
           this.setPCValue(this.getMemoryValue(immediateAddress + 1));
@@ -281,7 +281,7 @@ export abstract class Machine extends MachineState {
     for (const addressingMode of this.getAddressingModes()) {
       const addressingModeMatcher = new RegExpMatcher(addressingMode.getBitPattern());
 
-      if (addressingModeMatcher.fullMatch(byteValueToBitPattern(fetchedValue))) {
+      if (addressingModeMatcher.fullMatch(unsignedByteToBitPattern(fetchedValue))) {
         return addressingMode.getAddressingModeCode();
       }
     }
@@ -318,8 +318,8 @@ export abstract class Machine extends MachineState {
 
   // Updates N and Z
   public updateFlags(value: number): void {
-    this.setFlagValueByName("N", toSigned(value) < 0);
-    this.setFlagValueByName("Z", value === 0);
+    this.setFlagValue("N", toSigned(value) < 0);
+    this.setFlagValue("Z", value === 0);
   }
 
   //////////////////////////////////////////////////
@@ -358,10 +358,10 @@ export abstract class Machine extends MachineState {
         return immediateAddress;
 
       case AddressingModeCode.INDEXED_BY_X:
-        return this.toValidAddress(this.memoryRead(immediateAddress) + this.getRegisterValueByName("X"));
+        return this.toValidAddress(this.memoryRead(immediateAddress) + this.getRegisterValue("X"));
 
       case AddressingModeCode.INDEXED_BY_PC:
-        return this.toValidAddress(this.memoryRead(immediateAddress) + this.getRegisterValueByName("PC"));
+        return this.toValidAddress(this.memoryRead(immediateAddress) + this.getRegisterValue("PC"));
 
       default:
         return 0;
@@ -499,11 +499,11 @@ export abstract class Machine extends MachineState {
         break;
 
       case AddressingModeCode.INDEXED_BY_X: // Indexed addressing mode
-        finalOperandAddress = this.toValidAddress(this.getMemoryValue(immediateAddress) + this.getRegisterValueByName("X"));
+        finalOperandAddress = this.toValidAddress(this.getMemoryValue(immediateAddress) + this.getRegisterValue("X"));
         break;
 
       case AddressingModeCode.INDEXED_BY_PC:
-        finalOperandAddress = this.toValidAddress(this.getMemoryValue(immediateAddress) + this.getRegisterValueByName("PC"));
+        finalOperandAddress = this.toValidAddress(this.getMemoryValue(immediateAddress) + this.getRegisterValue("PC"));
         break;
     }
 

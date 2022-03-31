@@ -139,7 +139,7 @@ export function resetPCAndSP(machine: Machine): void {
   machine.setRunning(false);
   machine.setPCValue(0);
   if (machine.hasRegister("SP")) {
-    machine.setRegisterValueByName("SP", 0);
+    machine.setRegisterValue("SP", 0);
   }
   machine.clearCounters();
 }
