@@ -223,66 +223,7 @@ export default function App() {
         </div>
 
         {/********************************************************************
-          * Middle area (memory tables)
-          ********************************************************************/}
-
-        {/* Instructions memory area */}
-        <table className="instructions-table" style={{ height: "100%", display: "block", overflowY: "scroll", minWidth: "10rem" }}>
-          <thead>
-            <tr>
-              <th>PC</th>
-              <th>End.</th>
-              <th>Valor</th>
-              <th>Instrução</th>
-            </tr>
-          </thead>
-          <tbody>
-            {machine.getMemory().map((value, address) => {
-              return <MemoryRowInstructions key={address} address={address} machine={machine} assembler={assembler} displayHex={displayHex} />;
-            })}
-          </tbody>
-        </table>
-
-        {/* Data memory area */}
-        <table className="data-table" style={{ height: "100%", display: "block", overflowY: "scroll", tableLayout: "fixed", minWidth: "10rem" }}>
-          <thead>
-            <tr>
-              <th>End.</th>
-              <th>Dado</th>
-              {displayChars && <th>Car.</th>}
-              <th>Label</th>
-            </tr>
-          </thead>
-          <tbody>
-            {machine.getMemory().map((value, address) => {
-              return <MemoryRowData key={address} address={address} machine={machine} assembler={assembler}
-                displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars}
-              />;
-            })}
-          </tbody>
-        </table>
-
-        {/* Stack memory area */}
-        {machine instanceof Volta && <table className="stack-table" style={{ height: "100%", display: "block", overflowY: "scroll", minWidth: "8rem" }}>
-          <thead>
-            <tr>
-              <th>SP</th>
-              <th>End.</th>
-              <th>Dado</th>
-              {displayChars && <th>Car.</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {machine.getStack().map((value, index) => {
-              return <MemoryRowStack key={index} row={index} address={machine.getStack().length - 1 - index} voltaMachine={machine}
-                displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars}
-              />;
-            })}
-          </tbody>
-        </table>}
-
-        {/********************************************************************
-          * Right area (machine)
+          * Middle area (machine)
           ********************************************************************/}
 
         <div style={{ width: "360px", minWidth: "360px", display: "inline-flex", flexDirection: "column", overflowY: "auto" }}>
@@ -453,6 +394,66 @@ export default function App() {
           <a ref={exportMemoryAnchor} style={{ display: "none" }}/>
 
         </div>
+
+        {/********************************************************************
+          * Right area (memory tables)
+          ********************************************************************/}
+
+        {/* Instructions memory area */}
+        <table className="instructions-table" style={{ height: "100%", display: "block", overflowY: "scroll", minWidth: "10rem" }}>
+          <thead>
+            <tr>
+              <th>PC</th>
+              <th>End.</th>
+              <th>Valor</th>
+              <th>Instrução</th>
+            </tr>
+          </thead>
+          <tbody>
+            {machine.getMemory().map((value, address) => {
+              return <MemoryRowInstructions key={address} address={address} machine={machine} assembler={assembler} displayHex={displayHex} />;
+            })}
+          </tbody>
+        </table>
+
+        {/* Data memory area */}
+        <table className="data-table" style={{ height: "100%", display: "block", overflowY: "scroll", tableLayout: "fixed", minWidth: "10rem" }}>
+          <thead>
+            <tr>
+              <th>End.</th>
+              <th>Dado</th>
+              {displayChars && <th>Car.</th>}
+              <th>Label</th>
+            </tr>
+          </thead>
+          <tbody>
+            {machine.getMemory().map((value, address) => {
+              return <MemoryRowData key={address} address={address} machine={machine} assembler={assembler}
+                displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars}
+              />;
+            })}
+          </tbody>
+        </table>
+
+        {/* Stack memory area */}
+        {machine instanceof Volta && <table className="stack-table" style={{ height: "100%", display: "block", overflowY: "scroll", minWidth: "8rem" }}>
+          <thead>
+            <tr>
+              <th>SP</th>
+              <th>End.</th>
+              <th>Dado</th>
+              {displayChars && <th>Car.</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {machine.getStack().map((value, index) => {
+              return <MemoryRowStack key={index} row={index} address={machine.getStack().length - 1 - index} voltaMachine={machine}
+                displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars}
+              />;
+            })}
+          </tbody>
+        </table>}
+
       </div>
     </div>
   );

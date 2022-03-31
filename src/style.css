@@ -175,57 +175,7 @@ select, fieldset, button, table, input, .pc-sp-arrow {
 }
 
 /******************************************************************************
-/* Middle area (memory tables)
-/******************************************************************************/
-
-table {
-  border: 1px solid #889;
-  border-collapse: collapse;
-}
-
-/* Inner borders */
-td + td, th + th {
-  border-left: 1px solid #ddd;
-}
-tr + tr {
-  border-top: 1px solid #ddd;
-}
-
-/* Sticky header */
-th {
-  padding: 4px;
-  font-weight: unset;
-  background-color: #eee;
-  padding-left: 4px;
-  padding-right: 12px;
-  text-align: left;
-  position: sticky;
-  top: 0;
-}
-
-table input {
-  border: none;
-}
-
-td {
-  padding: 4px;
-}
-
-.table-address,
-.table-value-above-sp:not(:focus) {
-  color: gray;
-}
-
-.table-value {
-  width: 50px;
-}
-
-.pc-cell {
-  cursor: pointer;
-}
-
-/******************************************************************************
-/* Right area (machine)
+/* Middle area (machine)
 /******************************************************************************/
 
 /* Select (machine select) */
@@ -291,6 +241,56 @@ fieldset legend {
 .tooltip p {
   margin: 0;
   margin-top: 0.35rem;
+}
+
+/******************************************************************************
+/* Right area (memory tables)
+/******************************************************************************/
+
+table {
+  border: 1px solid #889;
+  border-collapse: collapse;
+}
+
+/* Inner borders */
+td + td, th + th {
+  border-left: 1px solid #ddd;
+}
+tr + tr {
+  border-top: 1px solid #ddd;
+}
+
+/* Sticky header */
+th {
+  padding: 4px;
+  font-weight: unset;
+  background-color: #eee;
+  padding-left: 4px;
+  padding-right: 12px;
+  text-align: left;
+  position: sticky;
+  top: 0;
+}
+
+table input {
+  border: none;
+}
+
+td {
+  padding: 4px;
+}
+
+.table-address,
+.table-value-above-sp:not(:focus) {
+  color: gray;
+}
+
+.table-value {
+  width: 50px;
+}
+
+.pc-cell {
+  cursor: pointer;
 }
 
 /******************************************************************************
