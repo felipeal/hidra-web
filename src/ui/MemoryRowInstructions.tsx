@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Assembler } from "../core/Assembler";
+import { byteToString, addressToHexString } from "../core/Conversions";
 import { Machine } from "../core/Machine";
+import { buildUnsubscribeCallback } from "../core/Utils";
 
 function computeIsCurrentInstruction(address: number, assembler: Assembler): boolean {
   const addressSourceLine = assembler.getAddressCorrespondingSourceLine(address);
@@ -13,34 +15,38 @@ function focusInput(row: number) {
   (tableInputs[row] as HTMLInputElement)?.focus();
 }
 
-export default function MemoryRowInstructions({ address, machine, assembler }: { address: number, machine: Machine, assembler: Assembler }) {
-  const [value, setValue] = useState(String(machine.getMemoryValue(address)));
+export default function MemoryRowInstructions({ address, machine, assembler, displayHex }:
+  { address: number, machine: Machine, assembler: Assembler, displayHex: boolean}
+) {
+  const [value, setValue] = useState(byteToString(machine.getMemoryValue(address), { displayHex }));
   const [instructionString, setInstructionString] = useState(String(machine.getInstructionString(address)));
   const [isCurrentPos, setIsCurrentPos] = useState(machine.getPCValue() === address);
   const [isCurrentInstruction, setIsCurrentInstruction] = useState(computeIsCurrentInstruction(address, assembler));
 
   useEffect(() => {
-    // Restore values on machine change
-    setValue(String(machine.getMemoryValue(address)));
+    // Restore values on external change
+    setValue(byteToString(machine.getMemoryValue(address), { displayHex }));
     setInstructionString(machine.getInstructionString(address));
     setIsCurrentPos(machine.getPCValue() === address);
     setIsCurrentInstruction(computeIsCurrentInstruction(address, assembler));
 
     // Event subscriptions
-    machine.subscribeToEvent(`REG.${machine.getPCName()}`, (newValue) => {
-      setIsCurrentPos(newValue === address);
-      setIsCurrentInstruction(computeIsCurrentInstruction(address, assembler));
-    });
-    machine.subscribeToEvent(`MEM.${address}`, (newValue) => setValue(String(newValue)));
-    machine.subscribeToEvent(`INS.STR.${address}`, (newValue) => setInstructionString(newValue as string));
-  }, [machine]);
+    return buildUnsubscribeCallback([
+      machine.subscribeToEvent(`REG.${machine.getPCName()}`, (newValue) => {
+        setIsCurrentPos(newValue === address);
+        setIsCurrentInstruction(computeIsCurrentInstruction(address, assembler));
+      }),
+      machine.subscribeToEvent(`MEM.${address}`, (newValue) => setValue(String(newValue))),
+      machine.subscribeToEvent(`INS.STR.${address}`, (newValue) => setInstructionString(newValue as string))
+    ]);
+  }, [machine, assembler, displayHex, address]);
 
   return (
     <tr className={isCurrentInstruction ? "current-pc-line" : undefined}>
       <td className="monospace-font pc-sp-arrow pc-cell" onClick={() => machine.setPCValue(address)}>
         {isCurrentPos ? "→" : ""}
       </td>
-      <td className="table-address">{address}</td>
+      <td className="table-address">{displayHex ? addressToHexString(address, machine.getMemorySize()) : address}</td>
       <td>
         <input className="table-value" inputMode="numeric" value={value} onChange={(event) => {
           setValue(String(event.target.value));

@@ -1,36 +1,35 @@
 import React, { useState, useEffect } from "react";
 import { Assembler } from "../core/Assembler";
-import { charCodeToString } from "../core/Conversions";
+import { addressToHexString, byteToString, charCodeToString } from "../core/Conversions";
 import { Machine } from "../core/Machine";
+import { buildUnsubscribeCallback } from "../core/Utils";
 
 function focusInput(row: number) {
   const tableInputs = document.querySelectorAll(".data-table .table-value");
   (tableInputs[row] as HTMLInputElement)?.focus();
 }
 
-export default function MemoryRowData({ address, machine, assembler, displayChars }: { address: number, machine: Machine, assembler: Assembler, displayChars: boolean }) {
-  const [value, setValue] = useState(String(machine.getMemoryValue(address)));
+export default function MemoryRowData({ address, machine, assembler, displayHex, displayNegative, displayChars }:
+  { address: number, machine: Machine, assembler: Assembler, displayHex: boolean, displayNegative: boolean, displayChars: boolean }
+) {
+  const [value, setValue] = useState(byteToString(machine.getMemoryValue(address), { displayHex, displayNegative }));
   const [label, setLabel] = useState(assembler.getAddressCorrespondingLabel(address));
 
   useEffect(() => {
-    // Restore values on machine change
-    setValue(String(machine.getMemoryValue(address)));
-
-    // Event subscriptions
-    machine.subscribeToEvent(`MEM.${address}`, (newValue) => setValue(String(newValue)));
-  }, [machine]);
-
-  useEffect(() => {
-    // Restore values on assembler change
+    // Restore values on external change
+    setValue(byteToString(machine.getMemoryValue(address), { displayHex, displayNegative }));
     setLabel(assembler.getAddressCorrespondingLabel(address));
 
     // Event subscriptions
-    assembler.subscribeToEvent(`LABEL.${address}`, (newValue) => setLabel(String(newValue)));
-  }, [assembler]);
+    return buildUnsubscribeCallback([
+      machine.subscribeToEvent(`MEM.${address}`, (newValue) => setValue(byteToString(newValue as number, { displayHex, displayNegative }))),
+      assembler.subscribeToEvent(`LABEL.${address}`, (newLabel) => setLabel(String(newLabel)))
+    ]);
+  }, [machine, assembler, displayHex, displayNegative, address]);
 
   return (
     <tr className={machine.getDefaultDataStartingAddress() === address ? "first-data-row" : undefined}>
-      <td className="table-address">{address}</td>
+      <td className="table-address">{displayHex ? addressToHexString(address, machine.getMemorySize()) : address}</td>
       <td>
         <input className="table-value" inputMode="numeric" value={value} onChange={(event) => {
           setValue(String(event.target.value));

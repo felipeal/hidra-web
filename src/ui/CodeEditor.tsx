@@ -85,14 +85,14 @@ export default function CodeEditor({ machine, assembler }: { machine: Machine, a
   }, []);
 
   useEffect(() => {
-    machine.subscribeToEvent("REG.PC", (value) => {
+    return machine.subscribeToEvent("REG.PC", (value) => {
       currentPCLineHandle && codeMirrorInstance.removeLineClass(currentPCLineHandle, "background", "current-pc-line");
       currentPCLineHandle && codeMirrorInstance.setGutterMarker(currentPCLineHandle, "current-pc-gutter", null);
       currentPCLineHandle = codeMirrorInstance.getLineHandle(assembler.getAddressCorrespondingSourceLine(Number(value)));
       currentPCLineHandle && codeMirrorInstance.addLineClass(currentPCLineHandle, "background", "current-pc-line");
       currentPCLineHandle && codeMirrorInstance.setGutterMarker(currentPCLineHandle, "current-pc-gutter", makePCMarker());
     });
-  }, [machine]);
+  }, [machine, assembler]);
 
   defineCodeMirrorMode(machine);
 

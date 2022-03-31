@@ -84,7 +84,7 @@ export default function App() {
     setRunning(machine.isRunning());
 
     // Event subscriptions
-    machine.subscribeToEvent("RUNNING", (value) => setRunning(Boolean(value)));
+    return machine.subscribeToEvent("RUNNING", (value) => setRunning(Boolean(value)));
   }, [machine]);
 
   useEffect(() => {
@@ -169,8 +169,8 @@ export default function App() {
           }}/>
         </Menu>
         <Menu title="Opções">
-          {showWIP && <SubMenuCheckBox title="Hexadecimal" checked={displayHex} setChecked={setDisplayHex}/>}
-          {showWIP && <SubMenuCheckBox title="Interpretar negativos" checked={displayNegative} setChecked={setDisplayNegative}/>}
+          <SubMenuCheckBox title="Modo hexadecimal" checked={displayHex} setChecked={setDisplayHex}/>
+          <SubMenuCheckBox title="Interpretar dados negativos" checked={displayNegative} setChecked={setDisplayNegative}/>
           <SubMenuCheckBox title="Interpretar caracteres" checked={displayChars} setChecked={setDisplayChars}/>
           {showWIP && <SubMenuSeparator/>}
           {showWIP && <SubMenuCheckBox title="Execução rápida" checked={displayFast} setChecked={setDisplayFast}/>}
@@ -225,7 +225,7 @@ export default function App() {
           </thead>
           <tbody>
             {machine.getMemory().map((value, address) => {
-              return <MemoryRowInstructions key={address} address={address} machine={machine} assembler={assembler} />;
+              return <MemoryRowInstructions key={address} address={address} machine={machine} assembler={assembler} displayHex={displayHex} />;
             })}
           </tbody>
         </table>
@@ -235,14 +235,16 @@ export default function App() {
           <thead>
             <tr>
               <th>End.</th>
-              <th>Valor</th>
+              <th>Dado</th>
               {displayChars && <th>Car.</th>}
               <th>Label</th>
             </tr>
           </thead>
           <tbody>
             {machine.getMemory().map((value, address) => {
-              return <MemoryRowData key={address} address={address} machine={machine} assembler={assembler} displayChars={displayChars} />;
+              return <MemoryRowData key={address} address={address} machine={machine} assembler={assembler}
+                displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars}
+              />;
             })}
           </tbody>
         </table>
@@ -253,13 +255,15 @@ export default function App() {
             <tr>
               <th>SP</th>
               <th>End.</th>
-              <th>Valor</th>
+              <th>Dado</th>
               {displayChars && <th>Car.</th>}
             </tr>
           </thead>
           <tbody>
             {machine.getStack().map((value, index) => {
-              return <MemoryRowStack key={index} row={index} address={machine.getStack().length - 1 - index} voltaMachine={machine} displayChars={displayChars} />;
+              return <MemoryRowStack key={index} row={index} address={machine.getStack().length - 1 - index} voltaMachine={machine}
+                displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars}
+              />;
             })}
           </tbody>
         </table>}

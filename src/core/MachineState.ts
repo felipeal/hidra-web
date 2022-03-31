@@ -3,7 +3,7 @@ import { Flag, FlagCode } from "./Flag";
 import { Instruction } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
 import { Byte } from "./Byte";
-import { buildArray, range, EventCallback, assert, validateSize } from "./Utils";
+import { buildArray, range, EventCallback, assert, validateSize, UnsubscribeCallback } from "./Utils";
 import { bitPatternToByteValue } from "./Conversions";
 
 interface MachineSettings {
@@ -428,9 +428,11 @@ export abstract class MachineState {
   // Events
   //////////////////////////////////////////////////
 
-  public subscribeToEvent(event: string, callback: EventCallback): void {
+  // Returns unsubscribe callback
+  public subscribeToEvent(event: string, callback: EventCallback): UnsubscribeCallback {
     this.eventSubscriptions[event] = this.eventSubscriptions[event] ?? [];
     this.eventSubscriptions[event].push(callback);
+    return () => this.eventSubscriptions[event] = this.eventSubscriptions[event].filter((f) => f !== callback);
   }
 
   protected publishEvent(event: string, value: unknown): void {

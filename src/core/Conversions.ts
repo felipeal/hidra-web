@@ -38,3 +38,18 @@ export function charCodeToString(charCode: number): string {
     return "";
   }
 }
+
+export function byteToString(value: number, { displayHex, displayNegative }: { displayHex?: boolean, displayNegative?: boolean}): string {
+  if (displayHex) {
+    return value.toString(16).toUpperCase().padStart(2, "0");
+  } else if (displayNegative) {
+    return String(unsignedByteToSignedByte(value));
+  } else {
+    return String(value);
+  }
+}
+
+export function addressToHexString(value: number, memorySize: number): string {
+  const maxLength = (memorySize - 1).toString(16).length;
+  return Number(value).toString(16).toUpperCase().padStart(maxLength, "0");
+}

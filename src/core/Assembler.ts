@@ -2,7 +2,7 @@ import { AssemblerError, AssemblerErrorCode, ErrorMessage } from "./Errors";
 import { Register } from "./Register";
 import { Instruction } from "./Instruction";
 import { AddressingModeCode } from "./AddressingMode";
-import { buildArray, range, EventCallback, RegExpMatcher, assert } from "./Utils";
+import { buildArray, range, EventCallback, RegExpMatcher, assert, UnsubscribeCallback } from "./Utils";
 import { Byte } from "./Byte";
 import { Machine } from "./Machine";
 import { valueStringToNumber } from "./Conversions";
@@ -617,9 +617,10 @@ export class Assembler {
   // Events
   //////////////////////////////////////////////////
 
-  public subscribeToEvent(event: string, callback: EventCallback): void {
+  public subscribeToEvent(event: string, callback: EventCallback): UnsubscribeCallback {
     this.eventSubscriptions[event] = this.eventSubscriptions[event] ?? [];
     this.eventSubscriptions[event].push(callback);
+    return () => this.eventSubscriptions[event] = this.eventSubscriptions[event].filter((f) => f !== callback);
   }
 
   protected publishEvent(event: string, value: unknown): void {

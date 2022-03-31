@@ -1,5 +1,11 @@
 export type EventCallback = ((value: unknown) => void);
 
+export type UnsubscribeCallback = () => void;
+
+export function buildUnsubscribeCallback(callbacks: UnsubscribeCallback[]): UnsubscribeCallback {
+  return () => callbacks.forEach(callback => callback());
+}
+
 // eslint-disable-next-line @typescript-eslint/ban-types
 type NullableObject = Object | null;
 

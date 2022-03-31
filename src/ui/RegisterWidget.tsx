@@ -9,7 +9,7 @@ export default function RegisterWidget({ name, machine }: { name: string, machin
     setValue(machine.getRegisterValueByName(name));
 
     // Event subscriptions
-    machine.subscribeToEvent(`REG.${name}`, (newValue) => setValue(newValue as number));
+    return machine.subscribeToEvent(`REG.${name}`, (newValue) => setValue(newValue as number));
   }, [machine, name]);
 
   return (

@@ -9,7 +9,7 @@ export default function FlagWidget({ name, machine }: { name: string, machine: M
     setValue(machine.getFlagValueByName(name));
 
     // Event subscriptions
-    machine.subscribeToEvent(`FLAG.${name}`, (newValue) => setValue(newValue as boolean));
+    return machine.subscribeToEvent(`FLAG.${name}`, (newValue) => setValue(newValue as boolean));
   }, [machine, name]);
 
   return (
