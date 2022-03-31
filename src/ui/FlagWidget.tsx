@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Machine } from "../core/Machine";
 
 export default function FlagWidget({ name, machine }: { name: string, machine: Machine }) {
-  const [value, setValue] = useState(machine.getFlagValue(name));
+  const [value, setValue] = useState(machine.isFlagTrue(name));
 
   useEffect(() => {
     // Restore values on machine change
-    setValue(machine.getFlagValue(name));
+    setValue(machine.isFlagTrue(name));
 
     // Event subscriptions
     return machine.subscribeToEvent(`FLAG.${name}`, (newValue) => setValue(newValue as boolean));

@@ -147,7 +147,7 @@ export abstract class Machine extends MachineState {
 
       case InstructionCode.ROR:
         value1 = this.getRegisterValue(registerName);
-        result = ((value1 >> 1) | (this.getFlagValue("C") === true ? 0x80 : 0x00)) & 0xFF;
+        result = ((value1 >> 1) | (this.isFlagTrue("C") ? 0x80 : 0x00)) & 0xFF;
 
         this.setRegisterValue(registerName, result);
         this.setCarry(value1 & 0x01);
@@ -156,7 +156,7 @@ export abstract class Machine extends MachineState {
 
       case InstructionCode.ROL:
         value1 = this.getRegisterValue(registerName);
-        result = ((value1 << 1) | (this.getFlagValue("C") === true ? 0x01 : 0x00)) & 0xFF;
+        result = ((value1 << 1) | (this.isFlagTrue("C") ? 0x01 : 0x00)) & 0xFF;
 
         this.setRegisterValue(registerName, result);
         this.setCarry((value1 & 0x80) ? 1 : 0);
@@ -182,61 +182,61 @@ export abstract class Machine extends MachineState {
         break;
 
       case InstructionCode.JN:
-        if (this.getFlagValue("N") === true && !isImmediate) {
+        if (this.isFlagTrue("N") && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JP:
-        if (this.getFlagValue("N") === false && !isImmediate) {
+        if (this.isFlagFalse("N") && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JV:
-        if (this.getFlagValue("V") === true && !isImmediate) {
+        if (this.isFlagTrue("V") && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JNV:
-        if (this.getFlagValue("V") === false && !isImmediate) {
+        if (this.isFlagFalse("V") && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JZ:
-        if (this.getFlagValue("Z") === true && !isImmediate) {
+        if (this.isFlagTrue("Z") && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JNZ:
-        if (this.getFlagValue("Z") === false && !isImmediate) {
+        if (this.isFlagFalse("Z") && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JC:
-        if (this.getFlagValue("C") === true && !isImmediate) {
+        if (this.isFlagTrue("C") && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JNC:
-        if (this.getFlagValue("C") === false && !isImmediate) {
+        if (this.isFlagFalse("C") && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JB:
-        if (this.getFlagValue("B") === true && !isImmediate) {
+        if (this.isFlagTrue("B") && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JNB:
-        if (this.getFlagValue("B") === false && !isImmediate) {
+        if (this.isFlagFalse("B") && !isImmediate) {
           this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
         }
         break;

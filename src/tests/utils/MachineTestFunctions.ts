@@ -40,7 +40,7 @@ export function makeFunction_expectRunState(assembler: Assembler, machine: Machi
       if (prefix === "r") { // Register
         expect(`${key}: ${machine.getRegisterValue(identifier)}`).toDeepEqual(`${key}: ${expectedValue}`, source);
       } else if (prefix === "f") { // Flag
-        expect(`${key}: ${machine.getFlagValue(identifier)}`).toDeepEqual(`${key}: ${expectedValue}`, source);
+        expect(`${key}: ${machine.isFlagTrue(identifier)}`).toDeepEqual(`${key}: ${expectedValue}`, source);
       } else if (prefix === "m") { // Memory
         expect(`${key}: ${machine.getMemoryValue(Number(identifier))}`).toDeepEqual(`${key}: ${expectedValue}`, source);
       } else if (key === "isRunning") {

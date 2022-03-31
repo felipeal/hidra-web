@@ -151,13 +151,17 @@ export abstract class MachineState {
     return this.flags[id].getName();
   }
 
-  public getFlagValue(flagName: string): boolean {
+  public isFlagTrue(flagName: string): boolean {
     const flag = this.flags.find(flag => flag.getName() === flagName);
     if (!flag) {
       throw new Error(`Invalid flag name: ${flagName}`);
     }
 
     return flag.getValue();
+  }
+
+  public isFlagFalse(flagName: string): boolean {
+    return !this.isFlagTrue(flagName);
   }
 
   public setFlagValue(flagName: string, value: boolean): void {
