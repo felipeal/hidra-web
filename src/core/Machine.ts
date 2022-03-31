@@ -15,15 +15,10 @@ export abstract class Machine extends MachineState {
     const { fetchedValue, instruction } = this.fetchInstruction(); // Fetched value may be a byte or a word
     const { addressingModeCode, registerName, immediateAddress } = this.decodeInstruction(fetchedValue, instruction);
     this.executeInstruction(instruction, addressingModeCode, registerName, immediateAddress);
-
-    if (this.getPCValue() === this.getBreakpoint()) {
-      this.setRunning(false);
-    }
   }
 
   public fetchInstruction(): { fetchedValue: number, instruction: Instruction | null } {
-    // Read first byte
-    const fetchedValue = this.memoryReadNext();
+    const fetchedValue = this.memoryReadNext(); // Read first byte
     const instruction = this.getInstructionFromValue(fetchedValue);
     return { fetchedValue, instruction };
   }

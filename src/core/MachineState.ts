@@ -34,7 +34,6 @@ export abstract class MachineState {
   private instructionStrings: string[] = [];
   private changed: boolean[] = [];
   private running = false;
-  private breakpoint = -1; // TODO: Breakpoint now handled by code editor, remove?
   private instructionCount = 0;
   private accessCount = 0;
   private memoryMask!: number; // Memory address mask, populated by setMemorySize
@@ -71,18 +70,6 @@ export abstract class MachineState {
   public setRunning(running: boolean): void {
     this.running = running;
     this.publishEvent("RUNNING", running);
-  }
-
-  public getBreakpoint(): number {
-    return this.breakpoint;
-  }
-
-  public setBreakpoint(value: number): void {
-    if (value >= this.memory.length || value < 0) {
-      this.breakpoint = -1;
-    } else {
-      this.breakpoint = value;
-    }
   }
 
   public getMemory(): ReadonlyArray<Byte> {
@@ -368,7 +355,7 @@ export abstract class MachineState {
     this.clearCounters();
     this.clearInstructionStrings();
 
-    this.setBreakpoint(-1);
+    // Removed: this.setBreakpoint(-1);
     this.setRunning(false);
 
     throw new Error("Reminder: assemblerData must also be cleared."); // TODO: Untested
