@@ -169,8 +169,18 @@ export default function App() {
           }}/>
         </Menu>
         <Menu title="Opções">
-          <SubMenuCheckBox title="Modo hexadecimal" checked={displayHex} setChecked={setDisplayHex}/>
-          <SubMenuCheckBox title="Interpretar dados negativos" checked={displayNegative} setChecked={setDisplayNegative}/>
+          <SubMenuCheckBox title="Modo hexadecimal" checked={displayHex} setChecked={(checked) => {
+            setDisplayHex(checked);
+            if (checked) {
+              setDisplayNegative(false);
+            }
+          }}/>
+          <SubMenuCheckBox title="Interpretar dados negativos" checked={displayNegative} setChecked={(checked) => {
+            setDisplayNegative(checked);
+            if (checked) {
+              setDisplayHex(false);
+            }
+          }}/>
           <SubMenuCheckBox title="Interpretar caracteres" checked={displayChars} setChecked={setDisplayChars}/>
           {showWIP && <SubMenuSeparator/>}
           {showWIP && <SubMenuCheckBox title="Execução rápida" checked={displayFast} setChecked={setDisplayFast}/>}
