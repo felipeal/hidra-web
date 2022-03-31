@@ -58,7 +58,8 @@ const hideBusy = () => document.body.classList.remove("is-busy");
 
 let timeout: NodeJS.Timeout;
 
-const navBarHeightPx = 50;
+const navBarHeightPx = 44;
+
 const showWIP = false;
 
 export default function App() {

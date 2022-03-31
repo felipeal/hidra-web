@@ -32,9 +32,12 @@ select, fieldset, button, table, input, .pc-sp-arrow {
 /* Navigation bar
 /******************************************************************************/
 
+.navbar, .navbar-item {
+  font-size: 16px;
+}
+
 .navbar {
   background-color: rgb(143, 90, 168);
-  font-size: 17px;
   color: white;
 }
 
@@ -42,7 +45,6 @@ select, fieldset, button, table, input, .pc-sp-arrow {
 .navbar-item {
   border: none;
   padding: 8px;
-  font-size: 17px;
   cursor: pointer;
   background-color: unset;
   color: #ecf;
