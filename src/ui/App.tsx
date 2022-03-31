@@ -59,6 +59,7 @@ const hideBusy = () => document.body.classList.remove("is-busy");
 let timeout: NodeJS.Timeout;
 
 const navBarHeightPx = 50;
+const showWIP = false;
 
 export default function App() {
   const [[machine, assembler], setState] = useState([initialMachine, initialAssembler]);
@@ -167,19 +168,19 @@ export default function App() {
           }}/>
         </Menu>
         <Menu title="Opções">
-          <SubMenuCheckBox title="Hexadecimal" checked={displayHex} setChecked={setDisplayHex}/>
-          <SubMenuCheckBox title="Interpretar negativos" checked={displayNegative} setChecked={setDisplayNegative}/>
+          {showWIP && <SubMenuCheckBox title="Hexadecimal" checked={displayHex} setChecked={setDisplayHex}/>}
+          {showWIP && <SubMenuCheckBox title="Interpretar negativos" checked={displayNegative} setChecked={setDisplayNegative}/>}
           <SubMenuCheckBox title="Interpretar caracteres" checked={displayChars} setChecked={setDisplayChars}/>
-          <SubMenuSeparator/>
-          <SubMenuCheckBox title="Execução rápida" checked={displayFast} setChecked={setDisplayFast}/>
-          <SubMenuCheckBox title="Execução segue cursor" checked={displayFollowPC} setChecked={setDisplayFollowPC}/>
+          {showWIP && <SubMenuSeparator/>}
+          {showWIP && <SubMenuCheckBox title="Execução rápida" checked={displayFast} setChecked={setDisplayFast}/>}
+          {showWIP && <SubMenuCheckBox title="Execução segue cursor" checked={displayFollowPC} setChecked={setDisplayFollowPC}/>}
         </Menu>
-        <Menu title="Ajuda">
+        {showWIP && <Menu title="Ajuda">
           <SubMenuItem title="Abrir exemplo" callback={() => {/* TODO: Implement */}}/>
           <SubMenuItem title="Atalhos de teclado" callback={() => {/* TODO: Implement */}}/>
           <SubMenuSeparator/>
           <SubMenuItem title="Sobre" callback={() => {/* TODO: Implement */}}/>
-        </Menu>
+        </Menu>}
       </div>
 
       <div style={{ height: `calc(100vh - 32px - ${navBarHeightPx}px)`, display: "flex", margin: "16px", gap: "16px" }}>
