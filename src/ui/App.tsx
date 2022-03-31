@@ -182,8 +182,11 @@ export default function App() {
             }
           }}/>
           <SubMenuCheckBox title="Interpretar caracteres" checked={displayChars} setChecked={setDisplayChars}/>
-          {showWIP && <SubMenuSeparator/>}
-          {showWIP && <SubMenuCheckBox title="Execução rápida" checked={displayFast} setChecked={setDisplayFast}/>}
+          <SubMenuSeparator/>
+          <SubMenuCheckBox title="Execução rápida" checked={displayFast} setChecked={(checked) => {
+            setDisplayFast(checked);
+            clearTimeout(timeout);
+          }}/>
           {showWIP && <SubMenuCheckBox title="Execução segue cursor" checked={displayFollowPC} setChecked={setDisplayFollowPC}/>}
         </Menu>
         {showWIP && <Menu title="Ajuda">
@@ -346,10 +349,12 @@ export default function App() {
                   machine.setRunning(true);
                   const nextStep = function () {
                     if (machine.isRunning()) {
-                      machine.step();
-
-                      if (hasBreakpointAtLine(assembler.getPCCorrespondingSourceLine())) {
-                        machine.setRunning(false);
+                      let numUpdates = displayFast ? 100 : 1;
+                      while (machine.isRunning() && numUpdates--) {
+                        machine.step();
+                        if (hasBreakpointAtLine(assembler.getPCCorrespondingSourceLine())) {
+                          machine.setRunning(false);
+                        }
                       }
 
                       timeout = setTimeout(nextStep, 0);
