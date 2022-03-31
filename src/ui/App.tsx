@@ -12,7 +12,7 @@ import FlagWidget from "./FlagWidget";
 import RegisterWidget from "./RegisterWidget";
 import Information from "./Information";
 import { Menu, SubMenuCheckBox, SubMenuItem, SubMenuSeparator } from "./Menus";
-import { buildMachine, buildMachineBasedOnFileName, generateFileNameForMachine, getMachineNames, resetPCAndSP } from "./MachineUtils";
+import { buildMachine, buildMachineBasedOnFileName, exportMemory, FileError, generateFileNameForMachine, getMachineNames, importMemory, resetPCAndSP } from "./MachineUtils";
 import { Machine } from "../core/Machine";
 import { Neander } from "../machines/Neander";
 import { Volta } from "../machines/Volta";
@@ -67,6 +67,8 @@ export default function App() {
 
   const openFileInput = useRef<HTMLInputElement | null>(null);
   const saveFileAnchor = useRef<HTMLAnchorElement | null>(null);
+  const importMemoryInput = useRef<HTMLInputElement | null>(null);
+  const exportMemoryAnchor = useRef<HTMLAnchorElement | null>(null);
 
   // Display toggles
   const [displayHex, setDisplayHex] = useState(false);
@@ -96,12 +98,34 @@ export default function App() {
     event.preventDefault();
     const file = event.target.files?.[0];
     if (file) {
-      const fileContents = await file?.text();
+      const fileContents = await file.text();
       codeMirrorInstance.setValue(fileContents);
       machine.setRunning(false);
       const newMachine = buildMachineBasedOnFileName(file.name, machine.getName());
       setState([newMachine, new Assembler(newMachine)]);
     }
+  }
+
+  async function onMemoryImported(event: ChangeEvent<HTMLInputElement>) {
+    event.stopPropagation();
+    event.preventDefault();
+    const file = event.target.files?.[0];
+    if (file) {
+      try {
+        const newMachine = await importMemory(file);
+        setState([newMachine, new Assembler(newMachine)]);
+      } catch (error: unknown) {
+        if (error instanceof FileError) {
+          showError(error.message);
+        } else {
+          throw error;
+        }
+      }
+    }
+  }
+
+  function showError(errorMessage: string) {
+    alert(errorMessage);
   }
 
   return (
@@ -129,8 +153,18 @@ export default function App() {
             }
           }}/>
           <SubMenuSeparator/>
-          <SubMenuItem title="Importar memória" callback={() => {}}/>
-          <SubMenuItem title="Exportar memória" callback={() => {}}/>
+          <SubMenuItem title="Importar memória" callback={() => {
+            importMemoryInput.current?.click();
+          }}/>
+          <SubMenuItem title="Exportar memória" callback={() => {
+            const memory = exportMemory(machine);
+            const file = new Blob([memory], { type: "application/octet-stream" });
+            if (saveFileAnchor?.current) {
+              saveFileAnchor.current.href = URL.createObjectURL(file);
+              saveFileAnchor.current.download = generateFileNameForMachine(machine, { isBinary: true });
+              saveFileAnchor.current.click();
+            }
+          }}/>
         </Menu>
         <Menu title="Opções">
           <SubMenuCheckBox title="Hexadecimal" checked={displayHex} setChecked={setDisplayHex}/>
@@ -141,10 +175,10 @@ export default function App() {
           <SubMenuCheckBox title="Execução segue cursor" checked={displayFollowPC} setChecked={setDisplayFollowPC}/>
         </Menu>
         <Menu title="Ajuda">
-          <SubMenuItem title="Abrir exemplo" callback={() => {}}/>
-          <SubMenuItem title="Atalhos de teclado" callback={() => {}}/>
+          <SubMenuItem title="Abrir exemplo" callback={() => {/* TODO: Implement */}}/>
+          <SubMenuItem title="Atalhos de teclado" callback={() => {/* TODO: Implement */}}/>
           <SubMenuSeparator/>
-          <SubMenuItem title="Sobre" callback={() => {}}/>
+          <SubMenuItem title="Sobre" callback={() => {/* TODO: Implement */}}/>
         </Menu>
       </div>
 
@@ -392,8 +426,10 @@ export default function App() {
           <div className="show-if-busy" style={{ display: "flex", width: "100%", flex: 1, justifyContent: "center", alignItems: "center" }}>Inicializando...</div>
 
           {/* File loaders (not visible) */}
-          <input type="file" id="open-file-input" ref={openFileInput} style={{ display: "none" }} onChange={onFileOpened}/>
-          <a id="save-file-anchor" ref={saveFileAnchor} style={{ display: "none" }}/>
+          <input type="file" ref={openFileInput} style={{ display: "none" }} onChange={onFileOpened}/>
+          <a ref={saveFileAnchor} style={{ display: "none" }}/>
+          <input type="file" ref={importMemoryInput} style={{ display: "none" }} onChange={onMemoryImported}/>
+          <a ref={exportMemoryAnchor} style={{ display: "none" }}/>
 
         </div>
       </div>

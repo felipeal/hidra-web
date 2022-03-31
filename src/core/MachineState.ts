@@ -115,6 +115,13 @@ export abstract class MachineState {
     this.publishEvent(`MEM.${address}`, this.memory[validAddress].getValue());
   }
 
+  public setMemoryValues(values: number[]): void {
+    assert(values.length === this.memorySize, `Invalid array size for setMemoryValues: ${values.length}`);
+    for (const address of range(this.memorySize)) {
+      this.setMemoryValue(address, values[address]);
+    }
+  }
+
   // Has byte changed since last look-up
   public hasByteChanged(address: number): boolean {
     const validAddress = this.toValidAddress(address);

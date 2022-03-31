@@ -1,10 +1,3 @@
-export enum FileErrorCode {
-  NO_ERROR = 0,
-  INPUT_OUTPUT,
-  INCORRECT_SIZE,
-  INVALID_IDENTIFIER,
-}
-
 export enum AssemblerErrorCode {
   TOO_FEW_ARGUMENTS = "TOO_FEW_ARGUMENTS",
   TOO_MANY_ARGUMENTS = "TOO_MANY_ARGUMENTS",
