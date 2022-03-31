@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from "react";
+import { registerValueToString } from "../core/Conversions";
 import { Machine } from "../core/Machine";
 
-export default function RegisterWidget({ name, machine }: { name: string, machine: Machine }) {
-  const [value, setValue] = useState(machine.getRegisterValueByName(name));
+export default function RegisterWidget({ name, machine, displayHex, displayNegative }:
+  { name: string, machine: Machine, displayHex: boolean, displayNegative: boolean }
+) {
+  const [value, setValue] = useState(String(machine.getRegisterValueByName(name)));
 
   useEffect(() => {
     // Restore values on machine change
-    setValue(machine.getRegisterValueByName(name));
+    setValue(registerValueToString(machine.getRegisterInfo(name), { displayHex, displayNegative }));
 
     // Event subscriptions
-    return machine.subscribeToEvent(`REG.${name}`, (newValue) => setValue(newValue as number));
-  }, [machine, name]);
+    return machine.subscribeToEvent(`REG.${name}`, () => setValue(registerValueToString(machine.getRegisterInfo(name), { displayHex, displayNegative })));
+  }, [machine, displayHex, displayNegative, name]);
 
   return (
     <div style={{ display: "flex", flexDirection: "row", justifyContent: "end", alignItems: "center", gap: "8px", width: "128px" }}>

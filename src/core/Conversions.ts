@@ -1,3 +1,5 @@
+import { RegisterInfo } from "./Register";
+
 export function bitPatternToByteValue(bitPattern: string): number {
   let value = 0;
 
@@ -39,9 +41,18 @@ export function charCodeToString(charCode: number): string {
   }
 }
 
+export function numberToHex(value: number, numDigits: number): string {
+  return value.toString(16).toUpperCase().padStart(numDigits, "0");
+}
+
+export function addressToHexString(value: number, memorySize: number): string {
+  const numDigits = (memorySize - 1).toString(16).length;
+  return numberToHex(value, numDigits);
+}
+
 export function byteToString(value: number, { displayHex, displayNegative }: { displayHex?: boolean, displayNegative?: boolean}): string {
   if (displayHex) {
-    return value.toString(16).toUpperCase().padStart(2, "0");
+    return numberToHex(value, 2);
   } else if (displayNegative) {
     return String(unsignedByteToSignedByte(value));
   } else {
@@ -49,7 +60,15 @@ export function byteToString(value: number, { displayHex, displayNegative }: { d
   }
 }
 
-export function addressToHexString(value: number, memorySize: number): string {
-  const maxLength = (memorySize - 1).toString(16).length;
-  return Number(value).toString(16).toUpperCase().padStart(maxLength, "0");
+export function registerValueToString(
+  { value, numBits, isData }: RegisterInfo,
+  { displayHex, displayNegative }: { displayHex?: boolean, displayNegative?: boolean}
+): string {
+  if (displayHex) {
+    return numberToHex(value, Math.ceil(numBits / 4));
+  } else if (displayNegative && isData) {
+    return String(value << (32 - numBits) >> (32 - numBits));
+  } else {
+    return String(value);
+  }
 }

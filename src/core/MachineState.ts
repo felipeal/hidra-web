@@ -1,4 +1,4 @@
-import { Register } from "./Register";
+import { Register, RegisterInfo } from "./Register";
 import { Flag, FlagCode } from "./Flag";
 import { Instruction } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
@@ -168,10 +168,6 @@ export abstract class MachineState {
     return this.flags[id].getName();
   }
 
-  public getFlagValueById(id: number): boolean {
-    return this.flags[id].getValue();
-  }
-
   public getFlagValueByName(flagName: string): boolean {
     const flag = this.flags.find(flag => flag.getName() === flagName);
     if (!flag) {
@@ -179,11 +175,6 @@ export abstract class MachineState {
     }
 
     return flag.getValue();
-  }
-
-  public setFlagValueById(id: number, value: boolean): void {
-    this.flags[id].setValue(value);
-    this.publishEvent(`FLAG.${this.flags[id].getName()}`, value);
   }
 
   public setFlagValueByName(flagName: string, value: boolean): void {
@@ -249,12 +240,13 @@ export abstract class MachineState {
     return this.registers.some(register => register.getName().toLowerCase() === registerName.toLowerCase());
   }
 
-  public getRegisterValueById(id: number, signedData = false): number {
-    if (signedData && this.registers[id].isData()) {
-      return this.registers[id].getSignedValue();
-    } else {
-      return this.registers[id].getValue();
+  public getRegisterInfo(registerName: string): RegisterInfo {
+    const register = this.registers.find(register => register.getName().toLowerCase() === registerName.toLowerCase());
+    if (!register) {
+      throw new Error(`Invalid register name: ${registerName}`);
     }
+
+    return register.getInfo();
   }
 
   public getRegisterValueByName(registerName: string): number {
@@ -270,12 +262,6 @@ export abstract class MachineState {
     return register.getValue();
   }
 
-  public setRegisterValueById(id: number, value: number): void {
-    const register = this.registers[id];
-    register.setValue(value);
-    this.publishEvent(`REG.${register.getName()}`, register.getValue());
-  }
-
   public setRegisterValueByName(registerName: string, value: number): void {
     if (registerName === "") { // Undefined register
       return;
@@ -288,10 +274,6 @@ export abstract class MachineState {
 
     register.setValue(value);
     this.publishEvent(`REG.${registerName}`, register.getValue());
-  }
-
-  public isRegisterData(id: number): boolean {
-    return this.registers[id].isData();
   }
 
   public clearRegisters(): void {

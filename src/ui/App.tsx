@@ -309,7 +309,7 @@ export default function App() {
             <legend>Registradores</legend>
             <div style={{ display: "grid", justifyContent: "center", gridTemplateColumns: "112px 112px", justifyItems: "center", gap: "16px", flexWrap: "wrap" }}>
               {machine.getRegisters().map((register, index) => {
-                return <RegisterWidget key={index} name={register.getName()} machine={machine} />;
+                return <RegisterWidget key={index} name={register.getName()} machine={machine} displayHex={displayHex} displayNegative={displayNegative} />;
               })}
             </div>
           </fieldset>
