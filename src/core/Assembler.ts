@@ -384,15 +384,10 @@ export class Assembler {
     }
   }
 
-  // Does not validate valueString. Both min and max are valid (closed interval)
+  // Does not validate valueString. Both min and max are considered in range (closed interval)
   protected isValueInRange(valueString: string, min: number, max: number): boolean {
-    if (valueString.toLowerCase().startsWith("h")) {
-      const value = parseInt(valueString.slice(1), 16); // Remove "h"
-      return (value >= min && value <= max);
-    } else {
-      const value = parseInt(valueString, 10);
-      return (value >= min && value <= max);
-    }
+    const value = codeStringToNumber(valueString);
+    return (value >= min && value <= max);
   }
 
   // Checks if string is a valid number for the machine
