@@ -184,8 +184,8 @@ export default function App() {
           <SubMenuCheckBox title="Interpretar caracteres" checked={displayChars} setChecked={setDisplayChars}/>
           <SubMenuSeparator/>
           <SubMenuCheckBox title="Execução rápida" checked={displayFast} setChecked={(checked) => {
+            machine.setRunning(false);
             setDisplayFast(checked);
-            clearTimeout(timeout);
           }}/>
           {showWIP && <SubMenuCheckBox title="Execução segue cursor" checked={displayFollowPC} setChecked={setDisplayFollowPC}/>}
         </Menu>
