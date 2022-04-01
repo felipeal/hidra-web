@@ -509,7 +509,7 @@ export abstract class Machine extends MachineState {
     if (this.isLittleEndian()) {
       return this.toValidAddress(this.getMemoryValue(address) + (this.getMemoryValue(address + 1) << 8));
     } else {
-      return this.toValidAddress((this.getMemoryValue(address) << 8) + this.getMemoryValue(address + 1));  // TODO: Untested
+      return this.toValidAddress((this.getMemoryValue(address) << 8) + this.getMemoryValue(address + 1)); // TODO: Untested
     }
   }
 

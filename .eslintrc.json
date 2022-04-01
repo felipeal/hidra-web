@@ -22,32 +22,22 @@
     "react",
     "@typescript-eslint"
   ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
   "rules": {
-    "indent": [
-      "warn",
-      2,
-      {
+    "indent": ["warn", 2, {
         "SwitchCase": 1,
         "ignoreComments": true
       }
     ],
-    "linebreak-style": [
-      "error",
-      "unix"
-    ],
-    "quotes": [
-      "warn",
-      "double"
-    ],
-    "semi": [
-      "warn",
-      "always"
-    ],
+    "linebreak-style": ["error", "unix"],
+    "quotes": ["warn", "double"],
+    "semi": ["warn", "always"],
     "curly": "warn",
-    "brace-style": [
-      "warn",
-      "1tbs"
-    ],
+    "brace-style": ["warn", "1tbs"],
     "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/ban-ts-comment": "off",
@@ -57,12 +47,22 @@
     "comma-dangle": "warn",
     "space-before-blocks": "warn",
     "keyword-spacing": "warn",
+    "spaced-comment": ["warn", "always", {
+      "exceptions": ["///", "***"]
+    }],
+    "template-curly-spacing": ["warn", "never"],
     "space-before-function-paren": ["warn", {
       "named": "never",
       "anonymous": "always",
       "asyncArrow": "always"
     }],
+    "switch-colon-spacing": "warn",
+    "space-infix-ops": "warn",
+    "space-unary-ops": "warn",
+    "space-in-parens": "warn",
+    "no-whitespace-before-property": "warn",
     "eol-last": "warn",
+    "no-multi-spaces": "warn",
     "no-constant-condition": "warn",
     "prefer-const": "warn",
     "object-curly-spacing": ["warn", "always"],

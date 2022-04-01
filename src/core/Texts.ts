@@ -4,7 +4,7 @@ import { Machine } from "./Machine";
 import { FlagCode } from "./Flag";
 
 interface AddressingModeDescription { acronym: string, name: string, format: string, description: string }
-interface DirectiveDescription { name: string,  description: string, examples: string }
+interface DirectiveDescription { name: string, description: string, examples: string }
 
 export class Texts {
 

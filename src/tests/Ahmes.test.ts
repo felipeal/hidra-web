@@ -51,153 +51,153 @@ describe("Ahmes: Run", () => {
   const binValues = ["Vb10000001: DB h81"];
 
   test("instructions: should reach expected state after running", () => {
-    expectRunState(["nop"], [], {r_AC: 0, r_PC: 1});
+    expectRunState(["nop"], [], { r_AC: 0, r_PC: 1 });
 
     // Load/Store
-    expectRunState(["lda V255"], values, {r_AC: 255, r_PC: 2});
-    expectRunState(["lda V255", "sta 16"], values, {r_AC: 0XFF, r_PC: 4, m_16: 0xFF});
+    expectRunState(["lda V255"], values, { r_AC: 255, r_PC: 2 });
+    expectRunState(["lda V255", "sta 16"], values, { r_AC: 0XFF, r_PC: 4, m_16: 0xFF });
 
     // Arithmetic/Logic
-    expectRunState(["lda V255", "add V255"], values, {r_AC: 254, r_PC: 4});
-    expectRunState(["lda VhF0", "or Vh88"], hexValues, {r_AC: 0xF8, r_PC: 4});
-    expectRunState(["lda VhF0", "and Vh88"], hexValues, {r_AC: 0x80, r_PC: 4});
-    expectRunState(["lda VhF0", "not"], hexValues, {r_AC: 0x0F, r_PC: 3});
-    expectRunState(["lda V128", "sub V255"], values, {r_AC: 129, r_PC: 4});
+    expectRunState(["lda V255", "add V255"], values, { r_AC: 254, r_PC: 4 });
+    expectRunState(["lda VhF0", "or Vh88"], hexValues, { r_AC: 0xF8, r_PC: 4 });
+    expectRunState(["lda VhF0", "and Vh88"], hexValues, { r_AC: 0x80, r_PC: 4 });
+    expectRunState(["lda VhF0", "not"], hexValues, { r_AC: 0x0F, r_PC: 3 });
+    expectRunState(["lda V128", "sub V255"], values, { r_AC: 129, r_PC: 4 });
 
     // Jumps
-    expectRunState(["jmp 16"], [], {r_AC: 0, r_PC: 16});
-    expectRunState(["lda V127", "jn 16"], values, {r_AC: 127, r_PC: 4, f_N: false});
-    expectRunState(["lda V128", "jn 16"], values, {r_AC: 128, r_PC: 16, f_N: true});
-    expectRunState(["lda V0", "jp 16"], values, {r_AC: 0, r_PC: 16, f_Z: true});
-    expectRunState(["lda V127", "jp 16"], values, {r_AC: 127, r_PC: 16, f_N: false});
-    expectRunState(["lda V128", "jp 16"], values, {r_AC: 128, r_PC: 4, f_N: true});
-    expectRunState(["lda V127", "add V128", "jv 16"], values, {r_AC: 255, r_PC: 6, f_V: false});
-    expectRunState(["lda V127", "add V127", "jv 16"], values, {r_AC: 254, r_PC: 16, f_V: true});
-    expectRunState(["lda V127", "add V128", "jnv 16"], values, {r_AC: 255, r_PC: 16, f_V: false});
-    expectRunState(["lda V127", "add V127", "jnv 16"], values, {r_AC: 254, r_PC: 6, f_V: true});
-    expectRunState(["lda V255", "jz 16"], values, {r_AC: 255, r_PC: 4, f_Z: false});
-    expectRunState(["lda V0", "jz 16"], values, {r_AC: 0, r_PC: 16, f_Z: true});
-    expectRunState(["lda V255", "jnz 16"], values, {r_AC: 255, r_PC: 16, f_Z: false});
-    expectRunState(["lda V0", "jnz 16"], values, {r_AC: 0, r_PC: 4, f_Z: true});
-    expectRunState(["lda V255", "add V255", "jc 16"], values, {r_AC: 254, r_PC: 16, f_C: true});
-    expectRunState(["lda V128", "add V127", "jc 16"], values, {r_AC: 255, r_PC: 6, f_C: false});
-    expectRunState(["lda V255", "add V255", "jnc 16"], values, {r_AC: 254, r_PC: 6, f_C: true});
-    expectRunState(["lda V128", "add V127", "jnc 16"], values, {r_AC: 255, r_PC: 16, f_C: false});
-    expectRunState(["lda V127", "sub V128", "jb 16"], values, {r_AC: 255, r_PC: 16, f_B: true});
-    expectRunState(["lda V128", "sub V127", "jb 16"], values, {r_AC: 1, r_PC: 6, f_B: false});
-    expectRunState(["lda V127", "sub V128", "jnb 16"], values, {r_AC: 255, r_PC: 6, f_B: true});
-    expectRunState(["lda V128", "sub V127", "jnb 16"], values, {r_AC: 1, r_PC: 16, f_B: false});
+    expectRunState(["jmp 16"], [], { r_AC: 0, r_PC: 16 });
+    expectRunState(["lda V127", "jn 16"], values, { r_AC: 127, r_PC: 4, f_N: false });
+    expectRunState(["lda V128", "jn 16"], values, { r_AC: 128, r_PC: 16, f_N: true });
+    expectRunState(["lda V0", "jp 16"], values, { r_AC: 0, r_PC: 16, f_Z: true });
+    expectRunState(["lda V127", "jp 16"], values, { r_AC: 127, r_PC: 16, f_N: false });
+    expectRunState(["lda V128", "jp 16"], values, { r_AC: 128, r_PC: 4, f_N: true });
+    expectRunState(["lda V127", "add V128", "jv 16"], values, { r_AC: 255, r_PC: 6, f_V: false });
+    expectRunState(["lda V127", "add V127", "jv 16"], values, { r_AC: 254, r_PC: 16, f_V: true });
+    expectRunState(["lda V127", "add V128", "jnv 16"], values, { r_AC: 255, r_PC: 16, f_V: false });
+    expectRunState(["lda V127", "add V127", "jnv 16"], values, { r_AC: 254, r_PC: 6, f_V: true });
+    expectRunState(["lda V255", "jz 16"], values, { r_AC: 255, r_PC: 4, f_Z: false });
+    expectRunState(["lda V0", "jz 16"], values, { r_AC: 0, r_PC: 16, f_Z: true });
+    expectRunState(["lda V255", "jnz 16"], values, { r_AC: 255, r_PC: 16, f_Z: false });
+    expectRunState(["lda V0", "jnz 16"], values, { r_AC: 0, r_PC: 4, f_Z: true });
+    expectRunState(["lda V255", "add V255", "jc 16"], values, { r_AC: 254, r_PC: 16, f_C: true });
+    expectRunState(["lda V128", "add V127", "jc 16"], values, { r_AC: 255, r_PC: 6, f_C: false });
+    expectRunState(["lda V255", "add V255", "jnc 16"], values, { r_AC: 254, r_PC: 6, f_C: true });
+    expectRunState(["lda V128", "add V127", "jnc 16"], values, { r_AC: 255, r_PC: 16, f_C: false });
+    expectRunState(["lda V127", "sub V128", "jb 16"], values, { r_AC: 255, r_PC: 16, f_B: true });
+    expectRunState(["lda V128", "sub V127", "jb 16"], values, { r_AC: 1, r_PC: 6, f_B: false });
+    expectRunState(["lda V127", "sub V128", "jnb 16"], values, { r_AC: 255, r_PC: 6, f_B: true });
+    expectRunState(["lda V128", "sub V127", "jnb 16"], values, { r_AC: 1, r_PC: 16, f_B: false });
 
     // Shift/Rotate
-    expectRunState(["lda Vb10000001", "shr", "nop"], binValues, {r_PC: 4, r_AC: 0b01000000, f_C: true});
-    expectRunState(["lda Vb10000001", "shr", "shr"], binValues, {r_PC: 4, r_AC: 0b00100000, f_C: false});
-    expectRunState(["lda Vb10000001", "shl", "nop"], binValues, {r_PC: 4, r_AC: 0b00000010, f_C: true});
-    expectRunState(["lda Vb10000001", "shl", "shl"], binValues, {r_PC: 4, r_AC: 0b00000100, f_C: false});
-    expectRunState(["lda Vb10000001", "ror", "nop"], binValues, {r_PC: 4, r_AC: 0b01000000, f_C: true});
-    expectRunState(["lda Vb10000001", "ror", "ror"], binValues, {r_PC: 4, r_AC: 0b10100000, f_C: false});
-    expectRunState(["lda Vb10000001", "rol", "nop"], binValues, {r_PC: 4, r_AC: 0b00000010, f_C: true});
-    expectRunState(["lda Vb10000001", "rol", "rol"], binValues, {r_PC: 4, r_AC: 0b00000101, f_C: false});
+    expectRunState(["lda Vb10000001", "shr", "nop"], binValues, { r_PC: 4, r_AC: 0b01000000, f_C: true });
+    expectRunState(["lda Vb10000001", "shr", "shr"], binValues, { r_PC: 4, r_AC: 0b00100000, f_C: false });
+    expectRunState(["lda Vb10000001", "shl", "nop"], binValues, { r_PC: 4, r_AC: 0b00000010, f_C: true });
+    expectRunState(["lda Vb10000001", "shl", "shl"], binValues, { r_PC: 4, r_AC: 0b00000100, f_C: false });
+    expectRunState(["lda Vb10000001", "ror", "nop"], binValues, { r_PC: 4, r_AC: 0b01000000, f_C: true });
+    expectRunState(["lda Vb10000001", "ror", "ror"], binValues, { r_PC: 4, r_AC: 0b10100000, f_C: false });
+    expectRunState(["lda Vb10000001", "rol", "nop"], binValues, { r_PC: 4, r_AC: 0b00000010, f_C: true });
+    expectRunState(["lda Vb10000001", "rol", "rol"], binValues, { r_PC: 4, r_AC: 0b00000101, f_C: false });
 
     // Halt
-    expectRunState(["nop", "nop"], [], {isRunning: true, r_PC: 2});
-    expectRunState(["hlt", "nop"], [], {isRunning: false, r_PC: 1});
+    expectRunState(["nop", "nop"], [], { isRunning: true, r_PC: 2 });
+    expectRunState(["hlt", "nop"], [], { isRunning: false, r_PC: 1 });
   });
 
   test("flags: N/Z should match AC", () => {
     // Load/Store
-    expectRunState(["lda V0"], values, {f_N: false, f_Z: true});
-    expectRunState(["lda V127"], values, {f_N: false, f_Z: false});
-    expectRunState(["lda V128"], values, {f_N: true, f_Z: false});
+    expectRunState(["lda V0"], values, { f_N: false, f_Z: true });
+    expectRunState(["lda V127"], values, { f_N: false, f_Z: false });
+    expectRunState(["lda V128"], values, { f_N: true, f_Z: false });
 
-    expectRunState(["lda V255"], values, {r_AC: 255, r_PC: 2});
-    expectRunState(["lda V255", "sta 16"], values, {r_AC: 0XFF, r_PC: 4, m_16: 0xFF});
+    expectRunState(["lda V255"], values, { r_AC: 255, r_PC: 2 });
+    expectRunState(["lda V255", "sta 16"], values, { r_AC: 0XFF, r_PC: 4, m_16: 0xFF });
 
     // Arithmetic/Logic
-    expectRunState(["lda V127", "add V128"], values, {r_AC: 255, f_N: true, f_Z: false});
-    expectRunState(["lda V127", "or V128"], values, {r_AC: 255, f_N: true, f_Z: false});
-    expectRunState(["lda V127", "and V128"], values, {r_AC: 0, f_N: false, f_Z: true});
-    expectRunState(["lda V127", "not"], values, {r_AC: 128, f_N: true, f_Z: false});
-    expectRunState(["lda V127", "sub V128"], values, {r_AC: 255, f_N: true, f_Z: false});
+    expectRunState(["lda V127", "add V128"], values, { r_AC: 255, f_N: true, f_Z: false });
+    expectRunState(["lda V127", "or V128"], values, { r_AC: 255, f_N: true, f_Z: false });
+    expectRunState(["lda V127", "and V128"], values, { r_AC: 0, f_N: false, f_Z: true });
+    expectRunState(["lda V127", "not"], values, { r_AC: 128, f_N: true, f_Z: false });
+    expectRunState(["lda V127", "sub V128"], values, { r_AC: 255, f_N: true, f_Z: false });
 
     // Shift/Rotate
-    expectRunState(["lda V128", "shr"], values, {r_AC: 64, f_N: false, f_Z: false});
-    expectRunState(["lda V127", "shl"], values, {r_AC: 254, f_N: true, f_Z: false});
-    expectRunState(["lda V128", "ror"], values, {r_AC: 64, f_N: false, f_Z: false});
-    expectRunState(["lda V127", "rol"], values, {r_AC: 254, f_N: true, f_Z: false});
+    expectRunState(["lda V128", "shr"], values, { r_AC: 64, f_N: false, f_Z: false });
+    expectRunState(["lda V127", "shl"], values, { r_AC: 254, f_N: true, f_Z: false });
+    expectRunState(["lda V128", "ror"], values, { r_AC: 64, f_N: false, f_Z: false });
+    expectRunState(["lda V127", "rol"], values, { r_AC: 254, f_N: true, f_Z: false });
   });
 
   test("flags: N/Z should not change when AC doesn't", () => {
-    expectRunState(["lda V128", "nop"], values, {f_N: true, f_Z: false});
-    expectRunState(["lda V128", "sta 0"], values, {f_N: true, f_Z: false});
-    expectRunState(["lda V128", "jmp 16"], values, {f_N: true, f_Z: false});
-    expectRunState(["lda V128", "hlt"], values, {f_N: true, f_Z: false});
+    expectRunState(["lda V128", "nop"], values, { f_N: true, f_Z: false });
+    expectRunState(["lda V128", "sta 0"], values, { f_N: true, f_Z: false });
+    expectRunState(["lda V128", "jmp 16"], values, { f_N: true, f_Z: false });
+    expectRunState(["lda V128", "hlt"], values, { f_N: true, f_Z: false });
   });
 
   test("flags: C should match last carry operation", () => {
     // Arithmetic/Logic
-    expectRunState(["lda V128", "add V127"], values, {r_AC: 255, f_C: false});
-    expectRunState(["lda V128", "add V128"], values, {r_AC: 0, f_C: true});
-    expectRunState(["lda V127", "shr"], values, {f_C: true});
-    expectRunState(["lda V128", "shr"], values, {f_C: false});
-    expectRunState(["lda V128", "shl"], values, {f_C: true});
-    expectRunState(["lda V127", "shl"], values, {f_C: false});
-    expectRunState(["lda V127", "ror"], values, {f_C: true});
-    expectRunState(["lda V128", "ror"], values, {f_C: false});
-    expectRunState(["lda V128", "rol"], values, {f_C: true});
-    expectRunState(["lda V127", "rol"], values, {f_C: false});
+    expectRunState(["lda V128", "add V127"], values, { r_AC: 255, f_C: false });
+    expectRunState(["lda V128", "add V128"], values, { r_AC: 0, f_C: true });
+    expectRunState(["lda V127", "shr"], values, { f_C: true });
+    expectRunState(["lda V128", "shr"], values, { f_C: false });
+    expectRunState(["lda V128", "shl"], values, { f_C: true });
+    expectRunState(["lda V127", "shl"], values, { f_C: false });
+    expectRunState(["lda V127", "ror"], values, { f_C: true });
+    expectRunState(["lda V128", "ror"], values, { f_C: false });
+    expectRunState(["lda V128", "rol"], values, { f_C: true });
+    expectRunState(["lda V127", "rol"], values, { f_C: false });
 
     // Should not update carry
-    expectRunState(["lda V255", "add V255", "or V0"], values, {f_C: true});
-    expectRunState(["lda V255", "add V255", "and V0"], values, {f_C: true});
-    expectRunState(["lda V255", "add V255", "not"], values, {f_C: true});
-    expectRunState(["lda V255", "add V255", "sub V0"], values, {f_C: true});
-    expectRunState(["lda V255", "add V255", "sub V255"], values, {f_C: true});
+    expectRunState(["lda V255", "add V255", "or V0"], values, { f_C: true });
+    expectRunState(["lda V255", "add V255", "and V0"], values, { f_C: true });
+    expectRunState(["lda V255", "add V255", "not"], values, { f_C: true });
+    expectRunState(["lda V255", "add V255", "sub V0"], values, { f_C: true });
+    expectRunState(["lda V255", "add V255", "sub V255"], values, { f_C: true });
   });
 
   test("flags: B should match last borrow operation", () => {
     // Subtraction
-    expectRunState(["lda V128", "sub V127"], values, {r_AC: 1, f_B: false});
-    expectRunState(["lda V128", "sub V128"], values, {r_AC: 0, f_B: false});
-    expectRunState(["lda V127", "sub V128"], values, {r_AC: 255, f_B: true});
-    expectRunState(["lda V0", "sub V255"], values, {r_AC: 1, f_B: true});
+    expectRunState(["lda V128", "sub V127"], values, { r_AC: 1, f_B: false });
+    expectRunState(["lda V128", "sub V128"], values, { r_AC: 0, f_B: false });
+    expectRunState(["lda V127", "sub V128"], values, { r_AC: 255, f_B: true });
+    expectRunState(["lda V0", "sub V255"], values, { r_AC: 1, f_B: true });
 
     // Should not update borrow
-    expectRunState(["sub V255", "add V0"], values, {f_B: true});
-    expectRunState(["sub V255", "or V0"], values, {f_B: true});
-    expectRunState(["sub V255", "and V0"], values, {f_B: true});
-    expectRunState(["sub V255", "not"], values, {f_B: true});
-    expectRunState(["sub V255", "shr"], values, {f_B: true});
-    expectRunState(["sub V255", "shl"], values, {f_B: true});
-    expectRunState(["sub V255", "ror"], values, {f_B: true});
-    expectRunState(["sub V255", "rol"], values, {f_B: true});
+    expectRunState(["sub V255", "add V0"], values, { f_B: true });
+    expectRunState(["sub V255", "or V0"], values, { f_B: true });
+    expectRunState(["sub V255", "and V0"], values, { f_B: true });
+    expectRunState(["sub V255", "not"], values, { f_B: true });
+    expectRunState(["sub V255", "shr"], values, { f_B: true });
+    expectRunState(["sub V255", "shl"], values, { f_B: true });
+    expectRunState(["sub V255", "ror"], values, { f_B: true });
+    expectRunState(["sub V255", "rol"], values, { f_B: true });
   });
 
   test("flags: V should match last overflow operation", () => {
     // Arithmetic
-    expectRunState(["lda V127", "add V127"], values, {r_AC: 254, f_V: true}); // 127 + 127
-    expectRunState(["lda V128", "add V128"], values, {r_AC: 0, f_V: true}); // (-128) + (-128)
-    expectRunState(["lda V127", "add V128"], values, {r_AC: 255, f_V: false}); // 127 + (-128)
-    expectRunState(["lda V128", "add V127"], values, {r_AC: 255, f_V: false}); // (-128) + 127
-    expectRunState(["lda V127", "sub V127"], values, {r_AC: 0, f_V: false}); // 127 - 127
-    expectRunState(["lda V128", "sub V128"], values, {r_AC: 0, f_V: false}); // (-128) - (-128)
-    expectRunState(["lda V127", "sub V128"], values, {r_AC: 255, f_V: true}); // 127 - (-128)
-    expectRunState(["lda V128", "sub V127"], values, {r_AC: 1, f_V: true}); // (-128) - 127
-    expectRunState(["lda V127", "sub V255"], values, {r_AC: 128, f_V: true}); // 127 - (-1)
-    expectRunState(["lda V255", "sub V127"], values, {r_AC: 128, f_V: false}); // (-1) - 127
+    expectRunState(["lda V127", "add V127"], values, { r_AC: 254, f_V: true }); // 127 + 127
+    expectRunState(["lda V128", "add V128"], values, { r_AC: 0, f_V: true }); // (-128) + (-128)
+    expectRunState(["lda V127", "add V128"], values, { r_AC: 255, f_V: false }); // 127 + (-128)
+    expectRunState(["lda V128", "add V127"], values, { r_AC: 255, f_V: false }); // (-128) + 127
+    expectRunState(["lda V127", "sub V127"], values, { r_AC: 0, f_V: false }); // 127 - 127
+    expectRunState(["lda V128", "sub V128"], values, { r_AC: 0, f_V: false }); // (-128) - (-128)
+    expectRunState(["lda V127", "sub V128"], values, { r_AC: 255, f_V: true }); // 127 - (-128)
+    expectRunState(["lda V128", "sub V127"], values, { r_AC: 1, f_V: true }); // (-128) - 127
+    expectRunState(["lda V127", "sub V255"], values, { r_AC: 128, f_V: true }); // 127 - (-1)
+    expectRunState(["lda V255", "sub V127"], values, { r_AC: 128, f_V: false }); // (-1) - 127
 
     // Should not update overflow
-    expectRunState(["lda V127", "add V127", "or V0"], values, {f_V: true});
-    expectRunState(["lda V127", "add V127", "and V0"], values, {f_V: true});
-    expectRunState(["lda V127", "add V127", "not"], values, {f_V: true});
-    expectRunState(["lda V127", "add V127", "shr"], values, {f_V: true});
-    expectRunState(["lda V127", "add V127", "shl"], values, {f_V: true});
-    expectRunState(["lda V127", "add V127", "ror"], values, {f_V: true});
-    expectRunState(["lda V127", "add V127", "rol"], values, {f_V: true});
+    expectRunState(["lda V127", "add V127", "or V0"], values, { f_V: true });
+    expectRunState(["lda V127", "add V127", "and V0"], values, { f_V: true });
+    expectRunState(["lda V127", "add V127", "not"], values, { f_V: true });
+    expectRunState(["lda V127", "add V127", "shr"], values, { f_V: true });
+    expectRunState(["lda V127", "add V127", "shl"], values, { f_V: true });
+    expectRunState(["lda V127", "add V127", "ror"], values, { f_V: true });
+    expectRunState(["lda V127", "add V127", "rol"], values, { f_V: true });
   });
 
   test("registers: should overflow at 256", () => {
-    expectRunState(["lda V128", "add V128"], values, {r_AC: 0, f_N: false, f_Z: true});
-    expectRunState(["jmp 255", ""], [], {r_PC: 0});
+    expectRunState(["lda V128", "add V128"], values, { r_AC: 0, f_N: false, f_Z: true });
+    expectRunState(["jmp 255", ""], [], { r_PC: 0 });
   });
 
 });

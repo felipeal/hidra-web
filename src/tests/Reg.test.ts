@@ -38,19 +38,19 @@ describe("Reg: Run", () => {
 
   test("instructions: should reach expected state after running", () => {
     // Inc/Dec
-    expectRunState(["inc R0"], [], {r_R0: 1, r_PC: 1});
-    expectRunState(["dec R0"], [], {r_R0: 255, r_PC: 1});
-    expectRunState(["inc R0", "dec R0"], [], {r_R0: 0, r_PC: 2});
-    expectRunState(["dec R0", "inc R0"], [], {r_R0: 0, r_PC: 2});
+    expectRunState(["inc R0"], [], { r_R0: 1, r_PC: 1 });
+    expectRunState(["dec R0"], [], { r_R0: 255, r_PC: 1 });
+    expectRunState(["inc R0", "dec R0"], [], { r_R0: 0, r_PC: 2 });
+    expectRunState(["dec R0", "inc R0"], [], { r_R0: 0, r_PC: 2 });
 
     // If
-    expectRunState(["if R0 10 20"], [], {r_R0: 0, r_PC: 10});
-    expectRunState(["inc R0", "if R0 10 20"], [], {r_R0: 1, r_PC: 20});
-    expectRunState(["dec R0", "if R0 10 20"], [], {r_R0: 255, r_PC: 20});
-    expectRunState(["inc R1", "if R0 10 20"], [], {r_R0: 0, r_R1: 1, r_PC: 10});
+    expectRunState(["if R0 10 20"], [], { r_R0: 0, r_PC: 10 });
+    expectRunState(["inc R0", "if R0 10 20"], [], { r_R0: 1, r_PC: 20 });
+    expectRunState(["dec R0", "if R0 10 20"], [], { r_R0: 255, r_PC: 20 });
+    expectRunState(["inc R1", "if R0 10 20"], [], { r_R0: 0, r_R1: 1, r_PC: 10 });
 
     // Halt
-    expectRunState(["hlt", "inc R0"], [], {isRunning: false, r_R0: 0, r_PC: 1});
+    expectRunState(["hlt", "inc R0"], [], { isRunning: false, r_R0: 0, r_PC: 1 });
   });
 
 });
