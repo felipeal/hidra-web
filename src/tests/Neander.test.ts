@@ -29,6 +29,14 @@ describe("Neander: Build", () => {
     expectBuildSuccess("dw h1020", [0x10, 0x20]);
   });
 
+  test("reserved keywords: should build correct list", () => {
+    expect(assembler["buildReservedKeywordsList"]()).toEqual([
+      "org", "db", "dw", "dab", "daw",
+      "nop", "sta", "lda", "add", "or", "and", "not",
+      "jmp", "jn", "jz", "hlt"
+    ]);
+  });
+
 });
 
 describe("Neander: Run", () => {

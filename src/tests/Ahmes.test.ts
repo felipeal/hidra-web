@@ -42,6 +42,15 @@ describe("Ahmes: Build", () => {
     expectBuildSuccess("dw h1020", [0x10, 0x20]);
   });
 
+  test("reserved keywords: should build correct list", () => {
+    expect(assembler["buildReservedKeywordsList"]()).toEqual([
+      "org", "db", "dw", "dab", "daw",
+      "nop", "sta", "lda", "add", "or", "and", "not", "sub",
+      "jmp", "jn", "jp", "jv", "jnv", "jz", "jnz", "jc", "jnc", "jb", "jnb",
+      "shr", "shl", "ror", "rol", "hlt"
+    ]);
+  });
+
 });
 
 describe("Ahmes: Run", () => {

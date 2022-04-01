@@ -213,6 +213,8 @@ export class Texts {
       case AssemblerErrorCode.INVALID_STRING: return "String inválido.";
       case AssemblerErrorCode.INVALID_CHARACTER: return "Caractere inválido.";
       case AssemblerErrorCode.INVALID_LABEL: return "Label inválido.";
+      case AssemblerErrorCode.RESERVED_KEYWORD: return "Label inválido: palavra reservada para esta máquina.";
+      case AssemblerErrorCode.RESERVED_HEX_SYNTAX: return "Label inválido: sintaxe reservada para hexadecimais.";
       case AssemblerErrorCode.INVALID_ARGUMENT: return "Argumento inválido.";
       case AssemblerErrorCode.INVALID_SEPARATOR: return "Separador de argumentos inválido.";
       case AssemblerErrorCode.DUPLICATE_LABEL: return "Label já definido.";

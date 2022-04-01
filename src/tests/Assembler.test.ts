@@ -134,8 +134,8 @@ describe("Assembler: Build", () => {
 
   test("build: should allow immediate chars", () => {
     expectSuccess("ADD A #'0'", [50, 48]); // Number
-    expectSuccess("ADD A #'a'", [50, 97]); // Uppercase
-    expectSuccess("ADD A #'A'", [50, 65]); // Lowercase
+    expectSuccess("ADD A #'a'", [50, 97]); // Lowercase
+    expectSuccess("ADD A #'A'", [50, 65]); // Uppercase
     expectSuccess("ADD A #'''", [50, 39]); // Literal single quote
   });
 
@@ -199,7 +199,27 @@ describe("Assembler: Labels", () => {
   });
 
   test("should parse correctly", () => {
-    expectSuccess("a: DAB 'a:'", [97, 58]); // Label repeated inside string
+    expectSuccess("L: DAB 'L:'", [76, 58]); // Label repeated inside string
+  });
+
+  test("should reject labels that match reserved keywords", () => {
+    expectError("nop:", AssemblerErrorCode.RESERVED_KEYWORD); // Lowercase
+    expectError("NOP:", AssemblerErrorCode.RESERVED_KEYWORD); // Uppercase
+    expectError("nOp:", AssemblerErrorCode.RESERVED_KEYWORD); // Mixed case
+    expectSuccess("nopx:", []); // Prefix match (allowed)
+    expectSuccess("xnop:", []); // Suffix match (allowed)
+  });
+
+  test("should reject labels that match hex syntax", () => {
+    // Note: Daedalus allows labels with hex syntax but interprets these as hex numbers
+    expectError("h:", AssemblerErrorCode.RESERVED_HEX_SYNTAX); // Prefix only
+    expectError("h0:", AssemblerErrorCode.RESERVED_HEX_SYNTAX); // Prefix with number
+    expectError("h00000000:", AssemblerErrorCode.RESERVED_HEX_SYNTAX); // Prefix with multiple numbers
+    expectError("h09afAF:", AssemblerErrorCode.RESERVED_HEX_SYNTAX); // Prefix with mixed formats
+    expectError("ha:", AssemblerErrorCode.RESERVED_HEX_SYNTAX); // Lowercase
+    expectError("HA:", AssemblerErrorCode.RESERVED_HEX_SYNTAX); // Uppercase
+    expectSuccess("h1G:", []); // Prefix match (allowed)
+    expectSuccess("aH0:", []); // Suffix match (allowed)
   });
 
 });
@@ -242,7 +262,7 @@ describe("Assembler: Directives", () => {
     expectError("DB '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
     expectError("DB 'ã'", AssemblerErrorCode.INVALID_CHARACTER); // Non-ASCII character
     expectError("DB '\t'", AssemblerErrorCode.INVALID_CHARACTER); // Tab character (currently not allowed)
-    expectError("DW '012'", AssemblerErrorCode.TOO_MANY_ARGUMENTS); // Multiple characters: invalid
+    expectError("DB '012'", AssemblerErrorCode.TOO_MANY_ARGUMENTS); // Multiple characters: invalid
     expectError("DB %", AssemblerErrorCode.INVALID_ARGUMENT); // Unexpected argument
   });
 
@@ -254,7 +274,7 @@ describe("Assembler: Directives", () => {
     expectSuccess("DW '~'", [0, 126]); // Last valid ASCII char
     expectSuccess("ORG 1\nLabel: DW Label", [0, 0, 1]); // Label
     expectSuccess("ORG 1\nLabel: DW Label+1", [0, 0, 2]); // Label with offset
-    expectSuccess("DB 1 , \nDB 2,", [1, 2]); // Trailing separator (currently allowed)
+    expectSuccess("DW 1 , \nDW 2,", [0, 1, 0, 2]); // Trailing separator (currently allowed)
     expectSuccess("DW hFF", [0, 255]); // Hexadecimal
     expectSuccess("DW -32768", [128, 0]); // Lower bound
     expectSuccess("DW 65535", [255, 255]); // Upper bound

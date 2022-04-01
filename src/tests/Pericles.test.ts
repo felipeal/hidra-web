@@ -71,6 +71,16 @@ describe("Pericles: Build", () => {
     expectBuildError("ORG 4095\nADD A #0", AssemblerErrorCode.MEMORY_LIMIT_EXCEEDED, 2); // Instruction ends outside memory
   });
 
+  test("reserved keywords: should build correct list", () => {
+    expect(assembler["buildReservedKeywordsList"]()).toEqual([
+      "org", "db", "dw", "dab", "daw",
+      "nop", "str", "ldr", "add", "or", "and", "not", "sub",
+      "jmp", "jn", "jz", "jc", "jsr", "neg", "shr", "hlt",
+      "a", "b", "x",
+      "i", "x"
+    ]);
+  });
+
 });
 
 describe("Pericles: Run", () => {

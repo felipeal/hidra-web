@@ -50,6 +50,16 @@ describe("Ramses: Build", () => {
     expectBuildSuccess("dw h1020", [0x10, 0x20]);
   });
 
+  test("reserved keywords: should build correct list", () => {
+    expect(assembler["buildReservedKeywordsList"]()).toEqual([
+      "org", "db", "dw", "dab", "daw",
+      "nop", "str", "ldr", "add", "or", "and", "not", "sub",
+      "jmp", "jn", "jz", "jc", "jsr", "neg", "shr", "hlt",
+      "a", "b", "x",
+      "i", "x"
+    ]);
+  });
+
 });
 
 describe("Ramses: Run", () => {

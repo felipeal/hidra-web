@@ -28,6 +28,7 @@ export class Assembler {
   private sourceLineCorrespondingAddress: number[] = [];
   private addressCorrespondingLabel: string[];
   private labelPCMap: Map<string, number> = new Map();
+  private reservedKeywords: Set<string>;
   private eventSubscriptions: Record<string, EventCallback[]> = {};
 
   constructor(machine: Machine) {
@@ -38,6 +39,8 @@ export class Assembler {
     this.reserved = new Array(machine.getMemorySize()).fill(false);
     this.addressCorrespondingSourceLine = new Array(machine.getMemorySize()).fill(-1);
     this.addressCorrespondingLabel = new Array(machine.getMemorySize()).fill("");
+
+    this.reservedKeywords = new Set(this.buildReservedKeywordsList());
   }
 
   //////////////////////////////////////////////////
@@ -87,6 +90,10 @@ export class Assembler {
           // Check for invalid label name
           if (!this.isValidLabelFormat(labelName)) {
             throw new AssemblerError(AssemblerErrorCode.INVALID_LABEL);
+          } else if (this.isReservedKeyword(labelName)) {
+            throw new AssemblerError(AssemblerErrorCode.RESERVED_KEYWORD);
+          } else if (this.isReservedHexSyntax(labelName)) {
+            throw new AssemblerError(AssemblerErrorCode.RESERVED_HEX_SYNTAX);
           }
 
           // Check for duplicate label
@@ -367,6 +374,35 @@ export class Assembler {
   protected isValidLabelFormat(labelName: string): boolean {
     const labelMatcher = new RegExpMatcher(Assembler.LABEL_PATTERN);
     return labelMatcher.fullMatch(labelName.toLowerCase());
+  }
+
+  protected buildReservedKeywordsList(): string[] {
+    const reservedKeywords: string[] = [];
+
+    // Directives
+    reservedKeywords.push(...Assembler.DIRECTIVES);
+
+    // Instruction mnemonics
+    reservedKeywords.push(...this.machine.getInstructions().map(i => i.getMnemonic().toLowerCase()));
+
+    // Register names (if usable in code)
+    const usableRegisters = this.machine.getRegisters().filter(r => r.getBitCode() !== Register.NO_BIT_CODE).map(r => r.getName().toLowerCase());
+    if (usableRegisters.length > 1) {
+      reservedKeywords.push(...usableRegisters);
+    }
+
+    // Addressing modes (letter sequences only)
+    reservedKeywords.push(...this.machine.getAddressingModes().map(a => a.getAssemblyPattern().toLowerCase().replace(/[^a-z]/g, "")).filter(a => a));
+
+    return reservedKeywords;
+  }
+
+  protected isReservedKeyword(labelName: string): boolean {
+    return this.reservedKeywords.has(labelName.toLowerCase());
+  }
+
+  protected isReservedHexSyntax(labelName: string): boolean {
+    return /^h[0-9a-f]*$/.test(labelName.toLowerCase());
   }
 
   // Returns true if conversion ok and value between min and max (closed interval)

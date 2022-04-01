@@ -3,6 +3,7 @@ import { Assembler } from "../core/Assembler";
 import { Reg } from "../machines/Reg";
 import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectRunState } from "./utils/MachineTestFunctions";
 import { AssemblerErrorCode } from "../core/Errors";
+import { range } from "../core/Utils";
 
 const machine = new Reg();
 const assembler = new Assembler(machine);
@@ -30,6 +31,14 @@ describe("Reg: Build", () => {
 
   test("endianness: should be big endian", () => {
     expectBuildSuccess("dw h1020", [0x10, 0x20]);
+  });
+
+  test("reserved keywords: should build correct list", () => {
+    expect(assembler["buildReservedKeywordsList"]()).toEqual([
+      "org", "db", "dw", "dab", "daw",
+      "inc", "dec", "if", "hlt",
+      ...range(64).map(v => `r${v}`)
+    ]);
   });
 
 });
