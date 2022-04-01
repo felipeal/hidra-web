@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Assembler } from "../core/Assembler";
-import { unsignedByteToString, addressToHex } from "../core/Conversions";
+import { unsignedByteToString, addressToHex, instructionStringToHex } from "../core/Conversions";
 import { Machine } from "../core/Machine";
 import { buildUnsubscribeCallback } from "../core/Utils";
 
@@ -63,7 +63,7 @@ export default function MemoryRowInstructions({ address, machine, assembler, dis
           setTimeout(() => (event.target as HTMLInputElement).select(), 0);
         }} />
       </td>
-      <td>{instructionString}</td>
+      <td>{displayHex ? instructionStringToHex(instructionString) : instructionString}</td>
     </tr>
   );
 }

@@ -50,6 +50,14 @@ export function addressToHex(value: number, memorySize: number): string {
   return numberToHex(value, numDigits);
 }
 
+export function instructionStringToHex(instructionString: string): string {
+  return instructionString.replace(/\b\d+\b/g, (v) => numberToHexCodeString(Number(v)));
+}
+
+export function numberToHexCodeString(value: number): string {
+  return "h" + value.toString(16).toUpperCase();
+}
+
 export function unsignedByteToString(value: number, { displayHex, displayNegative }: { displayHex?: boolean, displayNegative?: boolean}): string {
   if (displayHex) {
     return numberToHex(value, 2);
