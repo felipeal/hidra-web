@@ -95,6 +95,10 @@ export class Texts {
       case "neg r": return ["Negate", "Troca o sinal do valor em complemento de 2 do registrador 'r' entre positivo e negativo."];
       case "shr r": return ["Shift Right", "Realiza shift lógico dos bits do registrador 'r' para a direita, passando o estado do bit menos significativo para a flag C (carry) e preenchendo o bit mais significativo com 0."];
 
+      // Cromag
+      case "str a": return Texts.getInstructionDescription("sta a", machine);
+      case "ldr a": return Texts.getInstructionDescription("lda a", machine);
+
       // Pitagoras
       case "jd a": return ["Jump if Different from Zero", "Se a flag Z estiver desativada (acumulador diferente de zero), desvia a execução para o endereço 'a'."];
 
@@ -103,7 +107,7 @@ export class Texts {
       case "dec r": return ["Decrement", "Decrementa o registrador 'r' de uma unidade."];
       case "if r a0 a1": return ["If Zero", "Se o registrador 'r' for igual a zero, desvia a execução para o endereço 'a0'. Se for diferente de zero, desvia para 'a1'."];
 
-      default: return ["", ""];
+      default: throw new Error(`Missing description for assembly format: ${assemblyFormat}`);
     }
   }
 
@@ -156,7 +160,7 @@ export class Texts {
       case "jsr a": return ["Jump to Subroutine", "Desvio para sub-rotina: empilha endereço de retorno (instrução seguinte) e desvia para o endereço 'a'."];
       case "hlt": return ["Halt", "Termina a execução."];
 
-      default: return ["", ""];
+      default: throw new Error(`Missing description for assembly format: ${assemblyFormat}`);
     }
   }
 
