@@ -143,7 +143,7 @@ export default function App() {
         **********************************************************************/}
 
       <div className="navbar" style={{
-        height: `${navBarHeightPx}px`, display: "flex", gap: "8px", alignItems: "center", paddingLeft: "16px", columnGap: "8px"
+        height: `${navBarHeightPx}px`, display: "flex", gap: "8px", alignItems: "center", padding: "0 16px", columnGap: "8px"
       }}>
         <span style={{ padding: "8px" }}>Hidra</span>
         <Menu title="Arquivo">
@@ -200,6 +200,8 @@ export default function App() {
           <SubMenuSeparator/>
           <SubMenuItem title="Sobre" callback={() => {/* TODO: Implement */}}/>
         </Menu>}
+        <div style={{ flex: 1 }}/>
+        <a className="navbar-item" style={{ padding: "8px", textDecoration: "unset" }} href="https://github.com/felipeal/hidra-web" target="_blank" rel="noreferrer">GitHub</a>
       </div>
 
       <div style={{ height: `calc(100vh - 32px - ${navBarHeightPx}px)`, display: "flex", margin: "16px", gap: "16px" }}>
@@ -330,9 +332,7 @@ export default function App() {
             <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px" }}>
               {["org", "db", "dw", "dab/daw"].map((directive, index) => {
                 const description = Texts.getDirectiveDescription(directive);
-                return <div className="monospace-font" style={{
-                  minWidth: "56px", whiteSpace: "nowrap", marginLeft: "16px", marginRight: "0"
-                }} key={index}>
+                return <div className="monospace-font" style={{ minWidth: "56px", whiteSpace: "nowrap", marginLeft: "16px" }} key={index}>
                   <Tippy className="tooltip" content={<span>
                     <strong>{description.name}</strong>
                     <p>{description.description}</p>
@@ -352,9 +352,7 @@ export default function App() {
               {machine.getInstructions().map((instruction, index) => {
                 const assemblyFormat = [instruction.getMnemonic().toUpperCase(), ...instruction.getArguments()].join(" ");
                 const [name, description] = Texts.getInstructionDescription(instruction.getAssemblyFormat(), machine);
-                return <div className="monospace-font" style={{
-                  minWidth: "56px", whiteSpace: "nowrap", marginLeft: "16px", marginRight: "0"
-                }} key={index}>
+                return <div className="monospace-font" style={{ minWidth: "56px", whiteSpace: "nowrap", marginLeft: "16px" }} key={index}>
                   <Tippy className="tooltip" content={<span>
                     <strong>{name}</strong>
                     <p>{Texts.shortenArguments(description)}</p>

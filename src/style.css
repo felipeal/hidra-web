@@ -193,8 +193,7 @@ fieldset {
   border-radius: 4px;
 }
 fieldset legend {
-  padding-left: 4px;
-  padding-right: 4px;
+  padding: 0 4px;
 }
 
 /* Flags */
