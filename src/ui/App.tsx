@@ -96,12 +96,19 @@ export default function App() {
   }, [machine, assembler]);
 
   async function onFileOpened(event: ChangeEvent<HTMLInputElement>) {
-    event.stopPropagation();
-    event.preventDefault();
     const file = event.target.files?.[0];
     if (file) {
-      const fileContents = await file.text();
-      codeMirrorInstance.setValue(fileContents);
+      const fileBuffer = await file.arrayBuffer();
+
+      // Read file as UTF-8
+      let source = new TextDecoder().decode(fileBuffer);
+
+      // If invalid UTF-8, fall back to Windows-1252 (Latin-1) encoding
+      if (/�/.test(source)) {
+        source = new TextDecoder("windows-1252").decode(fileBuffer);
+      }
+
+      codeMirrorInstance.setValue(source);
       machine.setRunning(false);
       const newMachine = buildMachineBasedOnFileName(file.name, machine.getName());
       setState([newMachine, new Assembler(newMachine)]);
@@ -109,8 +116,6 @@ export default function App() {
   }
 
   async function onMemoryImported(event: ChangeEvent<HTMLInputElement>) {
-    event.stopPropagation();
-    event.preventDefault();
     const file = event.target.files?.[0];
     if (file) {
       try {

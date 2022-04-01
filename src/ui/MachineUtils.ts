@@ -90,9 +90,7 @@ export function buildMachineBasedOnIdentifier(identifier: string): Machine | nul
   }
 }
 
-export class FileError extends Error {
-
-}
+export class FileError extends Error {}
 
 export async function importMemory(file: File): Promise<Machine> {
   const fileContents = await file.arrayBuffer();
