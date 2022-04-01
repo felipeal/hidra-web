@@ -18,6 +18,7 @@ describe("Assembler: Transformations", () => {
     expect(assembler["removeComment"]("code ;; comment")).toBe("code ");
     expect(assembler["removeComment"]("code;comment")).toBe("code");
     expect(assembler["removeComment"]("code;comment;comment")).toBe("code");
+    expect(assembler["removeComment"]("\tcode\t;comment")).toBe("\tcode\t");
   });
 
   test("removeComments: should ignore comments inside strings", () => {
@@ -34,6 +35,8 @@ describe("Assembler: Transformations", () => {
     expect(assembler["removeComment"]("''''' ';' ;'")).toBe("''''' ';' ");
     expect(assembler["removeComment"]("'123';")).toBe("'123'");
     expect(assembler["removeComment"]("'''';''';'''';'")).toBe("'''';''';''''");
+    expect(assembler["removeComment"]("'''''\t;")).toBe("'''''\t");
+    expect(assembler["removeComment"]("'''''\t;")).toBe("'''''\t");
   });
 
   test("removeComments: should replace the correct part of the string", () => {
@@ -90,6 +93,7 @@ describe("Assembler: Build", () => {
   test("build: should ignore whitespace", () => {
     expectSuccess(" ADD A 0 ; 1", [48, 0]);
     expectSuccess(" Label: ADD A 0 ; 1", [48, 0]);
+    expectSuccess("\tLabel:\tADD\tA\t0\t;\t1", [48, 0]);
   });
 
   test("build: should be case-insensitive", () => {
@@ -237,6 +241,7 @@ describe("Assembler: Directives", () => {
     expectError("DB [2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate syntax: invalid
     expectError("DB '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
     expectError("DB 'ã'", AssemblerErrorCode.INVALID_CHARACTER); // Non-ASCII character
+    expectError("DB '\t'", AssemblerErrorCode.INVALID_CHARACTER); // Tab character (currently not allowed)
     expectError("DW '012'", AssemblerErrorCode.TOO_MANY_ARGUMENTS); // Multiple characters: invalid
     expectError("DB %", AssemblerErrorCode.INVALID_ARGUMENT); // Unexpected argument
   });
@@ -265,6 +270,7 @@ describe("Assembler: Directives", () => {
     expectError("DW [2]", AssemblerErrorCode.INVALID_ARGUMENT); // Allocate syntax: invalid
     expectError("DW '0''", AssemblerErrorCode.INVALID_STRING); // Malformed string
     expectError("DW 'ã'", AssemblerErrorCode.INVALID_CHARACTER); // Non-ASCII character
+    expectError("DW '\t'", AssemblerErrorCode.INVALID_CHARACTER); // Tab character (currently not allowed)
     expectError("DW '012'", AssemblerErrorCode.TOO_MANY_ARGUMENTS); // Multiple characters: invalid
     expectError("DW %", AssemblerErrorCode.INVALID_ARGUMENT); // Unexpected argument
   });
@@ -278,8 +284,11 @@ describe("Assembler: Directives", () => {
     expectSuccess("DAB 1 2 3", [1, 2, 3]); // Multiple arguments (spaces)
     expectSuccess("DAB 1,2,3", [1, 2, 3]); // Multiple arguments (commas)
     expectSuccess("DAB 1,  2  ,3  ,  4", [1, 2, 3, 4]); // Multiple arguments (commas+spaces)
+    expectSuccess("DAB 1,\t2\t,3\t,\t4", [1, 2, 3, 4]); // Multiple arguments (commas+tabs)
+    expectSuccess("DAB 1 \t2\t 3\t \t4", [1, 2, 3, 4]); // Multiple arguments (spaces+tabs)
     expectSuccess("DAB '0', '12', 3, h4, '''", [48, 49, 50, 3, 4, 39]); // Mixed formats (commas)
-    expectSuccess("DAB '0' '12' 3 h4 '''", [48, 49, 50, 3, 4, 39]); // Mixed formats (commas)
+    expectSuccess("DAB '0' '12' 3 h4 '''", [48, 49, 50, 3, 4, 39]); // Mixed formats (spaces)
+    expectSuccess("DAB\t'0'\t'12'\t3\th4\t'''", [48, 49, 50, 3, 4, 39]); // Mixed formats (tabs)
     expectSuccess("DAB ''''0'''0''''", [39, 48, 39, 48, 39]); // String with escaped single quotes
     expectSuccess("DAB '1-1'", [49, 45, 49]); // String with hyphen
     expectSuccess("DAB '1:1'", [49, 58, 49]); // String with colon
@@ -309,8 +318,11 @@ describe("Assembler: Directives", () => {
     expectSuccess("DAW 1 2 3", [0, 1, 0, 2, 0, 3]); // Multiple arguments (spaces)
     expectSuccess("DAW 1,2,3", [0, 1, 0, 2, 0, 3]); // Multiple arguments (commas)
     expectSuccess("DAW 1,  2  ,3  ,  4", [0, 1, 0, 2, 0, 3, 0, 4]); // Multiple arguments (commas+spaces)
+    expectSuccess("DAW 1,\t2\t,3\t,\t4", [0, 1, 0, 2, 0, 3, 0, 4]); // Multiple arguments (commas+tabs)
+    expectSuccess("DAW 1 \t2\t 3\t \t4", [0, 1, 0, 2, 0, 3, 0, 4]); // Multiple arguments (spaces+tabs)
     expectSuccess("DAW '0', '12', 3, h4, '''", [0, 48, 0, 49, 0, 50, 0, 3, 0, 4, 0, 39]); // Mixed formats (commas)
-    expectSuccess("DAW '0' '12' 3 h4 '''", [0, 48, 0, 49, 0, 50, 0, 3, 0, 4, 0, 39]); // Mixed formats (commas)
+    expectSuccess("DAW '0' '12' 3 h4 '''", [0, 48, 0, 49, 0, 50, 0, 3, 0, 4, 0, 39]); // Mixed formats (spaces)
+    expectSuccess("DAW\t'0'\t'12'\t3\th4\t'''", [0, 48, 0, 49, 0, 50, 0, 3, 0, 4, 0, 39]); // Mixed formats (tabs)
     expectSuccess("DAW ''''0'''0''''", [0, 39, 0, 48, 0, 39, 0, 48, 0, 39]); // String with escaped single quotes
     expectSuccess("DAW '1-1'", [0, 49, 0, 45, 0, 49]); // String with hyphen
     expectSuccess("DAW '1:1'", [0, 49, 0, 58, 0, 49]); // String with colon
