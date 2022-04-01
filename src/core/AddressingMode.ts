@@ -2,7 +2,11 @@ import { bitPatternToUnsignedByte } from "./Conversions";
 import { RegExpMatcher } from "./Utils";
 
 export enum AddressingModeCode {
-  DIRECT, INDIRECT, IMMEDIATE, INDEXED_BY_X, INDEXED_BY_PC
+  DIRECT = "DIRECT",
+  INDIRECT = "INDIRECT",
+  IMMEDIATE = "IMMEDIATE",
+  INDEXED_BY_X = "INDEXED_BY_X",
+  INDEXED_BY_PC = "INDEXED_BY_PC"
 }
 
 export class AddressingMode {
