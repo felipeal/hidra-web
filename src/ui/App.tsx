@@ -273,51 +273,51 @@ export default function App() {
             <Information machine={machine} />
           </fieldset>
 
-          {/* Buttons */}
-          <div className="hide-if-busy" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <button className="machine-button" onClick={() => {
-              const sourceCode = window.codeMirrorInstance.getValue();
-              machine.setRunning(false);
-              setErrorMessages(assembler.build(sourceCode));
-              machine.updateInstructionStrings();
-            }}>Montar</button>
-            <div style={{ display: "flex", gap: "8px" }}>
-              <button className="machine-button" style={{ flex: 1 }} onClick={() => {
-                resetPCAndSP(machine);
-              }}>Zerar PC</button>
-              <button className="machine-button" style={{ flex: 1 }} onClick={() => {
-                if (!machine.isRunning()) { // Run requested
-                  machine.setRunning(true);
-                  const nextStep = function () {
-                    if (machine.isRunning()) {
-                      let numUpdates = displayFast ? 100 : 1;
-                      while (machine.isRunning() && numUpdates--) {
-                        machine.step();
-                        if (hasBreakpointAtLine(assembler.getPCCorrespondingSourceLine())) {
-                          machine.setRunning(false);
-                        }
+          {/* Machine buttons */}
+          <div className="hide-if-busy" style={{ display: "flex", gap: "8px" }}>
+            <button className="machine-button" style={{ flex: 1 }} onClick={() => {
+              resetPCAndSP(machine);
+            }}>Zerar PC</button>
+            <button className="machine-button" style={{ flex: 1 }} onClick={() => {
+              if (!machine.isRunning()) { // Run requested
+                machine.setRunning(true);
+                const nextStep = function () {
+                  if (machine.isRunning()) {
+                    let numUpdates = displayFast ? 100 : 1;
+                    while (machine.isRunning() && numUpdates--) {
+                      machine.step();
+                      if (hasBreakpointAtLine(assembler.getPCCorrespondingSourceLine())) {
+                        machine.setRunning(false);
                       }
-
-                      timeout = setTimeout(nextStep, 0);
-                    } else {
-                      machine.updateInstructionStrings();
                     }
-                  };
-                  nextStep();
-                } else { // Stop requested
-                  machine.setRunning(false);
-                  machine.updateInstructionStrings();
-                }
-              }}>{isRunning ? "Parar" : "Rodar"}</button>
-              <button className="machine-button" disabled={isRunning} style={{ flex: 1 }} onClick={() => {
-                machine.step();
+
+                    timeout = setTimeout(nextStep, 0);
+                  } else {
+                    machine.updateInstructionStrings();
+                  }
+                };
+                nextStep();
+              } else { // Stop requested
+                machine.setRunning(false);
                 machine.updateInstructionStrings();
-              }}>Passo</button>
-            </div>
+              }
+            }}>{isRunning ? "Parar" : "Rodar"}</button>
+            <button className="machine-button" disabled={isRunning} style={{ flex: 1 }} onClick={() => {
+              machine.step();
+              machine.updateInstructionStrings();
+            }}>Passo</button>
           </div>
 
-          {/* Separator */}
+          {/* Spacer */}
           <div className="hide-if-busy" style={{ minHeight: "16px", flexGrow: 1 }} />
+
+          {/* Build button */}
+          <button className="hide-if-busy build-button" onClick={() => {
+            const sourceCode = window.codeMirrorInstance.getValue();
+            machine.setRunning(false);
+            setErrorMessages(assembler.build(sourceCode));
+            machine.updateInstructionStrings();
+          }}>Montar</button>
 
           {/* Directives */}
           <fieldset className="hide-if-busy">
