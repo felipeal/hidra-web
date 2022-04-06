@@ -96,10 +96,16 @@ export default function App() {
   }, [machine, assembler]);
 
   async function onFileOpened(event: ChangeEvent<HTMLInputElement>) {
-    openFile(event.target.files?.[0]);
+    loadFile(event.target.files?.[0]);
   }
 
-  async function openFile(file: File | null | undefined) {
+  async function loadFile(file: File | null | undefined) {
+    // Detect binary files
+    if (file?.name.endsWith(".mem")) {
+      loadBinaryFile(file);
+      return;
+    }
+
     if (file) {
       const fileBuffer = await file.arrayBuffer();
 
@@ -120,6 +126,10 @@ export default function App() {
 
   async function onMemoryImported(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
+    loadBinaryFile(file);
+  }
+
+  async function loadBinaryFile(file: File | undefined) {
     if (file) {
       try {
         const newMachine = await importMemory(file);
@@ -147,7 +157,7 @@ export default function App() {
         // If dropped items aren't files, reject them
         if (event.dataTransfer.items[i].kind === "file") {
           const file = event.dataTransfer.items[i].getAsFile();
-          openFile(file);
+          loadFile(file);
         }
       }
     }}>
