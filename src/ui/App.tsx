@@ -96,7 +96,10 @@ export default function App() {
   }, [machine, assembler]);
 
   async function onFileOpened(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
+    openFile(event.target.files?.[0]);
+  }
+
+  async function openFile(file: File | null | undefined) {
     if (file) {
       const fileBuffer = await file.arrayBuffer();
 
@@ -136,7 +139,18 @@ export default function App() {
   }
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column" }} onDrop={async (event) => {
+      event.preventDefault(); // Prevent file from being opened
+
+      // Use DataTransferItemList interface to access the file(s)
+      for (let i = 0; i < event.dataTransfer.items.length; i++) {
+        // If dropped items aren't files, reject them
+        if (event.dataTransfer.items[i].kind === "file") {
+          const file = event.dataTransfer.items[i].getAsFile();
+          openFile(file);
+        }
+      }
+    }}>
 
       {/**********************************************************************
         * Navigation bar
