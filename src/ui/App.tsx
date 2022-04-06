@@ -78,6 +78,7 @@ export default function App() {
   const [displayChars, setDisplayChars] = useState(false);
   const [displayFast, setDisplayFast] = useState(false);
   const [displayFollowPC, setDisplayFollowPC] = useState(true);
+  const [displayWrap, setDisplayWrap] = useState(false);
 
   useEffect(() => {
     // Restore values on machine change
@@ -216,14 +217,9 @@ export default function App() {
             machine.setRunning(false);
             setDisplayFast(checked);
           }}/>
+          {showWIP && <SubMenuCheckBox title="Quebra de linha" checked={displayWrap} setChecked={setDisplayWrap}/>}
           {showWIP && <SubMenuCheckBox title="Execução segue cursor" checked={displayFollowPC} setChecked={setDisplayFollowPC}/>}
         </Menu>
-        {showWIP && <Menu title="Ajuda">
-          <SubMenuItem title="Abrir exemplo" callback={() => {/* TODO: Implement */}}/>
-          <SubMenuItem title="Atalhos de teclado" callback={() => {/* TODO: Implement */}}/>
-          <SubMenuSeparator/>
-          <SubMenuItem title="Sobre" callback={() => {/* TODO: Implement */}}/>
-        </Menu>}
         <div style={{ flex: 1 }}/>
         <a className="navbar-item" style={{ padding: "8px", textDecoration: "unset" }} href="https://github.com/felipeal/hidra-web" target="_blank" rel="noreferrer">GitHub</a>
       </div>
@@ -238,7 +234,7 @@ export default function App() {
 
           {/* Code editor */}
           <div className="code-editor" style={{ flex: 1, overflowY: "auto" }}>
-            <CodeEditor machine={machine} assembler={assembler} />
+            <CodeEditor machine={machine} assembler={assembler} displayWrap={displayWrap} />
           </div>
 
           {/* Error messages */}

@@ -79,7 +79,7 @@ export function hasBreakpointAtLine(lineNumber: number): boolean {
 
 let currentPCLineHandle: LineHandle | null = null;
 
-export default function CodeEditor({ machine, assembler }: { machine: Machine, assembler: Assembler }) {
+export default function CodeEditor({ machine, assembler, displayWrap }: { machine: Machine, assembler: Assembler, displayWrap: boolean }) {
   useEffect(() => {
     window.codeMirrorInstance?.on("gutterClick", toggleBreakpoint);
   }, []);
@@ -97,6 +97,6 @@ export default function CodeEditor({ machine, assembler }: { machine: Machine, a
   defineCodeMirrorMode(machine);
 
   return (
-    <CodeMirror options={{ mode: machine.getName(), lineNumbers: true, lineWrapping: true, gutters: ["current-pc-gutter", "breakpoints-gutter", "CodeMirror-linenumbers"] }} editorDidMount={editor => window.codeMirrorInstance = editor} />
+    <CodeMirror options={{ mode: machine.getName(), lineNumbers: true, lineWrapping: displayWrap, gutters: ["current-pc-gutter", "breakpoints-gutter", "CodeMirror-linenumbers"] }} editorDidMount={editor => window.codeMirrorInstance = editor} />
   );
 }
