@@ -32,6 +32,10 @@ export function codeStringToNumber(decOrHex: string): number {
   }
 }
 
+export function memoryStringToNumber(decOrHex: string, { displayHex }: { displayHex: boolean }): number {
+  return parseInt(decOrHex, displayHex ? 16 : 10);
+}
+
 export function charCodeToString(charCode: number): string {
   // Restricted to ASCII to maximize compatibility
   if (charCode >= 32 && charCode <= 126) {

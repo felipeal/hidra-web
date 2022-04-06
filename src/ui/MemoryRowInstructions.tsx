@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Assembler } from "../core/Assembler";
-import { unsignedByteToString, addressToHex, instructionStringToHex } from "../core/Conversions";
+import { unsignedByteToString, addressToHex, instructionStringToHex, memoryStringToNumber } from "../core/Conversions";
 import { Machine } from "../core/Machine";
 import { buildUnsubscribeCallback } from "../core/Utils";
 
@@ -36,7 +36,7 @@ export default function MemoryRowInstructions({ address, machine, assembler, dis
         setIsCurrentPos(newValue === address);
         setIsCurrentInstruction(computeIsCurrentInstruction(address, assembler));
       }),
-      machine.subscribeToEvent(`MEM.${address}`, (newValue) => setValue(String(newValue))),
+      machine.subscribeToEvent(`MEM.${address}`, (newValue) => setValue(unsignedByteToString(newValue as number, { displayHex }))),
       machine.subscribeToEvent(`INS.STR.${address}`, (newValue) => setInstructionString(newValue as string))
     ]);
   }, [machine, assembler, displayHex, address]);
@@ -49,9 +49,10 @@ export default function MemoryRowInstructions({ address, machine, assembler, dis
       <td className="table-address">{displayHex ? addressToHex(address, machine.getMemorySize()) : address}</td>
       <td>
         <input className="table-value" inputMode="numeric" value={value} onChange={(event) => {
-          setValue(String(event.target.value));
+          setValue(event.target.value);
         }} onBlur={(event) => {
-          machine.setMemoryValue(address, Number(event.target.value)); // Write value to memory on focus out
+          // Write value to memory on focus out
+          machine.setMemoryValue(address, memoryStringToNumber(event.target.value, { displayHex }));
           machine.updateInstructionStrings();
         }} onKeyDown={(event) => {
           if (event.key === "ArrowUp" || (event.key === "Enter" && event.shiftKey)) {

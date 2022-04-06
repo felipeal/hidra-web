@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Assembler } from "../core/Assembler";
-import { addressToHex, unsignedByteToString, charCodeToString } from "../core/Conversions";
+import { addressToHex, unsignedByteToString, charCodeToString, memoryStringToNumber } from "../core/Conversions";
 import { Machine } from "../core/Machine";
 import { buildUnsubscribeCallback } from "../core/Utils";
 
@@ -32,9 +32,10 @@ export default function MemoryRowData({ address, machine, assembler, displayHex,
       <td className="table-address">{displayHex ? addressToHex(address, machine.getMemorySize()) : address}</td>
       <td>
         <input className="table-value" inputMode="numeric" value={value} onChange={(event) => {
-          setValue(String(event.target.value));
+          setValue(event.target.value);
         }} onBlur={(event) => {
-          machine.setMemoryValue(address, Number(event.target.value)); // Write value to memory on focus out
+          // Write value to memory on focus out
+          machine.setMemoryValue(address, memoryStringToNumber(event.target.value, { displayHex }));
           machine.updateInstructionStrings();
         }} onKeyDown={(event) => {
           if (event.key === "ArrowUp" || (event.key === "Enter" && event.shiftKey)) {
@@ -46,8 +47,7 @@ export default function MemoryRowData({ address, machine, assembler, displayHex,
           setTimeout(() => (event.target as HTMLInputElement).select(), 0);
         }} />
       </td>
-      {displayChars && <td>{charCodeToString(Number(value))}</td>}
-      {/* // TODO: Recheck "value" on interaction with displayHex/Negative */}
+      {displayChars && <td>{charCodeToString(memoryStringToNumber(value, { displayHex }))}</td>}
       <td style={{ maxWidth: "10rem", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</td>
     </tr>
   );

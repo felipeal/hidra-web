@@ -3,7 +3,7 @@ export class Byte {
   private value: number;
 
   constructor(value = 0) {
-    this.value = (value & 0xFF); // TODO: Review
+    this.value = (value & 0xFF);
   }
 
   public getValue(): number {

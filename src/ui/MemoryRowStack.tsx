@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { addressToHex, unsignedByteToString, charCodeToString } from "../core/Conversions";
+import { addressToHex, unsignedByteToString, charCodeToString, memoryStringToNumber } from "../core/Conversions";
 import { buildUnsubscribeCallback } from "../core/Utils";
 import { Volta } from "../machines/Volta";
 
@@ -37,9 +37,10 @@ export default function MemoryRowStack({ row, address, voltaMachine, displayHex,
       <td className="table-address">{displayHex ? addressToHex(address, voltaMachine.getStackSize()) : address}</td>
       <td>
         <input className={`table-value ${isAboveStackPos ? "table-value-above-sp" : ""}`} inputMode="numeric" value={value} onChange={(event) => {
-          setValue(String(event.target.value));
+          setValue(event.target.value);
         }} onBlur={(event) => {
-          voltaMachine.setStackValue(address, Number(event.target.value)); // Write value to stack on focus out
+          // Write value to memory on focus out
+          voltaMachine.setMemoryValue(address, memoryStringToNumber(event.target.value, { displayHex }));
         }} onKeyDown={(event) => {
           if (event.key === "ArrowUp" || (event.key === "Enter" && event.shiftKey)) {
             focusInput(row - 1);
@@ -50,7 +51,7 @@ export default function MemoryRowStack({ row, address, voltaMachine, displayHex,
           setTimeout(() => (event.target as HTMLInputElement).select(), 0);
         }} />
       </td>
-      {displayChars && <td>{charCodeToString(Number(value))}</td>} {/* // TODO: Recheck on interaction with displayHex/Negative */}
+      {displayChars && <td>{charCodeToString(memoryStringToNumber(value, { displayHex }))}</td>}
     </tr>
   );
 }
