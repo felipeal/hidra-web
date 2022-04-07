@@ -49,9 +49,9 @@ export class Volta extends Machine {
         new Instruction(1, "01010100", InstructionCode.VOLTA_SLS, "sls"),
         new Instruction(1, "01010101", InstructionCode.VOLTA_SGE, "sge"),
         new Instruction(1, "01010110", InstructionCode.VOLTA_SLE, "sle"),
-        new Instruction(1, "01100110", InstructionCode.VOLTA_RTS, "rts"),
+        new Instruction(1, "01100001", InstructionCode.VOLTA_RTS, "rts"),
         new Instruction(2, "011100..", InstructionCode.VOLTA_PSH, "psh a"),
-        new Instruction(2, "100000..", InstructionCode.VOLTA_POP, "pop a"),
+        new Instruction(2, "100000..", InstructionCode.VOLTA_POP, "pop a"), // Reference book uses 011100mm for both PSH and POP (invalid)
         new Instruction(2, "100100..", InstructionCode.VOLTA_JMP, "jmp a"),
         new Instruction(2, "101000..", InstructionCode.VOLTA_JSR, "jsr a"),
         new Instruction(1, "1111....", InstructionCode.VOLTA_HLT, "hlt")

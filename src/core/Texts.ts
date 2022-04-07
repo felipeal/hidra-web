@@ -187,13 +187,13 @@ export class Texts {
 
       case AddressingModeCode.INDEXED_BY_X: return {
         name: "Indexado por X",
-        description: "Endereçamento direto com deslocamento (offset). A soma dos valores de 'a' e do registrador X representa o endereço direto.",
+        description: "Endereçamento direto com deslocamento (offset). O endereço do operando é a soma em complemento de dois dos valores de 'a' e do registrador X.",
         examples: "Exemplos: JMP 128,X | JMP Label,X"
       };
 
       case AddressingModeCode.INDEXED_BY_PC: return {
         name: "Indexado por PC",
-        description: "Endereçamento direto com deslocamento (offset). A soma dos valores de 'a' e do registrador PC representa o endereço direto.",
+        description: "Endereçamento direto com deslocamento (offset). O endereço do operando é a soma em complemento de dois dos valores de 'a' e do registrador PC (endereço da instrução seguinte).",
         examples: "Exemplos: JMP 128,PC | JMP Label,PC"
       };
     }
