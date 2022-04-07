@@ -129,7 +129,7 @@ select, fieldset, button, table, input, .pc-sp-arrow {
 .breakpoint-marker {
   color: #d00;
 }
-.current-pc-gutter {
+.current-instruction-gutter {
   width: .5em;
   margin-left: 3px;
 }
@@ -140,7 +140,7 @@ select, fieldset, button, table, input, .pc-sp-arrow {
 }
 
 /* Line state */
-.current-pc-line, .current-pc-line input:not(:focus) {
+.current-instruction-line, .current-instruction-line input:not(:focus) {
   background-color: rgb(240, 224, 255);
 }
 

@@ -19,6 +19,7 @@ import { Volta } from "../machines/Volta";
 import { Assembler } from "../core/Assembler";
 import { Texts } from "../core/Texts";
 import { ErrorMessage } from "../core/Errors";
+import { scrollToCurrentPCRow, scrollToFirstDataRow, scrollToLastStackRow, scrollToPCLineAndRow } from "./ScrollHandler";
 
 // Global pointer required for CodeMirror persistence between live-reloads
 declare global {
@@ -29,25 +30,6 @@ window.onerror = function myErrorHandler(errorMessage) {
   alert(`Error: ${errorMessage}`);
   return false;
 };
-
-function scrollToFirstInstructionsRow() {
-  const instructionsTable: HTMLElement | null = document.querySelector(".instructions-table");
-  instructionsTable?.scrollTo(0, 0);
-}
-
-function scrollToFirstDataRow() {
-  const firstDataRow: HTMLElement | null = document.querySelector(".first-data-row");
-  if (firstDataRow) {
-    const table = firstDataRow.parentElement!.parentElement!;
-    const header = table.firstChild as HTMLElement;
-    table?.scrollTo(0, firstDataRow.offsetTop - header.offsetHeight);
-  }
-}
-
-function scrollToLastStackRow() {
-  const stackTable: HTMLElement | null = document.querySelector(".stack-table");
-  stackTable?.scrollTo(0, stackTable.scrollHeight);
-}
 
 const initialMachine = new Neander() as Machine;
 const initialAssembler = new Assembler(initialMachine);
@@ -84,17 +66,25 @@ export default function App() {
     // Restore values on machine change
     setRunning(machine.isRunning());
 
-    // Event subscriptions
-    return machine.subscribeToEvent("RUNNING", (value) => setRunning(Boolean(value)));
-  }, [machine]);
-
-  useEffect(() => {
-    scrollToFirstInstructionsRow();
+    // Reset scroll positions
+    scrollToCurrentPCRow(machine);
     scrollToFirstDataRow();
     scrollToLastStackRow();
 
     hideBusy();
+
+    // Event subscriptions
+    return machine.subscribeToEvent("RUNNING", (value) => setRunning(Boolean(value)));
   }, [machine, assembler]);
+
+  useEffect(() => {
+    // Event subscription to follow PC
+    return machine.subscribeToEvent(`REG.${machine.getPCName()}`, () => {
+      if (displayFollowPC) {
+        scrollToPCLineAndRow(machine, assembler);
+      }
+    });
+  }, [machine, assembler, displayFollowPC]);
 
   async function onFileOpened(event: ChangeEvent<HTMLInputElement>) {
     loadFile(event.target.files?.[0]);
@@ -217,8 +207,8 @@ export default function App() {
             machine.setRunning(false);
             setDisplayFast(checked);
           }}/>
+          <SubMenuCheckBox title="Tela segue execução" checked={displayFollowPC} setChecked={setDisplayFollowPC}/>
           {showWIP && <SubMenuCheckBox title="Quebra de linha" checked={displayWrap} setChecked={setDisplayWrap}/>}
-          {showWIP && <SubMenuCheckBox title="Execução segue cursor" checked={displayFollowPC} setChecked={setDisplayFollowPC}/>}
         </Menu>
         <div style={{ flex: 1 }}/>
         <a className="navbar-item" style={{ padding: "8px", textDecoration: "unset" }} href="https://github.com/felipeal/hidra-web" target="_blank" rel="noreferrer">GitHub</a>

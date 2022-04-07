@@ -42,7 +42,7 @@ export default function MemoryRowInstructions({ address, machine, assembler, dis
   }, [machine, assembler, displayHex, address]);
 
   return (
-    <tr className={isCurrentInstruction ? "current-pc-line" : undefined}>
+    <tr className={"instruction-row" + (isCurrentInstruction ? " current-instruction-line" : "")}>
       <td className="monospace-font pc-sp-arrow pc-cell" onClick={() => machine.setPCValue(address)}>
         {isCurrentPos ? "→" : ""}
       </td>

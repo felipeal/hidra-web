@@ -77,7 +77,7 @@ export function hasBreakpointAtLine(lineNumber: number): boolean {
   return Boolean(info?.gutterMarkers?.["breakpoints-gutter"]);
 }
 
-let currentPCLineHandle: LineHandle | null = null;
+let currentInstructionLineHandle: LineHandle | null = null;
 
 export default function CodeEditor({ machine, assembler, displayWrap }: { machine: Machine, assembler: Assembler, displayWrap: boolean }) {
   useEffect(() => {
@@ -86,17 +86,17 @@ export default function CodeEditor({ machine, assembler, displayWrap }: { machin
 
   useEffect(() => {
     return machine.subscribeToEvent("REG.PC", (value) => {
-      currentPCLineHandle && codeMirrorInstance.removeLineClass(currentPCLineHandle, "background", "current-pc-line");
-      currentPCLineHandle && codeMirrorInstance.setGutterMarker(currentPCLineHandle, "current-pc-gutter", null);
-      currentPCLineHandle = codeMirrorInstance.getLineHandle(assembler.getAddressCorrespondingSourceLine(value as number));
-      currentPCLineHandle && codeMirrorInstance.addLineClass(currentPCLineHandle, "background", "current-pc-line");
-      currentPCLineHandle && codeMirrorInstance.setGutterMarker(currentPCLineHandle, "current-pc-gutter", makePCMarker());
+      currentInstructionLineHandle && codeMirrorInstance.removeLineClass(currentInstructionLineHandle, "background", "current-instruction-line");
+      currentInstructionLineHandle && codeMirrorInstance.setGutterMarker(currentInstructionLineHandle, "current-instruction-gutter", null);
+      currentInstructionLineHandle = codeMirrorInstance.getLineHandle(assembler.getAddressCorrespondingSourceLine(value as number));
+      currentInstructionLineHandle && codeMirrorInstance.addLineClass(currentInstructionLineHandle, "background", "current-instruction-line");
+      currentInstructionLineHandle && codeMirrorInstance.setGutterMarker(currentInstructionLineHandle, "current-instruction-gutter", makePCMarker());
     });
   }, [machine, assembler]);
 
   defineCodeMirrorMode(machine);
 
   return (
-    <CodeMirror options={{ mode: machine.getName(), lineNumbers: true, lineWrapping: displayWrap, gutters: ["current-pc-gutter", "breakpoints-gutter", "CodeMirror-linenumbers"] }} editorDidMount={editor => window.codeMirrorInstance = editor} />
+    <CodeMirror options={{ mode: machine.getName(), lineNumbers: true, lineWrapping: displayWrap, gutters: ["current-instruction-gutter", "breakpoints-gutter", "CodeMirror-linenumbers"] }} editorDidMount={editor => window.codeMirrorInstance = editor} />
   );
 }
