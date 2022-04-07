@@ -1,7 +1,9 @@
 import { Assembler } from "../../core/Assembler";
 import { AssemblerErrorCode } from "../../core/Errors";
 import { Machine } from "../../core/Machine";
+import { Volta } from "../../machines/Volta";
 import { Texts } from "../../core/Texts";
+import { assert } from "../../core/Utils";
 
 export function makeFunction_expectBuildSuccess(assembler: Assembler, machine: Machine) {
   return (lines: string|string[], expectedMemory: number[]) => {
@@ -43,6 +45,9 @@ export function makeFunction_expectRunState(assembler: Assembler, machine: Machi
         expect(`${key}: ${machine.isFlagTrue(identifier)}`).toDeepEqual(`${key}: ${expectedValue}`, source);
       } else if (prefix === "m") { // Memory
         expect(`${key}: ${machine.getMemoryValue(Number(identifier))}`).toDeepEqual(`${key}: ${expectedValue}`, source);
+      } else if (prefix === "s") { // Stack
+        assert(machine instanceof Volta, `Invalid machine for stack check: ${machine.getName()}`);
+        expect(`${key}: ${machine.getStackValue(Number(identifier))}`).toDeepEqual(`${key}: ${expectedValue}`, source);
       } else if (key === "isRunning") {
         expect(`${key}: ${machine.isRunning()}`).toDeepEqual(`${key}: ${expectedValue}`, source);
       } else {

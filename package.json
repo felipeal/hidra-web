@@ -58,6 +58,13 @@
       "!src/tests/**",
       "!src/ui/**"
     ],
-    "globalSetup": "./src/tests/utils/globalSetup.js"
+    "globalSetup": "./src/tests/utils/globalSetup.js",
+    "coverageReporters": [
+      "clover",
+      "json",
+      "lcov",
+      "text",
+      "json-summary"
+    ]
   }
 }
