@@ -31,6 +31,20 @@ window.onerror = function myErrorHandler(errorMessage) {
   return false;
 };
 
+// Warn on tab close
+window.onbeforeunload = function (event) {
+  if (isSafeToDiscardSource()) {
+    return null;
+  }
+
+  (event || window.event).returnValue = "";
+  return "";
+};
+
+function isSafeToDiscardSource() {
+  return codeMirrorInstance.isClean() || codeMirrorInstance.getValue().length === 0;
+}
+
 const initialMachine = new Neander() as Machine;
 const initialAssembler = new Assembler(initialMachine);
 
@@ -97,6 +111,11 @@ export default function App() {
       return;
     }
 
+    // Allow user to cancel
+    if (!isSafeToDiscardSource() && !window.confirm("Descartar alterações?")) {
+      return;
+    }
+
     if (file) {
       const fileBuffer = await file.arrayBuffer();
 
@@ -112,6 +131,8 @@ export default function App() {
       machine.setRunning(false);
       const newMachine = buildMachineBasedOnFileName(file.name, machine.getName());
       setState([newMachine, new Assembler(newMachine)]);
+
+      codeMirrorInstance.markClean();
     }
   }
 
