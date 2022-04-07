@@ -137,6 +137,8 @@ describe("Assembler: Build", () => {
     expectSuccess("ADD A #'a'", [50, 97]); // Lowercase
     expectSuccess("ADD A #'A'", [50, 65]); // Uppercase
     expectSuccess("ADD A #'''", [50, 39]); // Literal single quote
+    expectSuccess("ADD A #Label\nLabel: DB 10", [50, 2, 10]); // Immediate label
+    expectSuccess("ADD A #Label+1\nLabel: DB 10", [50, 3, 10]); // Immediate label with offset
   });
 
   test("build: should return multiple first pass errors", () => {

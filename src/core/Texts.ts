@@ -2,8 +2,9 @@ import { AssemblerErrorCode, ErrorMessage } from "./Errors";
 import { AddressingModeCode } from "./AddressingMode";
 import { Machine } from "./Machine";
 import { FlagCode } from "./Flag";
+import { assert } from "./Utils";
 
-interface AddressingModeDescription { acronym: string, name: string, format: string, description: string }
+interface AddressingModeDescription { name: string, description: string, examples: string }
 interface DirectiveDescription { name: string, description: string, examples: string }
 
 export class Texts {
@@ -164,43 +165,53 @@ export class Texts {
     }
   }
 
-  public static getAddressingModeDescription(addressingModeCode: AddressingModeCode): AddressingModeDescription {
+  public static getAddressingModeDescription(addressingModeCode: AddressingModeCode, machine: Machine): AddressingModeDescription {
     switch (addressingModeCode) {
       case AddressingModeCode.DIRECT: return {
-        acronym: "DIR",
         name: "Direto",
-        format: "Formato: a",
-        description: "Valor de 'a' representa o endereço do operando, ou endereço de desvio em operações de jump."
+        description: "Valor de 'a' representa o endereço do operando, ou endereço de desvio em operações de jump.",
+        examples: "Exemplos: JMP 128 | JMP Label | JMP Label+1"
       };
 
       case AddressingModeCode.INDIRECT: return {
-        acronym: "IND",
         name: "Indireto",
-        format: "Formato: a,I (sufixo ,I)",
-        description: "Valor de 'a' representa o endereço que contém o endereço direto."
+        description: "Valor de 'a' representa o endereço que contém o endereço direto.",
+        examples: "Exemplos: JMP 128,I | JMP Label,I"
       };
 
       case AddressingModeCode.IMMEDIATE: return {
-        acronym: "IMD",
         name: "Imediato",
-        format: "Formato: #a (prefixo #)",
-        description: "Valor de 'a' representa não um endereço, mas um valor imediato a ser carregado ou utilizado em operações aritméticas/lógicas."
+        description: "Valor de 'a' representa não um endereço, mas um número ou caractere imediato a ser carregado ou utilizado em operações aritméticas/lógicas.",
+        examples: Texts.getImmediateExamplesText(machine)
       };
 
       case AddressingModeCode.INDEXED_BY_X: return {
-        acronym: "IDX",
         name: "Indexado por X",
-        format: "Formato: a,X (sufixo ,X)",
-        description: "Endereçamento direto com deslocamento (offset). A soma dos valores de 'a' e do registrador X representa o endereço direto."
+        description: "Endereçamento direto com deslocamento (offset). A soma dos valores de 'a' e do registrador X representa o endereço direto.",
+        examples: "Exemplos: JMP 128,X | JMP Label,X"
       };
 
       case AddressingModeCode.INDEXED_BY_PC: return {
-        acronym: "IPC",
         name: "Indexado por PC",
-        format: "Formato: a,PC (sufixo ,PC)",
-        description: "Endereçamento direto com deslocamento (offset). A soma dos valores de 'a' e do registrador PC representa o endereço direto."
+        description: "Endereçamento direto com deslocamento (offset). A soma dos valores de 'a' e do registrador PC representa o endereço direto.",
+        examples: "Exemplos: JMP 128,PC | JMP Label,PC"
       };
     }
+  }
+
+  private static getImmediateExamplesText(machine: Machine): string {
+    let example = null;
+
+    if (machine.hasAssemblyFormat("add a")) {
+      example = "Exemplos: ADD #1 | ADD #'a'";
+    } else if (machine.hasAssemblyFormat("add r a") && machine.hasRegister("A")) {
+      example = "Exemplos: ADD A #1 | ADD A #'a'";
+    } else if (machine.hasAssemblyFormat("psh a")) {
+      example = "Exemplos: PSH #1 | PSH #'a'";
+    }
+
+    assert(example, `No immediate examples available for machine: ${machine.getName()}`);
+    return example;
   }
 
   public static buildErrorMessageText(errorMessage: ErrorMessage): string {

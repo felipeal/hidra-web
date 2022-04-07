@@ -513,4 +513,8 @@ export abstract class Machine extends MachineState {
     }
   }
 
+  public hasAssemblyFormat(assemblyFormat: string): boolean {
+    return Boolean(this.getInstructions().find(i => i.getAssemblyFormat() === assemblyFormat));
+  }
+
 }

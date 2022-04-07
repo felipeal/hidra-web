@@ -2,6 +2,11 @@ import { AddressingModeCode } from "../core/AddressingMode";
 import { Assembler } from "../core/Assembler";
 import { AssemblerErrorCode } from "../core/Errors";
 import { Texts } from "../core/Texts";
+import { Neander } from "../machines/Neander";
+import { Pericles } from "../machines/Pericles";
+import { Queops } from "../machines/Queops";
+import { Ramses } from "../machines/Ramses";
+import { Volta } from "../machines/Volta";
 import { buildMachine, getMachineNames } from "../ui/MachineUtils";
 
 function expectDistinctStrings(items: string[]) {
@@ -31,13 +36,21 @@ describe("Texts", () => {
   });
 
   test("addressing modes: should have distinct descriptions", () => {
-    const addressingModeCodes = Object.keys(AddressingModeCode) as AddressingModeCode[];
-    const descriptions = addressingModeCodes.map(c => Texts.getAddressingModeDescription(c));
+    for (const machine of getMachineNames().map(buildMachine)) {
+      const addressingModeCodes = machine.getAddressingModes().map(m => m.getAddressingModeCode());
+      const descriptions = addressingModeCodes.map(c => Texts.getAddressingModeDescription(c, new Neander()));
 
-    expectDistinctStrings(descriptions.map(d => d.name));
-    expectDistinctStrings(descriptions.map(d => d.description));
-    expectDistinctStrings(descriptions.map(d => d.acronym));
-    expectDistinctStrings(descriptions.map(d => d.format));
+      expectDistinctStrings(descriptions.map(d => d.name));
+      expectDistinctStrings(descriptions.map(d => d.description));
+      expectDistinctStrings(descriptions.map(d => d.examples));
+    }
+  });
+
+  test("addressing modes: should use the correct immediate example for each machine", () => {
+    expect(Texts.getAddressingModeDescription(AddressingModeCode.IMMEDIATE, new Ramses()).examples).toContain("ADD A #1");
+    expect(Texts.getAddressingModeDescription(AddressingModeCode.IMMEDIATE, new Pericles()).examples).toContain("ADD A #1");
+    expect(Texts.getAddressingModeDescription(AddressingModeCode.IMMEDIATE, new Queops()).examples).toContain("ADD #1");
+    expect(Texts.getAddressingModeDescription(AddressingModeCode.IMMEDIATE, new Volta()).examples).toContain("PSH #1");
   });
 
   test("error codes: should have distinct descriptions", () => {

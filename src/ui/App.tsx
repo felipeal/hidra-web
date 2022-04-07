@@ -403,12 +403,12 @@ export default function App() {
                 display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px"
               }}>
                 {machine.getAddressingModes().map((addressingMode, index) => {
-                  const description = Texts.getAddressingModeDescription(addressingMode.getAddressingModeCode());
+                  const description = Texts.getAddressingModeDescription(addressingMode.getAddressingModeCode(), machine);
                   return <div key={index} className="monospace-font" style={{ width: "56px", marginLeft: "16px" }}>
                     <Tippy className="tooltip" content={<span>
                       <strong>{description.name}</strong>
-                      <p>{description.format}</p>
                       <p>{description.description}</p>
+                      <p>{description.examples}</p>
                     </span>}>
                       <span>{addressingMode.getAssemblyPattern().toUpperCase().replace("(.*)", "a") || "a"}</span>
                     </Tippy>
