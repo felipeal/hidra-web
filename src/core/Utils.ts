@@ -15,6 +15,12 @@ export function assert(condition: boolean|NullableObject, message: string): asse
   }
 }
 
+export function rethrowUnless(condition: boolean, error: unknown): asserts condition {
+  if (!condition) {
+    throw error;
+  }
+}
+
 export class RegExpMatcher extends RegExp {
 
   private lastMatch: RegExpMatchArray | null = null;

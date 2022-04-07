@@ -2,7 +2,7 @@ import { AssemblerError, AssemblerErrorCode, ErrorMessage } from "./Errors";
 import { Register } from "./Register";
 import { Instruction } from "./Instruction";
 import { AddressingModeCode } from "./AddressingMode";
-import { buildArray, range, EventCallback, RegExpMatcher, assert, UnsubscribeCallback } from "./Utils";
+import { buildArray, range, EventCallback, RegExpMatcher, assert, UnsubscribeCallback, rethrowUnless } from "./Utils";
 import { Byte } from "./Byte";
 import { Machine } from "./Machine";
 import { codeStringToNumber } from "./Conversions";
@@ -133,15 +133,11 @@ export class Assembler {
         }
 
       } catch (error: unknown) {
-        /* istanbul ignore else */
-        if (error instanceof AssemblerError) {
-          if (this.firstErrorLine === -1) {
-            this.firstErrorLine = lineIndex;
-          }
-          errorMessages.push({ lineNumber: lineIndex + 1, errorCode: error.errorCode });
-        } else {
-          throw error;
+        rethrowUnless(error instanceof AssemblerError, error);
+        if (this.firstErrorLine === -1) {
+          this.firstErrorLine = lineIndex;
         }
+        errorMessages.push({ lineNumber: lineIndex + 1, errorCode: error.errorCode });
       }
     }
 
@@ -172,15 +168,11 @@ export class Assembler {
           }
         }
       } catch (error: unknown) {
-        /* istanbul ignore else */
-        if (error instanceof AssemblerError) {
-          if (this.firstErrorLine === -1) {
-            this.firstErrorLine = lineIndex;
-          }
-          errorMessages.push({ lineNumber: lineIndex + 1, errorCode: error.errorCode });
-        } else {
-          throw error;
+        rethrowUnless(error instanceof AssemblerError, error);
+        if (this.firstErrorLine === -1) {
+          this.firstErrorLine = lineIndex;
         }
+        errorMessages.push({ lineNumber: lineIndex + 1, errorCode: error.errorCode });
       }
     }
 
