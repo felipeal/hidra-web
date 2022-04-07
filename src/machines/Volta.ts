@@ -70,6 +70,7 @@ export class Volta extends Machine {
   public executeInstruction(instruction: Instruction, addressingModeCode: AddressingModeCode, _registerName: string, immediateAddress: number): void {
     let value1: number, value2: number, result: number, bit: number;
     const instructionCode = (instruction) ? instruction.getInstructionCode() : InstructionCode.NOP;
+    const isImmediate = (addressingModeCode === AddressingModeCode.IMMEDIATE); // Used to invalidate immediate jumps
 
     switch (instructionCode) {
 
@@ -282,12 +283,16 @@ export class Volta extends Machine {
         break;
 
       case InstructionCode.VOLTA_JMP:
-        this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
+        if (!isImmediate) {
+          this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
+        }
         break;
 
       case InstructionCode.VOLTA_JSR:
-        this.stackPush(this.getPCValue());
-        this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
+        if (!isImmediate) {
+          this.stackPush(this.getPCValue());
+          this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
+        }
         break;
 
       case InstructionCode.VOLTA_HLT:
