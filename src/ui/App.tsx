@@ -210,7 +210,7 @@ export default function App() {
           }}/>
         </Menu>
         <Menu title="Opções">
-          <SubMenuCheckBox title="Modo hexadecimal" checked={displayHex} setChecked={(checked) => {
+          <SubMenuCheckBox title="Exibir valores hexadecimais" checked={displayHex} setChecked={(checked) => {
             setDisplayHex(checked);
             if (checked) {
               setDisplayNegative(false);
@@ -222,7 +222,7 @@ export default function App() {
               setDisplayHex(false);
             }
           }}/>
-          <SubMenuCheckBox title="Interpretar caracteres" checked={displayChars} setChecked={setDisplayChars}/>
+          <SubMenuCheckBox title="Exibir coluna de caracteres" checked={displayChars} setChecked={setDisplayChars}/>
           <SubMenuSeparator/>
           <SubMenuCheckBox title="Execução rápida" checked={displayFast} setChecked={(checked) => {
             machine.setRunning(false);
