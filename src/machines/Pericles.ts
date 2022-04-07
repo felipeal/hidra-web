@@ -75,7 +75,7 @@ export class Pericles extends Machine {
         return this.toValidAddress(this.memoryReadTwoByteAddress(immediateAddress) + unsignedByteToSigned(this.getRegisterValue("X")));
 
       default:
-        return 0;
+        throw new Error("Unexpected addressing mode code.");
     }
   }
 
@@ -115,7 +115,7 @@ export class Pericles extends Machine {
         break;
 
       default:
-        break;
+        throw new Error("Unexpected addressing mode code.");
     }
 
     return { intermediateAddress, intermediateAddress2, finalOperandAddress };

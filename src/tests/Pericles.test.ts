@@ -175,7 +175,7 @@ describe("Pericles: Run", () => {
     // Load
     expectRunState(["ldr A A2000V30"], addresses, { r_A: 30 });
     expectRunState(["ldr A A1000V2000,I"], addresses, { r_A: 30 });
-    expectRunState(["ldr A #40"], addresses, { r_A: 40 });
+    expectRunState(["ldr A #40"], [], { r_A: 40 });
     expectRunState(["ldr X #2", "ldr A A1000V2000,X"], addresses, { r_A: 21 });
 
     // Store
@@ -190,7 +190,7 @@ describe("Pericles: Run", () => {
     // Arithmetic
     expectRunState(["add A A2000V30"], addresses, { r_A: 30 });
     expectRunState(["add A A1000V2000,I"], addresses, { r_A: 30 });
-    expectRunState(["add A #40"], addresses, { r_A: 40 });
+    expectRunState(["add A #40"], [], { r_A: 40 });
     expectRunState(["ldr X #2", "add A A1000V2000,X"], addresses, { r_A: 21 });
 
     // Jumps

@@ -357,9 +357,6 @@ export abstract class Machine extends MachineState {
 
       case AddressingModeCode.INDEXED_BY_PC:
         return this.toValidAddress(this.memoryRead(immediateAddress) + this.getRegisterValue("PC"));
-
-      default:
-        return 0;
     }
   }
 

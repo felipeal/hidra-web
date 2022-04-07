@@ -154,7 +154,7 @@ describe("Ramses: Run", () => {
     // Load
     expectRunState(["ldr A A10V20"], addresses, { r_A: 20 });
     expectRunState(["ldr A A10V20,I"], addresses, { r_A: 30 });
-    expectRunState(["ldr A #40"], addresses, { r_A: 40 });
+    expectRunState(["ldr A #40"], [], { r_A: 40 });
     expectRunState(["ldr X #1", "ldr A A10V20,X"], addresses, { r_A: 21 });
 
     // Store
