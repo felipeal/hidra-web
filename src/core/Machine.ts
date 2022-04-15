@@ -402,7 +402,7 @@ export abstract class Machine extends MachineState {
     const addressingModeCode = this.extractAddressingModeCode(fetchedValue);
     const registerName = this.extractRegisterName(fetchedValue);
 
-    if (instruction === null || instruction.getInstructionCode() === InstructionCode.NOP || instruction.getInstructionCode() === InstructionCode.VOLTA_NOP) {
+    if (instruction === null || instruction.getInstructionCode() === InstructionCode.NOP) {
       return { memoryString, argumentsSize };
     }
 

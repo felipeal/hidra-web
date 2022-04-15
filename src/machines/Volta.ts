@@ -23,7 +23,7 @@ export class Volta extends Machine {
         new Register("SP", "", 6, false)
       ],
       instructions: [
-        new Instruction(1, "00000000", InstructionCode.VOLTA_NOP, "nop"),
+        new Instruction(1, "00000000", InstructionCode.NOP, "nop"),
         new Instruction(1, "00010001", InstructionCode.VOLTA_ADD, "add"),
         new Instruction(1, "00010010", InstructionCode.VOLTA_SUB, "sub"),
         new Instruction(1, "00010011", InstructionCode.VOLTA_AND, "and"),
@@ -54,7 +54,7 @@ export class Volta extends Machine {
         new Instruction(2, "100000..", InstructionCode.VOLTA_POP, "pop a"), // Reference book uses 011100mm for both PSH and POP (invalid)
         new Instruction(2, "100100..", InstructionCode.VOLTA_JMP, "jmp a"),
         new Instruction(2, "101000..", InstructionCode.VOLTA_JSR, "jsr a"),
-        new Instruction(1, "1111....", InstructionCode.VOLTA_HLT, "hlt")
+        new Instruction(1, "1111....", InstructionCode.HLT, "hlt")
       ],
       addressingModes: [
         new AddressingMode("......00", AddressingModeCode.DIRECT, AddressingMode.NO_PATTERN),
@@ -295,7 +295,7 @@ export class Volta extends Machine {
         }
         break;
 
-      case InstructionCode.VOLTA_HLT:
+      case InstructionCode.HLT:
         this.setRunning(false);
         break;
 

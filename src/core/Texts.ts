@@ -3,6 +3,7 @@ import { AddressingModeCode } from "./AddressingMode";
 import { Machine } from "./Machine";
 import { FlagCode } from "./Flag";
 import { assert } from "./Utils";
+import { Volta } from "../machines/Volta";
 
 interface AddressingModeDescription { name: string, description: string, examples: string }
 interface DirectiveDescription { name: string, description: string, examples: string }
@@ -45,8 +46,8 @@ export class Texts {
     }
   }
 
-  public static getInstructionDescription(assemblyFormat: string, machine: Machine): [name: string, description: string] {
-    if (machine.getName() === "Volta") {
+  public static getInstructionDescription(assemblyFormat: string, machine: Machine | null): [name: string, description: string] {
+    if (machine instanceof Volta) {
       return Texts.getVoltaDescription(assemblyFormat);
     }
 
@@ -73,7 +74,7 @@ export class Texts {
       case "jc a": return ["Jump if Carry", "Se a flag C (carry) estiver ativada, desvia a execução para o endereço 'a'."];
       case "jnc a": return ["Jump if Not Carry", "Se a flag C (carry) estiver desativada, desvia a execução para o endereço 'a'."];
 
-      case "jb a": return ["Jump if Borrow", (machine.hasFlag(FlagCode.BORROW) ?
+      case "jb a": return ["Jump if Borrow", (machine!.hasFlag(FlagCode.BORROW) ?
         "Se a flag B estiver ativada (borrow), desvia a execução para o endereço 'a'." :
         "Se a flag C estiver desativada (borrow), desvia a execução para o endereço 'a'.")
       ];
@@ -97,8 +98,8 @@ export class Texts {
       case "shr r": return ["Shift Right", "Realiza shift lógico dos bits do registrador 'r' para a direita, passando o estado do bit menos significativo para a flag C (carry) e preenchendo o bit mais significativo com 0."];
 
       // Cromag
-      case "str a": return Texts.getInstructionDescription("sta a", machine);
-      case "ldr a": return Texts.getInstructionDescription("lda a", machine);
+      case "str a": return Texts.getInstructionDescription("sta a", machine); // Reuse description
+      case "ldr a": return Texts.getInstructionDescription("lda a", machine); // Reuse description
 
       // Pitagoras
       case "jd a": return ["Jump if Different from Zero", "Se a flag Z estiver desativada (acumulador diferente de zero), desvia a execução para o endereço 'a'."];
@@ -118,7 +119,7 @@ export class Texts {
 
   private static getVoltaDescription(assemblyFormat: string): [string, string] {
     switch (assemblyFormat) {
-      case "nop": return ["No Operation", "Nenhuma operação."];
+      case "nop": return Texts.getInstructionDescription(assemblyFormat, null); // Reuse description
 
       // Arithmetic and logic (two operands)
       case "add": return ["Add", "Desempilha A e B, empilha B + A."];
@@ -159,7 +160,7 @@ export class Texts {
       case "pop a": return ["Pop", "Desempilha o topo da pilha, armazenando-o no endereço de memória 'a'."];
       case "jmp a": return ["Jump", "Desvia a execução para o endereço 'a' (desvio incondicional)."];
       case "jsr a": return ["Jump to Subroutine", "Desvio para sub-rotina: empilha endereço de retorno (instrução seguinte) e desvia para o endereço 'a'."];
-      case "hlt": return ["Halt", "Termina a execução."];
+      case "hlt": return Texts.getInstructionDescription(assemblyFormat, null); // Reuse description
 
       default: throw new Error(`Missing description for assembly format: ${assemblyFormat}`);
     }
