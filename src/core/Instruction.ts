@@ -4,12 +4,12 @@ import { RegExpMatcher } from "./Utils";
 export enum InstructionCode {
   NOP,
   STR, LDR,
-  ADD, OR, AND, NOT, SUB, INC, DEC,
+  ADD, OR, AND, NOT, SUB,
   JMP, JN, JP, JV, JNV, JZ, JNZ, JC, JNC, JB, JNB, JSR,
   NEG, SHR, SHL, ROR, ROL,
   HLT,
 
-  REG_IF,
+  REG_INC, REG_DEC, REG_IF,
 
   VOLTA_NOP,
   VOLTA_ADD, VOLTA_SUB, VOLTA_AND, VOLTA_OR, VOLTA_CLR, VOLTA_NOT, VOLTA_NEG,

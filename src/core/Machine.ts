@@ -163,14 +163,6 @@ export abstract class Machine extends MachineState {
         this.updateFlags(result);
         break;
 
-      case InstructionCode.INC:
-        this.setRegisterValue(registerName, this.getRegisterValue(registerName) + 1);
-        break;
-
-      case InstructionCode.DEC:
-        this.setRegisterValue(registerName, this.getRegisterValue(registerName) - 1);
-        break;
-
       //////////////////////////////////////////////////
       // Jumps
       //////////////////////////////////////////////////
@@ -249,14 +241,6 @@ export abstract class Machine extends MachineState {
         }
         break;
 
-      case InstructionCode.REG_IF:
-        if (this.getRegisterValue(registerName) === 0) {
-          this.setPCValue(this.getMemoryValue(immediateAddress));
-        } else {
-          this.setPCValue(this.getMemoryValue(immediateAddress + 1));
-        }
-        break;
-
       //////////////////////////////////////////////////
       // Halt
       //////////////////////////////////////////////////
@@ -267,6 +251,7 @@ export abstract class Machine extends MachineState {
 
       default: // NOP etc.
         break;
+
     }
 
     this.incrementInstructionCount();

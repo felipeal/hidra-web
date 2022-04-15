@@ -301,6 +301,7 @@ export class Volta extends Machine {
 
       default: // NOP etc.
         break;
+
     }
 
     this.incrementInstructionCount();
