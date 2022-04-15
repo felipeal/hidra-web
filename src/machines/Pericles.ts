@@ -71,7 +71,7 @@ export class Pericles extends Machine {
         return immediateAddress;
 
       case AddressingModeCode.INDEXED_BY_X:
-        // Sum should be done in two's complement
+        // Sum is performed in two's complement
         return this.toValidAddress(this.memoryReadTwoByteAddress(immediateAddress) + unsignedByteToSigned(this.getRegisterValue("X")));
 
       default:
@@ -79,17 +79,17 @@ export class Pericles extends Machine {
     }
   }
 
-  public getNextOperandAddress(): { intermediateAddress: number, intermediateAddress2: number, finalOperandAddress: number } {
+  public getNextOperandAddress(): { intermediateAddress: number, intermediateAddressByte2: number, finalOperandAddress: number } {
     const fetchedValue = this.getMemoryValue(this.getPCValue());
     const instruction = this.getInstructionFromValue(fetchedValue);
     const addressingModeCode = this.extractAddressingModeCode(fetchedValue);
 
     let intermediateAddress = -1;
-    let intermediateAddress2 = -1;
+    let intermediateAddressByte2 = -1;
     let finalOperandAddress = -1;
 
     if (!instruction || instruction.getNumBytes() !== 0) {
-      return { intermediateAddress, intermediateAddress2, finalOperandAddress };
+      return { intermediateAddress, intermediateAddressByte2, finalOperandAddress };
     }
 
     const immediateAddress = this.getPCValue() + 1;
@@ -101,7 +101,7 @@ export class Pericles extends Machine {
 
       case AddressingModeCode.INDIRECT:
         intermediateAddress = this.getMemoryTwoByteAddress(immediateAddress);
-        intermediateAddress2 = this.toValidAddress(intermediateAddress + 1); // Second byte
+        intermediateAddressByte2 = this.toValidAddress(intermediateAddress + 1);
         finalOperandAddress = this.getMemoryTwoByteAddress(intermediateAddress);
         break;
 
@@ -109,8 +109,8 @@ export class Pericles extends Machine {
         finalOperandAddress = immediateAddress;
         break;
 
-      case AddressingModeCode.INDEXED_BY_X: // TODO: Duplicate?
-        // Sum should be done in two's complement
+      case AddressingModeCode.INDEXED_BY_X:
+        // Sum is performed in two's complement
         finalOperandAddress = this.toValidAddress(this.getMemoryTwoByteAddress(immediateAddress) + unsignedByteToSigned(this.getRegisterValue("X")));
         break;
 
@@ -118,7 +118,7 @@ export class Pericles extends Machine {
         throw new Error("Unexpected addressing mode code.");
     }
 
-    return { intermediateAddress, intermediateAddress2, finalOperandAddress };
+    return { intermediateAddress, intermediateAddressByte2, finalOperandAddress };
   }
 
   public generateArgumentsString(address: number, instruction: Instruction, addressingModeCode: AddressingModeCode): { argument: string, argumentsSize: number } {

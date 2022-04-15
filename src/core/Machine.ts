@@ -461,17 +461,17 @@ export abstract class Machine extends MachineState {
   }
 
   // Used to highlight the next operand
-  public getNextOperandAddress(): { intermediateAddress: number, intermediateAddress2: number, finalOperandAddress: number } {
+  public getNextOperandAddress(): { intermediateAddress: number, intermediateAddressByte2: number, finalOperandAddress: number } {
     const fetchedValue = this.getMemoryValue(this.getPCValue());
     const instruction = this.getInstructionFromValue(fetchedValue);
     const addressingModeCode = this.extractAddressingModeCode(fetchedValue);
 
     let intermediateAddress = -1;
-    const intermediateAddress2 = -1;
+    const intermediateAddressByte2 = -1;
     let finalOperandAddress = -1;
 
     if (!instruction || instruction.getNumBytes() !== 2) {
-      return { intermediateAddress, intermediateAddress2, finalOperandAddress };
+      return { intermediateAddress, intermediateAddressByte2, finalOperandAddress };
     }
 
     const immediateAddress = this.toValidAddress(this.getPCValue() + 1);
@@ -499,7 +499,7 @@ export abstract class Machine extends MachineState {
         break;
     }
 
-    return { intermediateAddress, intermediateAddress2, finalOperandAddress };
+    return { intermediateAddress, intermediateAddressByte2, finalOperandAddress };
   }
 
   public getMemoryTwoByteAddress(address: number): number {
