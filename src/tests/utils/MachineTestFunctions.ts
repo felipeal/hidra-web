@@ -3,10 +3,10 @@ import { AssemblerErrorCode } from "../../core/Errors";
 import { Machine } from "../../core/Machine";
 import { Volta } from "../../machines/Volta";
 import { Texts } from "../../core/Texts";
-import { assert } from "../../core/Utils";
+import { assert, range } from "../../core/Utils";
 
 export function makeFunction_expectBuildSuccess(assembler: Assembler, machine: Machine) {
-  return (lines: string|string[], expectedMemory: number[]) => {
+  return (lines: string | string[], expectedMemory: number[]) => {
     const source = Array.isArray(lines) ? lines.join("\n") : lines;
     expect(assembler.build(source).map(Texts.buildErrorMessageText)).toDeepEqual([], source);
     const actualMemory = Object.keys(expectedMemory).map((pos) => machine.getMemoryValue(Number(pos)));
@@ -20,16 +20,16 @@ export function makeFunction_expectBuildSuccess(assembler: Assembler, machine: M
 }
 
 export function makeFunction_expectBuildError(assembler: Assembler) {
-  return (lines: string|string[], errorCode: AssemblerErrorCode, lineNumber = 1) => {
+  return (lines: string | string[], errorCode: AssemblerErrorCode, lineNumber = 1) => {
     const source = Array.isArray(lines) ? lines.join("\n") : lines;
     expect(assembler.build(source).map(Texts.buildErrorMessageText)).toDeepEqual([{ lineNumber, errorCode }].map(Texts.buildErrorMessageText), source);
   };
 }
 
 export function makeFunction_expectRunState(assembler: Assembler, machine: Machine) {
-  return (instructionLines: string[], dataLines: string[], state: Record<string, number|boolean>) => {
+  return (instructionLines: string[], dataLines: string[], state: Record<string, number | boolean>) => {
     const source = instructionLines.join("\n") + "\n\n" + dataLines.join("\n");
-    expect(assembler.build(source)).toDeepEqual([], source);
+    expect(assembler.build(source)).toDeepEqual([], source); // Expect no errors
 
     machine.setRunning(true);
     let remainingInstructions = instructionLines.length;
@@ -54,5 +54,16 @@ export function makeFunction_expectRunState(assembler: Assembler, machine: Machi
         throw new Error("Invalid key on state object: " + key);
       }
     }
+  };
+}
+
+export function makeFunction_expectInstructionStrings(assembler: Assembler, machine: Machine) {
+  return (instructionLines: string[], expectedInstructionStrings: string[]) => {
+    const source = instructionLines.join("\n");
+    expect(assembler.build(source)).toDeepEqual([], source); // Expect no errors
+    machine.updateInstructionStrings();
+
+    const actualInstructionStrings = range(expectedInstructionStrings.length).map((address) => machine.getInstructionString(address));
+    expect(actualInstructionStrings).toDeepEqual(expectedInstructionStrings, source);
   };
 }

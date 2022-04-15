@@ -2,7 +2,7 @@ import { } from "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
 import { AssemblerErrorCode } from "../core/Errors";
 import { Ramses } from "../machines/Ramses";
-import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectRunState } from "./utils/MachineTestFunctions";
+import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings, makeFunction_expectRunState } from "./utils/MachineTestFunctions";
 
 const machine = new Ramses();
 const assembler = new Assembler(machine);
@@ -10,6 +10,7 @@ const assembler = new Assembler(machine);
 const expectBuildSuccess = makeFunction_expectBuildSuccess(assembler, machine);
 const expectBuildError = makeFunction_expectBuildError(assembler);
 const expectRunState = makeFunction_expectRunState(assembler, machine);
+const expectInstructionStrings = makeFunction_expectInstructionStrings(assembler, machine);
 
 describe("Ramses: Build", () => {
 
@@ -197,6 +198,56 @@ describe("Ramses: Run", () => {
     expectRunState(["ldr b V128", "add b V128"], values, { r_A: 0, f_N: false, f_Z: true });
     expectRunState(["ldr x V128", "add x V128"], values, { r_A: 0, f_N: false, f_Z: true });
     expectRunState(["jmp 255", ""], [], { r_PC: 0 });
+  });
+
+});
+
+describe("Ramses: Disassembler", () => {
+
+  test("nop: should be an empty string", () => {
+    expectInstructionStrings(["nop", "hlt"], ["", "HLT"]);
+  });
+
+  test("instructions: should include correct arguments in one string", () => {
+    expectInstructionStrings(["str A 128", "hlt"], ["STR A 128", "", "HLT"]);
+    expectInstructionStrings(["ldr A 128", "hlt"], ["LDR A 128", "", "HLT"]);
+    expectInstructionStrings(["add A 128", "hlt"], ["ADD A 128", "", "HLT"]);
+    expectInstructionStrings(["or A 128", "hlt"], ["OR A 128", "", "HLT"]);
+    expectInstructionStrings(["and A 128", "hlt"], ["AND A 128", "", "HLT"]);
+    expectInstructionStrings(["not A", "hlt"], ["NOT A", "HLT"]);
+    expectInstructionStrings(["sub A 128", "hlt"], ["SUB A 128", "", "HLT"]);
+    expectInstructionStrings(["jmp 128", "hlt"], ["JMP 128", "", "HLT"]);
+    expectInstructionStrings(["jn 128", "hlt"], ["JN 128", "", "HLT"]);
+    expectInstructionStrings(["jz 128", "hlt"], ["JZ 128", "", "HLT"]);
+    expectInstructionStrings(["jc 128", "hlt"], ["JC 128", "", "HLT"]);
+    expectInstructionStrings(["jsr 128", "hlt"], ["JSR 128", "", "HLT"]);
+    expectInstructionStrings(["neg A", "hlt"], ["NEG A", "HLT"]);
+    expectInstructionStrings(["shr A", "hlt"], ["SHR A", "HLT"]);
+    expectInstructionStrings(["hlt", "hlt"], ["HLT", "HLT"]);
+  });
+
+  test("addressing modes: should be interpreted correctly", () => {
+    expectInstructionStrings(["jmp 128", "hlt"], ["JMP 128", "", "HLT"]);
+    expectInstructionStrings(["jmp 128,I", "hlt"], ["JMP 128,I", "", "HLT"]);
+    expectInstructionStrings(["jmp #128", "hlt"], ["JMP #128", "", "HLT"]);
+    expectInstructionStrings(["jmp 128,X", "hlt"], ["JMP 128,X", "", "HLT"]);
+    expectInstructionStrings(["add a 128", "hlt"], ["ADD A 128", "", "HLT"]);
+    expectInstructionStrings(["add a 128,I", "hlt"], ["ADD A 128,I", "", "HLT"]);
+    expectInstructionStrings(["add a #128", "hlt"], ["ADD A #128", "", "HLT"]);
+    expectInstructionStrings(["add a 128,X", "hlt"], ["ADD A 128,X", "", "HLT"]);
+  });
+
+  test("registers: should be interpreted correctly", () => {
+    expectInstructionStrings(["add a 128", "hlt"], ["ADD A 128", "", "HLT"]);
+    expectInstructionStrings(["add b 128", "hlt"], ["ADD B 128", "", "HLT"]);
+    expectInstructionStrings(["add x 128", "hlt"], ["ADD X 128", "", "HLT"]);
+  });
+
+  test("invalid register: should replace with question mark", () => {
+    expectInstructionStrings([
+      "dab 46, 10", // LDR ? #10
+      "dab 28, 0" // STR ? 0
+    ], ["LDR ? #10", "", "STR ? 0"]);
   });
 
 });

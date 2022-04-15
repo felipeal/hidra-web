@@ -1,13 +1,14 @@
 import { } from "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
 import { Neander } from "../machines/Neander";
-import { makeFunction_expectBuildSuccess, makeFunction_expectRunState } from "./utils/MachineTestFunctions";
+import { makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings, makeFunction_expectRunState } from "./utils/MachineTestFunctions";
 
 const machine = new Neander();
 const assembler = new Assembler(machine);
 
 const expectBuildSuccess = makeFunction_expectBuildSuccess(assembler, machine);
 const expectRunState = makeFunction_expectRunState(assembler, machine);
+const expectInstructionStrings = makeFunction_expectInstructionStrings(assembler, machine);
 
 describe("Neander: Build", () => {
 
@@ -92,6 +93,35 @@ describe("Neander: Run", () => {
   test("registers: should overflow at 256", () => {
     expectRunState(["lda V128", "add V128"], values, { r_AC: 0, f_N: false, f_Z: true });
     expectRunState(["jmp 255", ""], [], { r_PC: 0 });
+  });
+
+});
+
+describe("Neander: Disassembler", () => {
+
+  test("nop: should be an empty string", () => {
+    expectInstructionStrings(["nop", "hlt"], ["", "HLT"]);
+  });
+
+  test("invalid opcodes: should be empty strings", () => {
+    expectInstructionStrings(["db hB0", "hlt"], ["", "HLT"]);
+    expectInstructionStrings(["db hC0", "hlt"], ["", "HLT"]);
+    expectInstructionStrings(["db hD0", "hlt"], ["", "HLT"]);
+    expectInstructionStrings(["db hE0", "hlt"], ["", "HLT"]);
+  });
+
+  test("instructions: should include correct arguments in one string", () => {
+    expectInstructionStrings(["nop", "hlt"], ["", "HLT"]);
+    expectInstructionStrings(["sta 128", "hlt"], ["STA 128", "", "HLT"]);
+    expectInstructionStrings(["lda 128", "hlt"], ["LDA 128", "", "HLT"]);
+    expectInstructionStrings(["add 128", "hlt"], ["ADD 128", "", "HLT"]);
+    expectInstructionStrings(["or 128", "hlt"], ["OR 128", "", "HLT"]);
+    expectInstructionStrings(["and 128", "hlt"], ["AND 128", "", "HLT"]);
+    expectInstructionStrings(["not", "hlt"], ["NOT", "HLT"]);
+    expectInstructionStrings(["jmp 128", "hlt"], ["JMP 128", "", "HLT"]);
+    expectInstructionStrings(["jn 128", "hlt"], ["JN 128", "", "HLT"]);
+    expectInstructionStrings(["jz 128", "hlt"], ["JZ 128", "", "HLT"]);
+    expectInstructionStrings(["hlt", "hlt"], ["HLT", "HLT"]);
   });
 
 });

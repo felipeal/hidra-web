@@ -2,7 +2,7 @@ import { } from "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
 import { AssemblerErrorCode } from "../core/Errors";
 import { Pericles } from "../machines/Pericles";
-import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectRunState } from "./utils/MachineTestFunctions";
+import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings, makeFunction_expectRunState } from "./utils/MachineTestFunctions";
 
 const machine = new Pericles();
 const assembler = new Assembler(machine);
@@ -10,6 +10,7 @@ const assembler = new Assembler(machine);
 const expectBuildSuccess = makeFunction_expectBuildSuccess(assembler, machine);
 const expectBuildError = makeFunction_expectBuildError(assembler);
 const expectRunState = makeFunction_expectRunState(assembler, machine);
+const expectInstructionStrings = makeFunction_expectInstructionStrings(assembler, machine);
 
 describe("Pericles: Build", () => {
 
@@ -217,6 +218,56 @@ describe("Pericles: Run", () => {
     expectRunState(["ldr b V128", "add b V128"], values, { r_A: 0, f_N: false, f_Z: true });
     expectRunState(["ldr x V128", "add x V128"], values, { r_A: 0, f_N: false, f_Z: true });
     expectRunState(["jmp 4095", ""], [], { r_PC: 0 });
+  });
+
+});
+
+describe("Pericles: Disassembler", () => {
+
+  test("nop: should be an empty string", () => {
+    expectInstructionStrings(["nop", "hlt"], ["", "HLT"]);
+  });
+
+  test("instructions: should include correct arguments in one string", () => {
+    expectInstructionStrings(["str A 2049", "hlt"], ["STR A 2049", "", "", "HLT"]);
+    expectInstructionStrings(["ldr A 2049", "hlt"], ["LDR A 2049", "", "", "HLT"]);
+    expectInstructionStrings(["add A 2049", "hlt"], ["ADD A 2049", "", "", "HLT"]);
+    expectInstructionStrings(["or A 2049", "hlt"], ["OR A 2049", "", "", "HLT"]);
+    expectInstructionStrings(["and A 2049", "hlt"], ["AND A 2049", "", "", "HLT"]);
+    expectInstructionStrings(["not A", "hlt"], ["NOT A", "HLT"]);
+    expectInstructionStrings(["sub A 2049", "hlt"], ["SUB A 2049", "", "", "HLT"]);
+    expectInstructionStrings(["jmp 2049", "hlt"], ["JMP 2049", "", "", "HLT"]);
+    expectInstructionStrings(["jn 2049", "hlt"], ["JN 2049", "", "", "HLT"]);
+    expectInstructionStrings(["jz 2049", "hlt"], ["JZ 2049", "", "", "HLT"]);
+    expectInstructionStrings(["jc 2049", "hlt"], ["JC 2049", "", "", "HLT"]);
+    expectInstructionStrings(["jsr 2049", "hlt"], ["JSR 2049", "", "", "HLT"]);
+    expectInstructionStrings(["neg A", "hlt"], ["NEG A", "HLT"]);
+    expectInstructionStrings(["shr A", "hlt"], ["SHR A", "HLT"]);
+    expectInstructionStrings(["hlt", "hlt"], ["HLT", "HLT"]);
+  });
+
+  test("addressing modes: should be interpreted correctly", () => {
+    expectInstructionStrings(["jmp 2049", "hlt"], ["JMP 2049", "", "", "HLT"]);
+    expectInstructionStrings(["jmp 2049,I", "hlt"], ["JMP 2049,I", "", "", "HLT"]);
+    expectInstructionStrings(["jmp #128", "hlt"], ["JMP #128", "", "HLT"]);
+    expectInstructionStrings(["jmp 2049,X", "hlt"], ["JMP 2049,X", "", "", "HLT"]);
+    expectInstructionStrings(["add a 2049", "hlt"], ["ADD A 2049", "", "", "HLT"]);
+    expectInstructionStrings(["add a 2049,I", "hlt"], ["ADD A 2049,I", "", "", "HLT"]);
+    expectInstructionStrings(["add a #128", "hlt"], ["ADD A #128", "", "HLT"]);
+    expectInstructionStrings(["add a 2049,X", "hlt"], ["ADD A 2049,X", "", "", "HLT"]);
+  });
+
+  test("registers: should be interpreted correctly", () => {
+    expectInstructionStrings(["add a 2049", "hlt"], ["ADD A 2049", "", "", "HLT"]);
+    expectInstructionStrings(["add b 2049", "hlt"], ["ADD B 2049", "", "", "HLT"]);
+    expectInstructionStrings(["add x 2049", "hlt"], ["ADD X 2049", "", "", "HLT"]);
+  });
+
+  test("invalid register: should replace with question mark", () => {
+    expectInstructionStrings([
+      "dab 46, 10", // LDR ? #10
+      "dab 28, 0" // STR ? 0
+    ], ["LDR ? #10", "", "STR ? 0"]);
   });
 
 });

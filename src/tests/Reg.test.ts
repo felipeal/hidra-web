@@ -1,7 +1,7 @@
 import { } from "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
 import { Reg } from "../machines/Reg";
-import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectRunState } from "./utils/MachineTestFunctions";
+import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings, makeFunction_expectRunState } from "./utils/MachineTestFunctions";
 import { AssemblerErrorCode } from "../core/Errors";
 import { range } from "../core/Utils";
 
@@ -11,6 +11,7 @@ const assembler = new Assembler(machine);
 const expectBuildSuccess = makeFunction_expectBuildSuccess(assembler, machine);
 const expectBuildError = makeFunction_expectBuildError(assembler);
 const expectRunState = makeFunction_expectRunState(assembler, machine);
+const expectInstructionStrings = makeFunction_expectInstructionStrings(assembler, machine);
 
 describe("Reg: Build", () => {
 
@@ -60,6 +61,21 @@ describe("Reg: Run", () => {
 
     // Halt
     expectRunState(["hlt", "inc R0"], [], { isRunning: false, r_R0: 0, r_PC: 1 });
+  });
+
+});
+
+describe("Reg: Disassembler", () => {
+
+  test("instructions: should include correct arguments in one string", () => {
+    expectInstructionStrings(["inc R0", "hlt"], ["INC R0", "HLT"]);
+    expectInstructionStrings(["dec R0", "hlt"], ["DEC R0", "HLT"]);
+    expectInstructionStrings(["if R0 10 20", "hlt"], ["IF R0 10 20", "", "", "HLT"]);
+  });
+
+  test("registers: should be interpreted correctly", () => {
+    expectInstructionStrings(["inc R0", "hlt"], ["INC R0", "HLT"]);
+    expectInstructionStrings(["inc R63", "hlt"], ["INC R63", "HLT"]);
   });
 
 });
