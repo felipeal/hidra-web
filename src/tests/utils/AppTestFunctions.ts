@@ -16,6 +16,11 @@ export function selectMachine(machineName: string): void {
   runPendingTimers();
 }
 
+export function getSelectedMachine(): string {
+  const machineSelect = screen.getByTestId<HTMLSelectElement>("machine-select");
+  return machineSelect.options[machineSelect.selectedIndex].text;
+}
+
 export function setSourceCode(lines: string | string[]): void {
   codeMirrorInstance.setValue(Array.isArray(lines) ? lines.join("\n") : lines);
 }

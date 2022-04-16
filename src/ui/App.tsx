@@ -100,13 +100,13 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
   }, [machine, assembler, displayFollowPC]);
 
   async function onFileOpened(event: ChangeEvent<HTMLInputElement>) {
-    loadFile(event.target.files?.[0]);
+    await loadFile(event.target.files?.[0]);
   }
 
   async function loadFile(file: File | null | undefined) {
     // Detect binary files
     if (file?.name.endsWith(".mem")) {
-      loadBinaryFile(file);
+      await loadBinaryFile(file);
       return;
     }
 
@@ -137,7 +137,7 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
 
   async function onMemoryImported(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
-    loadBinaryFile(file);
+    await loadBinaryFile(file);
   }
 
   async function loadBinaryFile(file: File | undefined) {
@@ -168,7 +168,7 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
         // If dropped items aren't files, reject them
         if (event.dataTransfer.items[i].kind === "file") {
           const file = event.dataTransfer.items[i].getAsFile();
-          loadFile(file);
+          await loadFile(file);
         }
       }
     }}>
@@ -188,7 +188,7 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
           <SubMenuItem title="Salvar" callback={() => {
             const sourceCode = window.codeMirrorInstance.getValue();
             const file = new Blob([sourceCode], { type: "plain-text" });
-            if (saveFileAnchor?.current) {
+            if (saveFileAnchor!.current) {
               saveFileAnchor.current.href = URL.createObjectURL(file);
               saveFileAnchor.current.download = generateFileNameForMachine(machine);
               saveFileAnchor.current.click();
@@ -201,10 +201,10 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
           <SubMenuItem title="Exportar memória" callback={() => {
             const memory = exportMemory(machine);
             const file = new Blob([memory], { type: "application/octet-stream" });
-            if (saveFileAnchor?.current) {
-              saveFileAnchor.current.href = URL.createObjectURL(file);
-              saveFileAnchor.current.download = generateFileNameForMachine(machine, { isBinary: true });
-              saveFileAnchor.current.click();
+            if (exportMemoryAnchor!.current) {
+              exportMemoryAnchor.current.href = URL.createObjectURL(file);
+              exportMemoryAnchor.current.download = generateFileNameForMachine(machine, { isBinary: true });
+              exportMemoryAnchor.current.click();
             }
           }}/>
         </Menu>
@@ -421,10 +421,10 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
           <div className="show-if-busy" style={{ display: "flex", width: "100%", flex: 1, justifyContent: "center", alignItems: "center" }}>Inicializando...</div>
 
           {/* File loaders (not visible) */}
-          <input type="file" ref={openFileInput} style={{ display: "none" }} onChange={onFileOpened}/>
-          <a ref={saveFileAnchor} style={{ display: "none" }}/>
-          <input type="file" ref={importMemoryInput} style={{ display: "none" }} onChange={onMemoryImported}/>
-          <a ref={exportMemoryAnchor} style={{ display: "none" }}/>
+          <input type="file" ref={openFileInput} style={{ display: "none" }} data-testid="open-file-input" onChange={onFileOpened} />
+          <a ref={saveFileAnchor} style={{ display: "none" }} data-testid="save-file-anchor" />
+          <input type="file" ref={importMemoryInput} style={{ display: "none" }} data-testid="import-memory-input" onChange={onMemoryImported} />
+          <a ref={exportMemoryAnchor} style={{ display: "none" }} data-testid="export-memory-anchor"/>
 
         </div>
 
