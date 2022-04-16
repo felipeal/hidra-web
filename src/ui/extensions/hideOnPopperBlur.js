@@ -1,6 +1,8 @@
 // Causes a popper to hide if no elements within it are in focus.
 // Source: https://atomiks.github.io/tippyjs/v6/plugins/#hideonpopperblur
 
+/* istanbul ignore file */
+
 export const hideOnPopperBlur = {
   name: "hideOnPopperBlur",
   defaultValue: true,
