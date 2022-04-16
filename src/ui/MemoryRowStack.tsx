@@ -33,7 +33,9 @@ export default function MemoryRowStack({ row, address, voltaMachine, displayHex,
 
   return (
     <tr>
-      <td className="monospace-font pc-sp-arrow">{isCurrentStackPos ? "→" : ""}</td>
+      <td className="monospace-font pc-sp-arrow pc-sp-cell" onClick={() => voltaMachine.setSPValue(address)}>
+        {isCurrentStackPos ? "→" : ""}
+      </td>
       <td className="table-address">{displayHex ? addressToHex(address, voltaMachine.getStackSize()) : address}</td>
       <td>
         <input className={`table-value ${isAboveStackPos ? "table-value-above-sp" : ""}`} inputMode="numeric" value={value} onChange={(event) => {

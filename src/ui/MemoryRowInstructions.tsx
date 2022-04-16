@@ -43,7 +43,7 @@ export default function MemoryRowInstructions({ address, machine, assembler, dis
 
   return (
     <tr className={"instruction-row" + (isCurrentInstruction ? " current-instruction-line" : "")}>
-      <td className="monospace-font pc-sp-arrow pc-cell" onClick={() => machine.setPCValue(address)}>
+      <td className="monospace-font pc-sp-arrow pc-sp-cell" onClick={() => machine.setPCValue(address)}>
         {isCurrentPos ? "→" : ""}
       </td>
       <td className="table-address">{displayHex ? addressToHex(address, machine.getMemorySize()) : address}</td>
