@@ -121,7 +121,9 @@ export class Pericles extends Machine {
     return { intermediateAddress, intermediateAddressByte2, finalOperandAddress };
   }
 
-  public generateArgumentsString(address: number, instruction: Instruction, addressingModeCode: AddressingModeCode): { argument: string, argumentsSize: number } {
+  public generateArgumentsString(
+    address: number, instruction: Instruction, addressingModeCode: AddressingModeCode
+  ): { argument: string, argumentsSize: number } {
     const addressingModePattern = this.getAddressingModePattern(addressingModeCode);
 
     // Calculate size of argument

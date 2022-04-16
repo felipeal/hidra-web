@@ -12,7 +12,9 @@ import FlagWidget from "./FlagWidget";
 import RegisterWidget from "./RegisterWidget";
 import Information from "./Information";
 import { Menu, SubMenuCheckBox, SubMenuItem, SubMenuSeparator } from "./Menus";
-import { buildMachine, buildMachineBasedOnFileName, exportMemory, FileError, generateFileNameForMachine, getMachineNames, importMemory, resetPCAndSP } from "./MachineUtils";
+import { buildMachine, buildMachineBasedOnFileName, exportMemory, FileError, generateFileNameForMachine, getMachineNames, importMemory, resetPCAndSP }
+  from "./MachineUtils";
+
 import { Machine } from "../core/Machine";
 import { Neander } from "../machines/Neander";
 import { Volta } from "../machines/Volta";
@@ -231,7 +233,9 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
           {showWIP && <SubMenuCheckBox title="Quebra de linha" checked={displayWrap} setChecked={setDisplayWrap}/>}
         </Menu>
         <div style={{ flex: 1 }}/>
-        <a className="navbar-item" style={{ padding: "8px", textDecoration: "unset" }} href="https://github.com/felipeal/hidra-web" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="https://github.com/felipeal/hidra-web" target="_blank" rel="noreferrer" className="navbar-item" style={{
+          padding: "8px", textDecoration: "unset"
+        }}>GitHub</a>
       </div>
 
       <div style={{ height: `calc(100vh - 32px - ${navBarHeightPx}px)`, display: "flex", margin: "16px", gap: "16px" }}>
@@ -248,7 +252,9 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
           </div>
 
           {/* Error messages */}
-          {(errorMessages.length > 0) && <div className="error-messages-area monospace-font" style={{ flex: 0.125, marginTop: "16px", overflow: "auto", padding: "4px" }}>
+          {(errorMessages.length > 0) && <div className="error-messages-area monospace-font" style={{
+            flex: 0.125, marginTop: "16px", overflow: "auto", padding: "4px"
+          }}>
             {errorMessages.map((errorMessage, index) => {
               return <span className="error-message" key={index} onClick={() => {
                 codeMirrorInstance.setSelection({ line: errorMessage.lineNumber - 1, ch: Infinity }, { line: errorMessage.lineNumber - 1, ch: 0 });
@@ -266,18 +272,20 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
         <div style={{ width: "360px", minWidth: "360px", display: "inline-flex", flexDirection: "column", overflowY: "auto" }}>
 
           {/* Machine select */}
-          <select className="hide-if-busy" value={machine.getName()} data-testid="machine-select" onChange={(event: ChangeEvent<HTMLSelectElement>) => {
-            machine.setRunning(false);
-            clearTimeout(timeout);
+          <select className="hide-if-busy" value={machine.getName()} data-testid="machine-select" onChange={
+            (event: ChangeEvent<HTMLSelectElement>) => {
+              machine.setRunning(false);
+              clearTimeout(timeout);
 
-            const newMachine = buildMachine(event.target.value);
+              const newMachine = buildMachine(event.target.value);
 
-            showBusy();
-            setTimeout(() => {
-              setErrorMessages([]);
-              setState([newMachine, new Assembler(newMachine)]);
-            });
-          }}>
+              showBusy();
+              setTimeout(() => {
+                setErrorMessages([]);
+                setState([newMachine, new Assembler(newMachine)]);
+              });
+            }
+          }>
             {getMachineNames().map((name, index) => {
               return <option key={index} value={name}>{name}</option>;
             })}
@@ -298,7 +306,9 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
           {/* Registers */}
           <fieldset className="hide-if-busy" style={{ paddingTop: "32px", paddingBottom: "32px", overflow: "auto" }}>
             <legend>Registradores</legend>
-            <div style={{ display: "grid", justifyContent: "center", gridTemplateColumns: "112px 112px", justifyItems: "center", gap: "16px", flexWrap: "wrap" }}>
+            <div style={{
+              display: "grid", justifyContent: "center", gridTemplateColumns: "112px 112px", justifyItems: "center", gap: "16px", flexWrap: "wrap"
+            }}>
               {machine.getRegisters().map((register, index) => {
                 return <RegisterWidget key={index} name={register.getName()} machine={machine} displayHex={displayHex} displayNegative={displayNegative} />;
               })}
@@ -418,7 +428,9 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
           )}
 
           {/* Busy state */}
-          <div className="show-if-busy" style={{ display: "flex", width: "100%", flex: 1, justifyContent: "center", alignItems: "center" }}>Inicializando...</div>
+          <div className="show-if-busy" style={{
+            display: "flex", width: "100%", flex: 1, justifyContent: "center", alignItems: "center"
+          }}>Inicializando...</div>
 
           {/* File loaders (not visible) */}
           <input type="file" ref={openFileInput} style={{ display: "none" }} data-testid="open-file-input" onChange={onFileOpened} />
@@ -433,7 +445,9 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
           ********************************************************************/}
 
         {/* Instructions memory area */}
-        <table className="instructions-table" data-testid="instructions-table" style={{ height: "100%", display: "block", overflowY: "scroll", minWidth: "10rem" }}>
+        <table className="instructions-table" data-testid="instructions-table" style={{
+          height: "100%", display: "block", overflowY: "scroll", minWidth: "10rem"
+        }}>
           <thead>
             <tr>
               <th>PC</th>
@@ -450,7 +464,9 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
         </table>
 
         {/* Data memory area */}
-        <table className="data-table" data-testid="data-table" style={{ height: "100%", display: "block", overflowY: "scroll", tableLayout: "fixed", minWidth: "10rem" }}>
+        <table className="data-table" data-testid="data-table" style={{
+          height: "100%", display: "block", overflowY: "scroll", tableLayout: "fixed", minWidth: "10rem"
+        }}>
           <thead>
             <tr>
               <th>End.</th>
@@ -469,7 +485,9 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
         </table>
 
         {/* Stack memory area */}
-        {machine instanceof Volta && <table className="stack-table" data-testid="stack-table" style={{ height: "100%", display: "block", overflowY: "scroll", minWidth: "8rem" }}>
+        {machine instanceof Volta && <table className="stack-table" data-testid="stack-table" style={{
+          height: "100%", display: "block", overflowY: "scroll", minWidth: "8rem"
+        }}>
           <thead>
             <tr>
               <th>SP</th>

@@ -61,7 +61,9 @@ export class Reg extends Machine {
     this.incrementInstructionCount();
   }
 
-  public generateArgumentsString(address: number, instruction: Instruction, _addressingModeCode: AddressingModeCode): { argument: string, argumentsSize: number } {
+  public generateArgumentsString(
+    address: number, instruction: Instruction, _addressingModeCode: AddressingModeCode
+  ): { argument: string, argumentsSize: number } {
     const argument = String(this.getMemoryValue(address + 1)) + " " + String(this.getMemoryValue(address + 2)); // IF instruction's arguments
     const argumentsSize = instruction.getNumBytes() - 1;
 

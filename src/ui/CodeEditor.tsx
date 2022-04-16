@@ -97,6 +97,9 @@ export default function CodeEditor({ machine, assembler, displayWrap }: { machin
   defineCodeMirrorMode(machine);
 
   return (
-    <CodeMirror options={{ mode: machine.getName(), lineNumbers: true, lineWrapping: displayWrap, gutters: ["current-instruction-gutter", "breakpoints-gutter", "CodeMirror-linenumbers"] }} editorDidMount={editor => window.codeMirrorInstance = editor} />
+    <CodeMirror options={{
+      mode: machine.getName(), lineNumbers: true, lineWrapping: displayWrap,
+      gutters: ["current-instruction-gutter", "breakpoints-gutter", "CodeMirror-linenumbers"]
+    }} editorDidMount={editor => window.codeMirrorInstance = editor} />
   );
 }

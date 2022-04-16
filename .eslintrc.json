@@ -69,7 +69,8 @@
     "prefer-const": "warn",
     "object-curly-spacing": ["warn", "always"],
     "no-empty": "warn",
-    "no-var": "warn"
+    "no-var": "warn",
+    "max-len": ["warn", { "code": 160 }]
   },
   "overrides": [
     {

@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+
 import { AssemblerErrorCode, ErrorMessage } from "./Errors";
 import { AddressingModeCode } from "./AddressingMode";
 import { Machine } from "./Machine";

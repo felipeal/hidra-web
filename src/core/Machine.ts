@@ -23,7 +23,9 @@ export abstract class Machine extends MachineState {
     return { fetchedValue, instruction };
   }
 
-  public decodeInstruction(fetchedValue: number, instruction: Instruction | null): { addressingModeCode: AddressingModeCode, registerName: string, immediateAddress: number } {
+  public decodeInstruction(
+    fetchedValue: number, instruction: Instruction | null
+  ): { addressingModeCode: AddressingModeCode, registerName: string, immediateAddress: number } {
     const addressingModeCode = this.extractAddressingModeCode(fetchedValue);
     const registerName = this.extractRegisterName(fetchedValue);
     let immediateAddress = 0;
@@ -424,7 +426,9 @@ export abstract class Machine extends MachineState {
     return { memoryString, argumentsSize };
   }
 
-  public generateArgumentsString(address: number, instruction: Instruction, addressingModeCode: AddressingModeCode): { argument: string, argumentsSize: number } {
+  public generateArgumentsString(
+    address: number, instruction: Instruction, addressingModeCode: AddressingModeCode
+  ): { argument: string, argumentsSize: number } {
     let argument = String(this.getMemoryValue(address + 1));
     const addressingModePattern = this.getAddressingModePattern(addressingModeCode);
 
