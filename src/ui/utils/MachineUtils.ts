@@ -1,13 +1,13 @@
-import { Machine } from "../core/Machine";
-import { Ahmes } from "../machines/Ahmes";
-import { Cromag } from "../machines/Cromag";
-import { Neander } from "../machines/Neander";
-import { Pericles } from "../machines/Pericles";
-import { Pitagoras } from "../machines/Pitagoras";
-import { Queops } from "../machines/Queops";
-import { Ramses } from "../machines/Ramses";
-import { Reg } from "../machines/Reg";
-import { Volta } from "../machines/Volta";
+import { Machine } from "../../core/Machine";
+import { Ahmes } from "../../core/machines/Ahmes";
+import { Cromag } from "../../core/machines/Cromag";
+import { Neander } from "../../core/machines/Neander";
+import { Pericles } from "../../core/machines/Pericles";
+import { Pitagoras } from "../../core/machines/Pitagoras";
+import { Queops } from "../../core/machines/Queops";
+import { Ramses } from "../../core/machines/Ramses";
+import { Reg } from "../../core/machines/Reg";
+import { Volta } from "../../core/machines/Volta";
 
 export function buildMachine(machineName: string): Machine {
   switch (machineName) {

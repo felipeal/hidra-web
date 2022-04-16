@@ -1,9 +1,9 @@
-import { Machine } from "../core/Machine";
-import { Register } from "../core/Register";
-import { Flag, FlagCode } from "../core/Flag";
-import { Instruction, InstructionCode } from "../core/Instruction";
-import { AddressingMode, AddressingModeCode } from "../core/AddressingMode";
-import { unsignedByteToSigned } from "../core/Conversions";
+import { Machine } from "../Machine";
+import { Register } from "../Register";
+import { Flag, FlagCode } from "../Flag";
+import { Instruction, InstructionCode } from "../Instruction";
+import { AddressingMode, AddressingModeCode } from "../AddressingMode";
+import { unsignedByteToSigned } from "../utils/Conversions";
 
 export class Pericles extends Machine {
 

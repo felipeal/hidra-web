@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { addressToHex, unsignedByteToString, charCodeToString, uncheckedByteStringToNumber } from "../core/Conversions";
-import { buildUnsubscribeCallback } from "../core/EventUtils";
-import { Volta } from "../machines/Volta";
+import { addressToHex, unsignedByteToString, charCodeToString, uncheckedByteStringToNumber } from "../core/utils/Conversions";
+import { buildUnsubscribeCallback } from "../core/utils/EventUtils";
+import { Volta } from "../core/machines/Volta";
 
 function focusInput(row: number) {
   const tableInputs = document.querySelectorAll(".stack-table .table-value");

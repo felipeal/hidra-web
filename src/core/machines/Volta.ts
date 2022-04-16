@@ -1,10 +1,10 @@
-import { Machine } from "../core/Machine";
-import { Register } from "../core/Register";
-import { Instruction, InstructionCode } from "../core/Instruction";
-import { AddressingMode, AddressingModeCode } from "../core/AddressingMode";
-import { Byte } from "../core/Byte";
-import { buildArray, range, isPowerOfTwo, assert } from "../core/FunctionUtils";
-import { unsignedByteToSigned as toSigned } from "../core/Conversions";
+import { Machine } from "../Machine";
+import { Register } from "../Register";
+import { Instruction, InstructionCode } from "../Instruction";
+import { AddressingMode, AddressingModeCode } from "../AddressingMode";
+import { Byte } from "../Byte";
+import { buildArray, range, isPowerOfTwo, assert } from "../utils/FunctionUtils";
+import { unsignedByteToSigned as toSigned } from "../utils/Conversions";
 
 export class Volta extends Machine {
 

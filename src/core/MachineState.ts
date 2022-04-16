@@ -3,9 +3,9 @@ import { Flag, FlagCode } from "./Flag";
 import { Instruction } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
 import { Byte } from "./Byte";
-import { buildArray, range, assert, isPowerOfTwo } from "./FunctionUtils";
-import { EventCallback, UnsubscribeCallback } from "./EventUtils";
-import { bitPatternToUnsignedByte } from "./Conversions";
+import { buildArray, range, assert, isPowerOfTwo } from "./utils/FunctionUtils";
+import { EventCallback, UnsubscribeCallback } from "./utils/EventUtils";
+import { bitPatternToUnsignedByte } from "./utils/Conversions";
 
 interface MachineSettings {
   name: string,

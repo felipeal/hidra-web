@@ -1,8 +1,8 @@
-import { Machine } from "../core/Machine";
-import { Register } from "../core/Register";
-import { Flag, FlagCode } from "../core/Flag";
-import { Instruction, InstructionCode } from "../core/Instruction";
-import { AddressingMode, AddressingModeCode } from "../core/AddressingMode";
+import { Machine } from "../Machine";
+import { Register } from "../Register";
+import { Flag, FlagCode } from "../Flag";
+import { Instruction, InstructionCode } from "../Instruction";
+import { AddressingMode, AddressingModeCode } from "../AddressingMode";
 
 export class Queops extends Machine {
 

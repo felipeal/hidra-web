@@ -1,6 +1,6 @@
 import { } from "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
-import { Ahmes } from "../machines/Ahmes";
+import { Ahmes } from "../core/machines/Ahmes";
 import { makeFunction_expectBuildSuccess, makeFunction_expectRunState } from "./utils/MachineTestFunctions";
 
 const machine = new Ahmes();

@@ -1,7 +1,7 @@
 import { } from "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
-import { AssemblerErrorCode } from "../core/AssemblerErrors";
-import { Ramses } from "../machines/Ramses";
+import { AssemblerErrorCode } from "../core/AssemblerError";
+import { Ramses } from "../core/machines/Ramses";
 import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess } from "./utils/MachineTestFunctions";
 
 const machine = new Ramses();

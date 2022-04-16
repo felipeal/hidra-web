@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { registerValueToString } from "../core/Conversions";
+import { registerValueToString } from "../core/utils/Conversions";
 import { Machine } from "../core/Machine";
 
 export default function RegisterWidget({ name, machine, displayHex, displayNegative }:

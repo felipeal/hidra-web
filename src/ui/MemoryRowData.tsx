@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Assembler } from "../core/Assembler";
-import { addressToHex, unsignedByteToString, charCodeToString, uncheckedByteStringToNumber } from "../core/Conversions";
+import { addressToHex, unsignedByteToString, charCodeToString, uncheckedByteStringToNumber } from "../core/utils/Conversions";
 import { Machine } from "../core/Machine";
-import { buildUnsubscribeCallback } from "../core/EventUtils";
+import { buildUnsubscribeCallback } from "../core/utils/EventUtils";
 
 function focusInput(row: number) {
   const tableInputs = document.querySelectorAll(".data-table .table-value");

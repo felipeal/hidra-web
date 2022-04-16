@@ -1,9 +1,9 @@
 import { Assembler } from "../../core/Assembler";
-import { AssemblerErrorCode } from "../../core/AssemblerErrors";
+import { AssemblerErrorCode } from "../../core/AssemblerError";
 import { Machine } from "../../core/Machine";
-import { Volta } from "../../machines/Volta";
+import { Volta } from "../../core/machines/Volta";
 import { Texts } from "../../core/Texts";
-import { assert, range } from "../../core/FunctionUtils";
+import { assert, range } from "../../core/utils/FunctionUtils";
 
 export function makeFunction_expectBuildSuccess(assembler: Assembler, machine: Machine) {
   return (lines: string | string[], expectedMemory: number[]) => {

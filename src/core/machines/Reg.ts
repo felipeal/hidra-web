@@ -1,9 +1,9 @@
-import { Machine } from "../core/Machine";
-import { Register } from "../core/Register";
-import { Instruction, InstructionCode } from "../core/Instruction";
-import { AddressingMode, AddressingModeCode } from "../core/AddressingMode";
-import { buildArray } from "../core/FunctionUtils";
-import { unsignedByteToBitPattern } from "../core/Conversions";
+import { Machine } from "../Machine";
+import { Register } from "../Register";
+import { Instruction, InstructionCode } from "../Instruction";
+import { AddressingMode, AddressingModeCode } from "../AddressingMode";
+import { buildArray } from "../utils/FunctionUtils";
+import { unsignedByteToBitPattern } from "../utils/Conversions";
 
 export class Reg extends Machine {
 

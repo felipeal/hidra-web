@@ -1,5 +1,5 @@
-import { bitPatternToUnsignedByte, unsignedByteToBitPattern } from "./Conversions";
-import { RegExpMatcher } from "./RegExpMatcher";
+import { bitPatternToUnsignedByte, unsignedByteToBitPattern } from "./utils/Conversions";
+import { RegExpMatcher } from "./utils/RegExpMatcher";
 
 export type RegisterInfo = { value: number, numBits: number, isData: boolean };
 

@@ -13,17 +13,17 @@ import RegisterWidget from "./RegisterWidget";
 import Information from "./Information";
 import { Menu, SubMenuCheckBox, SubMenuItem, SubMenuSeparator } from "./Menus";
 
-import { buildMachine, getMachineNames, resetPCAndSP } from "./MachineUtils";
-import { FileError, buildMachineBasedOnFileName, exportMemory, generateFileNameForMachine, importMemory } from "./MachineFileUtils";
-import { scrollToCurrentPCRow, scrollToFirstDataRow, scrollToLastStackRow, scrollToPCLineAndRow } from "./ScrollHandler";
+import { buildMachine, getMachineNames, resetPCAndSP } from "./utils/MachineUtils";
+import { FileError, buildMachineBasedOnFileName, exportMemory, generateFileNameForMachine, importMemory } from "./utils/MachineFileUtils";
+import { scrollToCurrentPCRow, scrollToFirstDataRow, scrollToLastStackRow, scrollToPCLineAndRow } from "./utils/ScrollHandler";
 
 import { Machine } from "../core/Machine";
-import { Neander } from "../machines/Neander";
-import { Volta } from "../machines/Volta";
+import { Neander } from "../core/machines/Neander";
+import { Volta } from "../core/machines/Volta";
 import { Assembler } from "../core/Assembler";
 import { Texts } from "../core/Texts";
-import { ErrorMessage } from "../core/AssemblerErrors";
-import { range } from "../core/FunctionUtils";
+import { ErrorMessage } from "../core/AssemblerError";
+import { range } from "../core/utils/FunctionUtils";
 
 // Global pointer required for CodeMirror persistence between live-reloads
 declare global {

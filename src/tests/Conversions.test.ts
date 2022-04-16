@@ -1,6 +1,6 @@
 import { addressToHex, bitPatternToUnsignedByte, charCodeToString, codeStringToNumber, instructionStringToHex,
   uncheckedByteStringToNumber, unsignedNumberToHex, unsignedByteToBitPattern, unsignedByteToSigned,
-  unsignedNumberToHexCodeString, unsignedByteToString, registerValueToString } from "../core/Conversions";
+  unsignedNumberToHexCodeString, unsignedByteToString, registerValueToString } from "../core/utils/Conversions";
 
 describe("Conversions", () => {
 

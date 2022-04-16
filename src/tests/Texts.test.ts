@@ -1,13 +1,13 @@
 import { AddressingModeCode } from "../core/AddressingMode";
 import { Assembler } from "../core/Assembler";
-import { AssemblerErrorCode } from "../core/AssemblerErrors";
+import { AssemblerErrorCode } from "../core/AssemblerError";
 import { Texts } from "../core/Texts";
-import { Neander } from "../machines/Neander";
-import { Pericles } from "../machines/Pericles";
-import { Queops } from "../machines/Queops";
-import { Ramses } from "../machines/Ramses";
-import { Volta } from "../machines/Volta";
-import { buildMachine, getMachineNames } from "../ui/MachineUtils";
+import { Neander } from "../core/machines/Neander";
+import { Pericles } from "../core/machines/Pericles";
+import { Queops } from "../core/machines/Queops";
+import { Ramses } from "../core/machines/Ramses";
+import { Volta } from "../core/machines/Volta";
+import { buildMachine, getMachineNames } from "../ui/utils/MachineUtils";
 
 function expectDistinctStrings(items: string[]) {
   expect(items).not.toContain("");

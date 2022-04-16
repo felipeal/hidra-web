@@ -1,7 +1,7 @@
 import fs from "fs";
 
 import { Assembler } from "../core/Assembler";
-import { buildMachineBasedOnFileName } from "../ui/MachineFileUtils";
+import { buildMachineBasedOnFileName } from "../ui/utils/MachineFileUtils";
 
 const resourcesPath = "src/tests/resources";
 

@@ -1,5 +1,5 @@
-import { Assembler } from "../core/Assembler";
-import { Machine } from "../core/Machine";
+import { Assembler } from "../../core/Assembler";
+import { Machine } from "../../core/Machine";
 
 const marginLines = 3;
 

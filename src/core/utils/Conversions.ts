@@ -1,4 +1,4 @@
-import { RegisterInfo } from "./Register";
+import { RegisterInfo } from "../Register";
 
 export function bitPatternToUnsignedByte(bitPattern: string): number {
   let value = 0;

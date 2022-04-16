@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Assembler } from "../core/Assembler";
-import { unsignedByteToString, addressToHex, instructionStringToHex, uncheckedByteStringToNumber } from "../core/Conversions";
+import { unsignedByteToString, addressToHex, instructionStringToHex, uncheckedByteStringToNumber } from "../core/utils/Conversions";
 import { Machine } from "../core/Machine";
-import { buildUnsubscribeCallback } from "../core/EventUtils";
+import { buildUnsubscribeCallback } from "../core/utils/EventUtils";
 
 function computeIsCurrentInstruction(address: number, assembler: Assembler): boolean {
   const addressSourceLine = assembler.getAddressCorrespondingSourceLine(address);
