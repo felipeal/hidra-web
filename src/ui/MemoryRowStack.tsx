@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { addressToHex, unsignedByteToString, charCodeToString, memoryStringToNumber } from "../core/Conversions";
+import { addressToHex, unsignedByteToString, charCodeToString, uncheckedByteStringToNumber } from "../core/Conversions";
 import { buildUnsubscribeCallback } from "../core/Utils";
 import { Volta } from "../machines/Volta";
 
@@ -42,7 +42,7 @@ export default function MemoryRowStack({ row, address, voltaMachine, displayHex,
           setValue(event.target.value);
         }} onBlur={(event) => {
           // Write value to memory on focus out
-          voltaMachine.setMemoryValue(address, memoryStringToNumber(event.target.value, { displayHex }));
+          voltaMachine.setMemoryValue(address, uncheckedByteStringToNumber(event.target.value, { displayHex }));
         }} onKeyDown={(event) => {
           if (event.key === "ArrowUp" || (event.key === "Enter" && event.shiftKey)) {
             focusInput(row - 1);
@@ -53,7 +53,7 @@ export default function MemoryRowStack({ row, address, voltaMachine, displayHex,
           setTimeout(() => (event.target as HTMLInputElement).select(), 0);
         }} />
       </td>
-      {displayChars && <td>{charCodeToString(memoryStringToNumber(value, { displayHex }))}</td>}
+      {displayChars && <td>{charCodeToString(uncheckedByteStringToNumber(value, { displayHex }))}</td>}
     </tr>
   );
 }

@@ -32,8 +32,8 @@ export function codeStringToNumber(decOrHex: string): number {
   }
 }
 
-export function memoryStringToNumber(decOrHex: string, { displayHex }: { displayHex: boolean }): number {
-  return parseInt(decOrHex, displayHex ? 16 : 10);
+export function uncheckedByteStringToNumber(decOrHex: string, { displayHex }: { displayHex: boolean }): number {
+  return parseInt(decOrHex, displayHex ? 16 : 10) & 0xFF;
 }
 
 export function charCodeToString(charCode: number): string {
@@ -45,26 +45,26 @@ export function charCodeToString(charCode: number): string {
   }
 }
 
-export function numberToHex(value: number, numDigits: number): string {
+export function unsignedNumberToHex(value: number, numDigits: number): string {
   return value.toString(16).toUpperCase().padStart(numDigits, "0");
 }
 
 export function addressToHex(value: number, memorySize: number): string {
   const numDigits = (memorySize - 1).toString(16).length;
-  return numberToHex(value, numDigits);
+  return unsignedNumberToHex(value, numDigits);
 }
 
 export function instructionStringToHex(instructionString: string): string {
-  return instructionString.replace(/\b\d+\b/g, (v) => numberToHexCodeString(Number(v)));
+  return instructionString.replace(/\b\d+\b/g, (v) => unsignedNumberToHexCodeString(Number(v)));
 }
 
-export function numberToHexCodeString(value: number): string {
+export function unsignedNumberToHexCodeString(value: number): string {
   return "h" + value.toString(16).toUpperCase();
 }
 
 export function unsignedByteToString(value: number, { displayHex, displayNegative }: { displayHex?: boolean, displayNegative?: boolean}): string {
   if (displayHex) {
-    return numberToHex(value, 2);
+    return unsignedNumberToHex(value, 2);
   } else if (displayNegative) {
     return String(unsignedByteToSigned(value));
   } else {
@@ -77,7 +77,7 @@ export function registerValueToString(
   { displayHex, displayNegative }: { displayHex?: boolean, displayNegative?: boolean}
 ): string {
   if (displayHex) {
-    return numberToHex(value, Math.ceil(numBits / 4));
+    return unsignedNumberToHex(value, Math.ceil(numBits / 4));
   } else if (displayNegative && isData) {
     return String(value << (32 - numBits) >> (32 - numBits));
   } else {

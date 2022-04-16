@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Assembler } from "../core/Assembler";
-import { unsignedByteToString, addressToHex, instructionStringToHex, memoryStringToNumber } from "../core/Conversions";
+import { unsignedByteToString, addressToHex, instructionStringToHex, uncheckedByteStringToNumber } from "../core/Conversions";
 import { Machine } from "../core/Machine";
 import { buildUnsubscribeCallback } from "../core/Utils";
 
@@ -52,7 +52,7 @@ export default function MemoryRowInstructions({ address, machine, assembler, dis
           setValue(event.target.value);
         }} onBlur={(event) => {
           // Write value to memory on focus out
-          machine.setMemoryValue(address, memoryStringToNumber(event.target.value, { displayHex }));
+          machine.setMemoryValue(address, uncheckedByteStringToNumber(event.target.value, { displayHex }));
           machine.updateInstructionStrings();
         }} onKeyDown={(event) => {
           if (event.key === "ArrowUp" || (event.key === "Enter" && event.shiftKey)) {

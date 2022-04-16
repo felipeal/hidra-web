@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Assembler } from "../core/Assembler";
-import { addressToHex, unsignedByteToString, charCodeToString, memoryStringToNumber } from "../core/Conversions";
+import { addressToHex, unsignedByteToString, charCodeToString, uncheckedByteStringToNumber } from "../core/Conversions";
 import { Machine } from "../core/Machine";
 import { buildUnsubscribeCallback } from "../core/Utils";
 
@@ -35,7 +35,7 @@ export default function MemoryRowData({ address, machine, assembler, displayHex,
           setValue(event.target.value);
         }} onBlur={(event) => {
           // Write value to memory on focus out
-          machine.setMemoryValue(address, memoryStringToNumber(event.target.value, { displayHex }));
+          machine.setMemoryValue(address, uncheckedByteStringToNumber(event.target.value, { displayHex }));
           machine.updateInstructionStrings();
         }} onKeyDown={(event) => {
           if (event.key === "ArrowUp" || (event.key === "Enter" && event.shiftKey)) {
@@ -47,7 +47,7 @@ export default function MemoryRowData({ address, machine, assembler, displayHex,
           setTimeout(() => (event.target as HTMLInputElement).select(), 0);
         }} />
       </td>
-      {displayChars && <td>{charCodeToString(memoryStringToNumber(value, { displayHex }))}</td>}
+      {displayChars && <td>{charCodeToString(uncheckedByteStringToNumber(value, { displayHex }))}</td>}
       <td style={{ maxWidth: "10rem", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</td>
     </tr>
   );
