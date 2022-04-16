@@ -1,8 +1,10 @@
-import { AssemblerError, AssemblerErrorCode, ErrorMessage } from "./Errors";
+import { AssemblerError, AssemblerErrorCode, ErrorMessage } from "./AssemblerErrors";
 import { Register } from "./Register";
 import { Instruction } from "./Instruction";
 import { AddressingModeCode } from "./AddressingMode";
-import { buildArray, range, EventCallback, RegExpMatcher, assert, UnsubscribeCallback, rethrowUnless } from "./Utils";
+import { buildArray, range, assert, rethrowUnless } from "./FunctionUtils";
+import { EventCallback, UnsubscribeCallback } from "./EventUtils";
+import { RegExpMatcher } from "./RegExpMatcher";
 import { Byte } from "./Byte";
 import { Machine } from "./Machine";
 import { codeStringToNumber } from "./Conversions";

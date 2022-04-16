@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Machine } from "../core/Machine";
-import { buildUnsubscribeCallback } from "../core/Utils";
+import { buildUnsubscribeCallback } from "../core/EventUtils";
 
 export default function Information({ machine }: { machine: Machine }) {
   const [instructionCount, setInstructionCount] = useState(machine.getInstructionCount());

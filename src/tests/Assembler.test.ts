@@ -1,6 +1,6 @@
 import { } from "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
-import { AssemblerErrorCode } from "../core/Errors";
+import { AssemblerErrorCode } from "../core/AssemblerErrors";
 import { Ramses } from "../machines/Ramses";
 import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess } from "./utils/MachineTestFunctions";
 

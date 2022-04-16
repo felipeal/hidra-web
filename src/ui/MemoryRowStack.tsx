@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { addressToHex, unsignedByteToString, charCodeToString, uncheckedByteStringToNumber } from "../core/Conversions";
-import { buildUnsubscribeCallback } from "../core/Utils";
+import { buildUnsubscribeCallback } from "../core/EventUtils";
 import { Volta } from "../machines/Volta";
 
 function focusInput(row: number) {

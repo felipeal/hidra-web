@@ -3,8 +3,8 @@ import { Assembler } from "../core/Assembler";
 import { Reg } from "../machines/Reg";
 import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings, makeFunction_expectRunState }
   from "./utils/MachineTestFunctions";
-import { AssemblerErrorCode } from "../core/Errors";
-import { range } from "../core/Utils";
+import { AssemblerErrorCode } from "../core/AssemblerErrors";
+import { range } from "../core/FunctionUtils";
 
 const machine = new Reg();
 const assembler = new Assembler(machine);

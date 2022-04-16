@@ -1,5 +1,5 @@
 import { bitPatternToUnsignedByte } from "./Conversions";
-import { RegExpMatcher } from "./Utils";
+import { RegExpMatcher } from "./RegExpMatcher";
 
 export enum AddressingModeCode {
   DIRECT = "DIRECT",

@@ -1,6 +1,6 @@
 import { } from "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
-import { AssemblerErrorCode } from "../core/Errors";
+import { AssemblerErrorCode } from "../core/AssemblerErrors";
 import { Pericles } from "../machines/Pericles";
 import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings, makeFunction_expectRunState }
   from "./utils/MachineTestFunctions";

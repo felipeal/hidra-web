@@ -1,10 +1,10 @@
 /* eslint-disable max-len */
 
-import { AssemblerErrorCode, ErrorMessage } from "./Errors";
+import { AssemblerErrorCode, ErrorMessage } from "./AssemblerErrors";
 import { AddressingModeCode } from "./AddressingMode";
 import { Machine } from "./Machine";
 import { FlagCode } from "./Flag";
-import { assert } from "./Utils";
+import { assert } from "./FunctionUtils";
 import { Volta } from "../machines/Volta";
 
 interface AddressingModeDescription { name: string, description: string, examples: string }

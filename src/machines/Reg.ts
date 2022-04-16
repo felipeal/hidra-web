@@ -2,7 +2,7 @@ import { Machine } from "../core/Machine";
 import { Register } from "../core/Register";
 import { Instruction, InstructionCode } from "../core/Instruction";
 import { AddressingMode, AddressingModeCode } from "../core/AddressingMode";
-import { buildArray } from "../core/Utils";
+import { buildArray } from "../core/FunctionUtils";
 import { unsignedByteToBitPattern } from "../core/Conversions";
 
 export class Reg extends Machine {

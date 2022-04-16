@@ -1,6 +1,6 @@
 import { AddressingModeCode } from "../core/AddressingMode";
 import { Assembler } from "../core/Assembler";
-import { AssemblerErrorCode } from "../core/Errors";
+import { AssemblerErrorCode } from "../core/AssemblerErrors";
 import { Texts } from "../core/Texts";
 import { Neander } from "../machines/Neander";
 import { Pericles } from "../machines/Pericles";

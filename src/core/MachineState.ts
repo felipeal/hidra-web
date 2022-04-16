@@ -3,7 +3,8 @@ import { Flag, FlagCode } from "./Flag";
 import { Instruction } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
 import { Byte } from "./Byte";
-import { buildArray, range, EventCallback, assert, validateSize, UnsubscribeCallback } from "./Utils";
+import { buildArray, range, assert, isPowerOfTwo } from "./FunctionUtils";
+import { EventCallback, UnsubscribeCallback } from "./EventUtils";
 import { bitPatternToUnsignedByte } from "./Conversions";
 
 interface MachineSettings {
@@ -81,7 +82,7 @@ export abstract class MachineState {
   }
 
   protected setMemorySize(size: number): void {
-    validateSize(size);
+    assert(isPowerOfTwo(size), `Memory size must be a power of two: ${size}`);
     this.memorySize = size;
 
     this.memory = buildArray(size, () => new Byte());

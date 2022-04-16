@@ -2,7 +2,7 @@ import { MachineState } from "./MachineState";
 import { FlagCode } from "./Flag";
 import { Instruction, InstructionCode } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
-import { RegExpMatcher } from "./Utils";
+import { RegExpMatcher } from "./RegExpMatcher";
 import { unsignedByteToBitPattern, unsignedByteToSigned as toSigned } from "../core/Conversions";
 
 export abstract class Machine extends MachineState {

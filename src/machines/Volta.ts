@@ -3,7 +3,7 @@ import { Register } from "../core/Register";
 import { Instruction, InstructionCode } from "../core/Instruction";
 import { AddressingMode, AddressingModeCode } from "../core/AddressingMode";
 import { Byte } from "../core/Byte";
-import { buildArray, range, validateSize } from "../core/Utils";
+import { buildArray, range, isPowerOfTwo, assert } from "../core/FunctionUtils";
 import { unsignedByteToSigned as toSigned } from "../core/Conversions";
 
 export class Volta extends Machine {
@@ -352,7 +352,7 @@ export class Volta extends Machine {
   //////////////////////////////////////////////////
 
   public setStackSize(size: number): void {
-    validateSize(size);
+    assert(isPowerOfTwo(size), `Stack size must be a power of two: ${size}`);
     this.stack = buildArray(size, () => new Byte());
     this.stackMask = (size - 1);
   }
