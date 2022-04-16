@@ -19,7 +19,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "coverage": "react-scripts test --coverage --watchAll=false",
+    "coverage": "react-scripts test --coverage --watchAll=false && node src/tests/utils/openCoverageReport.mjs",
     "lint": "eslint --fix --ext .js,.jsx,.ts,.tsx ./src",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
