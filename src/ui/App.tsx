@@ -20,6 +20,7 @@ import { Assembler } from "../core/Assembler";
 import { Texts } from "../core/Texts";
 import { ErrorMessage } from "../core/Errors";
 import { scrollToCurrentPCRow, scrollToFirstDataRow, scrollToLastStackRow, scrollToPCLineAndRow } from "./ScrollHandler";
+import { range } from "../core/Utils";
 
 // Global pointer required for CodeMirror persistence between live-reloads
 declare global {
@@ -45,20 +46,18 @@ function isSafeToDiscardSource() {
   return codeMirrorInstance.isClean() || codeMirrorInstance.getValue().length === 0;
 }
 
-const initialMachine = new Neander() as Machine;
-const initialAssembler = new Assembler(initialMachine);
-
 // Busy state handling
 const showBusy = () => document.body.classList.add("is-busy");
 const hideBusy = () => document.body.classList.remove("is-busy");
 
-let timeout: NodeJS.Timeout;
-
+const initialMachine = new Neander() as Machine;
+const initialAssembler = new Assembler(initialMachine);
 const navBarHeightPx = 44;
-
 const showWIP = false;
 
-export default function App() {
+let timeout: NodeJS.Timeout;
+
+export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }) {
   const [[machine, assembler], setState] = useState([initialMachine, initialAssembler]);
   const [errorMessages, setErrorMessages] = useState([] as ErrorMessage[]);
   const [isRunning, setRunning] = useState(machine.isRunning());
@@ -267,7 +266,7 @@ export default function App() {
         <div style={{ width: "360px", minWidth: "360px", display: "inline-flex", flexDirection: "column", overflowY: "auto" }}>
 
           {/* Machine select */}
-          <select className="hide-if-busy" value={machine.getName()} onChange={(event: ChangeEvent<HTMLSelectElement>) => {
+          <select className="hide-if-busy" value={machine.getName()} data-testid="machine-select" onChange={(event: ChangeEvent<HTMLSelectElement>) => {
             machine.setRunning(false);
             clearTimeout(timeout);
 
@@ -313,10 +312,10 @@ export default function App() {
 
           {/* Machine buttons */}
           <div className="hide-if-busy" style={{ display: "flex", gap: "8px" }}>
-            <button className="machine-button" style={{ flex: 1 }} onClick={() => {
+            <button className="machine-button" style={{ flex: 1 }} data-testid="reset-pc-button" onClick={() => {
               resetPCAndSP(machine);
             }}>Zerar PC</button>
-            <button className="machine-button" style={{ flex: 1 }} onClick={() => {
+            <button className="machine-button" style={{ flex: 1 }} data-testid="run-button" onClick={() => {
               if (!machine.isRunning()) { // Run requested
                 machine.setRunning(true);
                 const nextStep = function () {
@@ -340,7 +339,7 @@ export default function App() {
                 machine.updateInstructionStrings();
               }
             }}>{isRunning ? "Parar" : "Rodar"}</button>
-            <button className="machine-button" disabled={isRunning} style={{ flex: 1 }} onClick={() => {
+            <button className="machine-button" disabled={isRunning} style={{ flex: 1 }} data-testid="step-button" onClick={() => {
               machine.step();
               machine.updateInstructionStrings();
             }}>Passo</button>
@@ -350,7 +349,7 @@ export default function App() {
           <div className="hide-if-busy" style={{ minHeight: "16px", flexGrow: 1 }} />
 
           {/* Build button */}
-          <button className="hide-if-busy build-button" onClick={() => {
+          <button className="hide-if-busy build-button" data-testid="build-button" onClick={() => {
             const sourceCode = window.codeMirrorInstance.getValue();
             machine.setRunning(false);
             setErrorMessages(assembler.build(sourceCode));
@@ -434,7 +433,7 @@ export default function App() {
           ********************************************************************/}
 
         {/* Instructions memory area */}
-        <table className="instructions-table" style={{ height: "100%", display: "block", overflowY: "scroll", minWidth: "10rem" }}>
+        <table className="instructions-table" data-testid="instructions-table" style={{ height: "100%", display: "block", overflowY: "scroll", minWidth: "10rem" }}>
           <thead>
             <tr>
               <th>PC</th>
@@ -444,14 +443,14 @@ export default function App() {
             </tr>
           </thead>
           <tbody>
-            {machine.getMemory().map((value, address) => {
+            {range(firstRowsOnly ? 8 : machine.getMemorySize()).map((address) => {
               return <MemoryRowInstructions key={address} address={address} machine={machine} assembler={assembler} displayHex={displayHex} />;
             })}
           </tbody>
         </table>
 
         {/* Data memory area */}
-        <table className="data-table" style={{ height: "100%", display: "block", overflowY: "scroll", tableLayout: "fixed", minWidth: "10rem" }}>
+        <table className="data-table" data-testid="data-table" style={{ height: "100%", display: "block", overflowY: "scroll", tableLayout: "fixed", minWidth: "10rem" }}>
           <thead>
             <tr>
               <th>End.</th>
@@ -461,7 +460,7 @@ export default function App() {
             </tr>
           </thead>
           <tbody>
-            {machine.getMemory().map((value, address) => {
+            {range(firstRowsOnly ? 8 : machine.getMemorySize()).map((address) => {
               return <MemoryRowData key={address} address={address} machine={machine} assembler={assembler}
                 displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars}
               />;
@@ -470,7 +469,7 @@ export default function App() {
         </table>
 
         {/* Stack memory area */}
-        {machine instanceof Volta && <table className="stack-table" style={{ height: "100%", display: "block", overflowY: "scroll", minWidth: "8rem" }}>
+        {machine instanceof Volta && <table className="stack-table" data-testid="stack-table" style={{ height: "100%", display: "block", overflowY: "scroll", minWidth: "8rem" }}>
           <thead>
             <tr>
               <th>SP</th>

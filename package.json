@@ -55,8 +55,7 @@
       "!src/index.js",
       "!src/setupTests.js",
       "!src/reportWebVitals.js",
-      "!src/tests/**",
-      "!src/ui/**"
+      "!src/tests/**"
     ],
     "globalSetup": "./src/tests/utils/globalSetup.js",
     "coverageReporters": [
