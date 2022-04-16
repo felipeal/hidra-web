@@ -35,6 +35,12 @@ export function changePCRow(rowIndex: number): void {
   userEvent.click(cellToBeClicked);
 }
 
+export function changeSPRow(rowIndex: number): void {
+  const arrowCell = within(screen.getByTestId("stack-table")).getByText<HTMLTableCellElement>("→");
+  const table = arrowCell.parentElement!.parentElement as HTMLTableElement;
+  const cellToBeClicked = table.rows[rowIndex].childNodes[arrowCell.cellIndex] as HTMLElement;
+  userEvent.click(cellToBeClicked);
+}
 
 export function runPendingTimers() {
   act(() => {
