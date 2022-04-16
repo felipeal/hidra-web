@@ -1,5 +1,4 @@
-// eslint-disable-next-line
-// @ts-nocheck
+/* eslint-disable @typescript-eslint/no-floating-promises */
 
 const reportWebVitals = onPerfEntry => {
   if (onPerfEntry && onPerfEntry instanceof Function) {

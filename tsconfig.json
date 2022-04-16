@@ -3,7 +3,7 @@
     "lib": ["ES2021", "DOM"],
     "strict": true,
     "allowJs": true,
-    "checkJs": true,
+    "checkJs": false,
     "jsx": "react",
     "outDir": "build",
     "esModuleInterop": true

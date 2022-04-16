@@ -1,8 +1,6 @@
 // Causes a popper to hide if no elements within it are in focus.
 // Source: https://atomiks.github.io/tippyjs/v6/plugins/#hideonpopperblur
 
-// @ts-nocheck eslint-disable-file
-
 export const hideOnPopperBlur = {
   name: "hideOnPopperBlur",
   defaultValue: true,

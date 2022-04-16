@@ -16,7 +16,8 @@
       "jsx": true
     },
     "ecmaVersion": "latest",
-    "sourceType": "module"
+    "sourceType": "module",
+    "project": ["./tsconfig.json"]
   },
   "plugins": [
     "react",
@@ -42,6 +43,7 @@
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-empty-function": "warn",
+    "@typescript-eslint/no-floating-promises": "error",
     "no-multiple-empty-lines": "warn",
     "no-debugger":"warn",
     "comma-dangle": "warn",
