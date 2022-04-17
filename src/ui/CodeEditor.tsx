@@ -1,8 +1,7 @@
-import React, { useEffect } from "react";
+import React, { LegacyRef, MutableRefObject, useEffect, useRef } from "react";
 import { Machine } from "../core/Machine";
 import { Assembler } from "../core/Assembler";
-import { UnControlled as CodeMirror } from "react-codemirror2";
-import codemirror, { Editor, LineHandle } from "codemirror";
+import CodeMirror, { Editor, LineHandle } from "codemirror";
 
 function arrayContains(array: string[], needle: string): boolean {
   const lower = needle.toLowerCase();
@@ -10,8 +9,7 @@ function arrayContains(array: string[], needle: string): boolean {
 }
 
 function defineCodeMirrorMode(machine: Machine) {
-  // @ts-ignore
-  codemirror.defineMode(machine.getName(), () => {
+  CodeMirror.defineMode(machine.getName(), () => {
     const instructions = machine.getInstructions().map(instruction => instruction.getMnemonic());
     const directives = ["db", "dab", "dw", "daw", "org"]; // TODO: Move directives
 
@@ -23,7 +21,7 @@ function defineCodeMirrorMode(machine: Machine) {
   });
 }
 
-function processToken(stream: CodeMirror.StringStream, instructions: string[], directives: string[]) {
+function processToken(stream: CodeMirror.StringStream, instructions: string[], directives: string[]): string | null {
   // If semicolon
   if (stream.eat(";")) {
     stream.skipToEnd();
@@ -37,7 +35,7 @@ function processToken(stream: CodeMirror.StringStream, instructions: string[], d
     } else if (arrayContains(directives, stream.current())) {
       return "hidra-directive";
     } else {
-      return;
+      return null;
     }
   }
 
@@ -51,6 +49,7 @@ function processToken(stream: CodeMirror.StringStream, instructions: string[], d
   }
 
   stream.next();
+  return null;
 }
 
 function makeBreakpointMarker() {
@@ -80,11 +79,24 @@ export function hasBreakpointAtLine(lineNumber: number): boolean {
 let currentInstructionLineHandle: LineHandle | null = null;
 
 export default function CodeEditor({ machine, assembler, displayWrap }: { machine: Machine, assembler: Assembler, displayWrap: boolean }) {
+  const ref = useRef<HTMLDivElement>();
+
+  // CodeMirror initialization
   useEffect(() => {
-    window.codeMirrorInstance?.on("gutterClick", toggleBreakpoint);
+    window.codeMirrorInstance = window.codeMirrorInstance || CodeMirror(ref.current!, {
+      lineNumbers: true,
+      gutters: ["current-instruction-gutter", "breakpoints-gutter", "CodeMirror-linenumbers"]
+    });
+    window.codeMirrorInstance.setSize("100%", "100%");
+    window.codeMirrorInstance.on("gutterClick", toggleBreakpoint);
   }, []);
 
   useEffect(() => {
+    window.codeMirrorInstance.setOption("lineWrapping", displayWrap);
+  }, [displayWrap]);
+
+  useEffect(() => {
+    window.codeMirrorInstance.setOption("mode", machine.getName());
     return machine.subscribeToEvent("REG.PC", (value) => {
       currentInstructionLineHandle && codeMirrorInstance.removeLineClass(currentInstructionLineHandle, "background", "current-instruction-line");
       currentInstructionLineHandle && codeMirrorInstance.setGutterMarker(currentInstructionLineHandle, "current-instruction-gutter", null);
@@ -97,9 +109,6 @@ export default function CodeEditor({ machine, assembler, displayWrap }: { machin
   defineCodeMirrorMode(machine);
 
   return (
-    <CodeMirror options={{
-      mode: machine.getName(), lineNumbers: true, lineWrapping: displayWrap,
-      gutters: ["current-instruction-gutter", "breakpoints-gutter", "CodeMirror-linenumbers"]
-    }} editorDidMount={editor => window.codeMirrorInstance = editor} />
+    <div style={{ height: "100%" }} ref={ref as LegacyRef<HTMLDivElement>} />
   );
 }
