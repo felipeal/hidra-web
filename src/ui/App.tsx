@@ -30,13 +30,13 @@ declare global {
   var codeMirrorInstance: codemirror.Editor; // eslint-disable-line no-var
 }
 
-window.onerror = function myErrorHandler(errorMessage) {
+window.onerror = (errorMessage) => {
   alert(`Error: ${errorMessage}`);
   return false;
 };
 
 // Warn on tab close
-window.onbeforeunload = function (event) {
+window.onbeforeunload = (event) => {
   if (isSafeToDiscardSource()) {
     return null;
   }
@@ -46,7 +46,8 @@ window.onbeforeunload = function (event) {
 };
 
 function isSafeToDiscardSource() {
-  return codeMirrorInstance.isClean() || codeMirrorInstance.getValue().length === 0;
+  // Very short sources are considered safe to discard
+  return codeMirrorInstance.isClean() || codeMirrorInstance.getValue().length < 10;
 }
 
 // Busy state handling

@@ -65,13 +65,13 @@ describe("File Actions", () => {
   });
 
   test("open: should warn in case there are unsaved changes", async () => {
-    codeMirrorInstance.setValue("unsaved");
+    codeMirrorInstance.setValue("unsaved source code");
 
     // User cancels
     jest.spyOn(global, "confirm").mockReturnValueOnce(false);
     await openFile("file.rad", new Uint8Array([]));
     expect(global.confirm).toHaveBeenCalled();
-    expect(codeMirrorInstance.getValue()).toBe("unsaved");
+    expect(codeMirrorInstance.getValue()).toBe("unsaved source code");
 
     // User confirms
     jest.spyOn(global, "confirm").mockReturnValueOnce(true);
