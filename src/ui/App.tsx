@@ -23,7 +23,7 @@ import { Volta } from "../core/machines/Volta";
 import { Assembler } from "../core/Assembler";
 import { Texts } from "../core/Texts";
 import { ErrorMessage } from "../core/AssemblerError";
-import { range } from "../core/utils/FunctionUtils";
+import { range, rethrowUnless } from "../core/utils/FunctionUtils";
 
 // Global pointer required for CodeMirror persistence between live-reloads
 declare global {
@@ -150,11 +150,8 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
         const newMachine = await importMemory(file);
         setState([newMachine, new Assembler(newMachine)]);
       } catch (error: unknown) {
-        if (error instanceof FileError) {
-          showError(error.message);
-        } else {
-          throw error;
-        }
+        rethrowUnless(error instanceof FileError, error);
+        showError(error.message);
       }
     }
   }
@@ -496,7 +493,7 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
             </tr>
           </thead>
           <tbody>
-            {range(machine.getStackSize()).map((index) => {
+            {(range(machine.getStackSize())).map((index) => {
               return <MemoryRowStack key={index} row={index} address={machine.getStackSize() - 1 - index} voltaMachine={machine}
                 displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars}
               />;

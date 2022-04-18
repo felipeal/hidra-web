@@ -95,6 +95,10 @@ describe("Neander: Run", () => {
     expectRunState(["jmp 255", ""], [], { r_PC: 0 });
   });
 
+  test("invalid opcodes: should do nothing", () => {
+    expectRunState(["lda V128", "dab hB0", "db hC0", "db hD0", "db hE0"], values, { r_AC: 128, r_PC: 6, f_N: true, f_Z: false });
+  });
+
 });
 
 describe("Neander: Disassembler", () => {
