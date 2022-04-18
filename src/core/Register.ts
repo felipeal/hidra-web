@@ -31,10 +31,6 @@ export class Register {
     return this.name;
   }
 
-  public getBitPattern(): string {
-    return this.bitPattern;
-  }
-
   // Returns NO_BIT_CODE if register isn't directly accessible
   public getBitCode(): number {
     if (this.bitPattern === "") {

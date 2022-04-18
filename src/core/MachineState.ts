@@ -33,7 +33,6 @@ export abstract class MachineState {
   private pc: Register;
   private memory: Byte[] = [];
   private instructionStrings: string[] = [];
-  private changed: boolean[] = [];
   private running = false;
   private instructionCount = 0;
   private accessCount = 0;
@@ -87,7 +86,6 @@ export abstract class MachineState {
 
     this.memory = buildArray(size, () => new Byte());
     this.instructionStrings = new Array(size).fill("");
-    this.changed = new Array(size).fill(true);
     this.memoryMask = (size - 1);
   }
 
@@ -99,7 +97,6 @@ export abstract class MachineState {
     const validAddress = this.toValidAddress(address);
 
     this.memory[validAddress].setValue(value);
-    this.changed[validAddress] = true;
     this.publishEvent(`MEM.${address}`, this.memory[validAddress].getValue());
   }
 
@@ -107,24 +104,6 @@ export abstract class MachineState {
     assert(values.length === this.memorySize, `Invalid array size for setMemoryValues: ${values.length}`);
     for (const address of range(this.memorySize)) {
       this.setMemoryValue(address, values[address]);
-    }
-  }
-
-  // Has byte changed since last look-up
-  public hasByteChanged(address: number): boolean {
-    const validAddress = this.toValidAddress(address);
-
-    if (this.changed[validAddress]) {
-      this.changed[validAddress] = false;
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  public clearMemory(): void {
-    for (const address of range(this.memory.length)) {
-      this.setMemoryValue(address, 0);
     }
   }
 
@@ -146,10 +125,6 @@ export abstract class MachineState {
 
   public getFlags(): ReadonlyArray<Flag> {
     return this.flags;
-  }
-
-  public getFlagName(id: number): string {
-    return this.flags[id].getName();
   }
 
   public isFlagTrue(flagName: string): boolean {
@@ -351,19 +326,6 @@ export abstract class MachineState {
     this.accessCount = 0;
     this.publishEvent("INS.COUNT", this.instructionCount);
     this.publishEvent("ACC.COUNT", this.accessCount);
-  }
-
-  public clear(): void {
-    this.clearMemory();
-    this.clearRegisters();
-    this.clearFlags();
-    this.clearCounters();
-    this.clearInstructionStrings();
-
-    // Removed: this.setBreakpoint(-1);
-    this.setRunning(false);
-
-    throw new Error("Reminder: assemblerData must also be cleared."); // TODO: Untested
   }
 
   public clearAfterBuild(): void {

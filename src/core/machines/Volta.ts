@@ -357,10 +357,6 @@ export class Volta extends Machine {
     this.stackMask = (size - 1);
   }
 
-  public getStack(): ReadonlyArray<Byte> {
-    return this.stack;
-  }
-
   public getStackValue(address: number): number {
     return this.stack[address & this.stackMask].getValue();
   }
@@ -385,11 +381,6 @@ export class Volta extends Machine {
 
   public setSPValue(value: number): void {
     this.setRegisterValue("SP", value);
-  }
-
-  public clear(): void {
-    this.clearStack();
-    super.clear();
   }
 
   public clearAfterBuild(): void {

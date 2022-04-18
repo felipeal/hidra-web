@@ -167,13 +167,10 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }} onDrop={async (event) => {
       event.preventDefault(); // Prevent file from being opened
 
-      // Use DataTransferItemList interface to access the file(s)
-      for (let i = 0; i < event.dataTransfer.items.length; i++) {
-        // If dropped items aren't files, reject them
-        if (event.dataTransfer.items[i].kind === "file") {
-          const file = event.dataTransfer.items[i].getAsFile();
-          await loadFile(file);
-        }
+      // Use DataTransferItemList interface to access the file
+      if (event.dataTransfer.items[0]?.kind === "file") {
+        const file = event.dataTransfer.items[0].getAsFile();
+        await loadFile(file);
       }
     }}>
 
@@ -499,8 +496,8 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
             </tr>
           </thead>
           <tbody>
-            {machine.getStack().map((value, index) => {
-              return <MemoryRowStack key={index} row={index} address={machine.getStack().length - 1 - index} voltaMachine={machine}
+            {range(machine.getStackSize()).map((index) => {
+              return <MemoryRowStack key={index} row={index} address={machine.getStackSize() - 1 - index} voltaMachine={machine}
                 displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars}
               />;
             })}

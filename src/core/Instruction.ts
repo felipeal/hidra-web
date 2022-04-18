@@ -73,8 +73,4 @@ export class Instruction {
     return this.instructionCode;
   }
 
-  public getBitPattern(): string {
-    return this.bitPattern;
-  }
-
 }

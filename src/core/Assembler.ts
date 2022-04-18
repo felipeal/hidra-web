@@ -343,7 +343,7 @@ export class Assembler {
   // Copies assemblerMemory to machine's memory
   protected copyAssemblerMemoryToMemory(): void {
     for (const i of range(this.machine.getMemorySize())) {
-      // Copy only different values to avoid marking bytes as changed
+      // Copy only different values to avoid triggering events
       if (this.machine.getMemoryValue(i) !== this.assemblerMemory[i].getValue()) {
         this.machine.setMemoryValue(i, this.assemblerMemory[i].getValue());
       }
@@ -576,11 +576,6 @@ export class Assembler {
   //////////////////////////////////////////////////
   // Accessors
   //////////////////////////////////////////////////
-
-  // TODO: Currently unused
-  public clear(): void {
-    this.clearAssemblerData();
-  }
 
   public getBuildSuccessful(): boolean {
     return this.buildSuccessful;
