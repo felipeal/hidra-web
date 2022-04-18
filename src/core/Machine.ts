@@ -282,7 +282,7 @@ export abstract class Machine extends MachineState {
   }
 
   public setOverflow(state: boolean): void {
-    this.setFlagValueByFlagCode(FlagCode.OVERFLOW_FLAG, state);
+    this.setFlagValueByFlagCode(FlagCode.OVERFLOW, state);
   }
 
   public setCarry(state: boolean | number): void {

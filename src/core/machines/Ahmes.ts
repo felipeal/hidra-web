@@ -14,7 +14,7 @@ export class Ahmes extends Machine {
       flags: [
         new Flag(FlagCode.NEGATIVE, "N"),
         new Flag(FlagCode.ZERO, "Z", true),
-        new Flag(FlagCode.OVERFLOW_FLAG, "V"),
+        new Flag(FlagCode.OVERFLOW, "V"),
         new Flag(FlagCode.CARRY, "C"),
         new Flag(FlagCode.BORROW, "B")
       ],

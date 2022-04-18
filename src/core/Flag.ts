@@ -1,5 +1,5 @@
 export enum FlagCode {
-  NEGATIVE, ZERO, CARRY, BORROW, OVERFLOW_FLAG
+  NEGATIVE, ZERO, CARRY, BORROW, OVERFLOW
 }
 
 export class Flag {
