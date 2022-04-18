@@ -42,7 +42,7 @@ export default function MemoryRowStack({ row, address, voltaMachine, displayHex,
           setValue(event.target.value);
         }} onBlur={(event) => {
           // Write value to memory on focus out
-          voltaMachine.setMemoryValue(address, uncheckedByteStringToNumber(event.target.value, { displayHex }));
+          voltaMachine.setStackValue(address, uncheckedByteStringToNumber(event.target.value, { displayHex }));
         }} onKeyDown={(event) => {
           if (event.key === "ArrowUp" || (event.key === "Enter" && event.shiftKey)) {
             focusInput(row - 1);
