@@ -6,25 +6,23 @@ Este projeto é uma versão do [Hidra](https://github.com/petcomputacaoufrgs/hid
 
 ## Link para acesso
 
-A aplicação web está disponível em:
-
-**https://felipeal.github.io/hidra-web**
+*Acesse a aplicação em:* ***https://felipeal.github.io/hidra-web***
 
 ## Sobre o Hidra
 
-O Hidra é um ambiente de desenvolvimento integrado (IDE) para as máquinas teóricas estudadas nas disciplinas de Arquitetura de Computadores da UFRGS e demais universidades.
+O Hidra é um ambiente de desenvolvimento integrado (IDE) para as máquinas teóricas estudadas nas disciplinas de Arquitetura e Organização de Computadores da UFRGS e demais universidades.
 
 O software unifica as tarefas de montagem, simulação e depuração em um ambiente favorável ao desenvolvimento, permitindo que o estudante possa se concentrar nas diferentes características de cada arquitetura.
 
-## Máquinas disponíveis
+## Arquiteturas simuladas
 
-As máquinas simuladas foram criadas pelos professores Raul Fernando Weber e Taisy Silva Weber.
+O Hidra simula diferentes máquinas, criadas pelos professores Raul Fernando Weber e Taisy Silva Weber, e utilizadas nas disciplinas de Arquitetura e Organização de Computadores:
 
 * *Neander*: arquitetura simples de 8-bits, criada para fins didáticos.
 * *Ahmes*: evolução do Neander, com instruções para facilitar a execução de operações aritméticas.
 * *Ramses*: evolução do Neander, com múltiplos registradores e modos de endereçamento.
 
-O Hidra também traz a simulação de diferentes variações dos computadores acima:
+O Hidra também traz a simulação de variações das arquiteturas acima:
 
 * *Cromag*: variação do Neander, com modo de endereçamento indireto e flag C (carry).
 * *Queops*: variação do Neander, seu diferencial é o modo de endereçamento relativo ao PC.
