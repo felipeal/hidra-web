@@ -22,7 +22,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "coverage": "react-scripts test --coverage --watchAll=false && node src/tests/utils/openCoverageReport.mjs",
+    "coverage": "react-scripts test --coverage --watchAll=false && node src/tests/utils/openCoverageReport.mjs && make-coverage-badge --output-path ./coverage.svg",
     "lint": "eslint --fix --ext .js,.jsx,.ts,.tsx ./src",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
@@ -49,7 +49,8 @@
   "devDependencies": {
     "@types/codemirror": "^5.60.5",
     "gh-pages": "^3.2.3",
-    "jest-watch-typeahead": "^0.6.5"
+    "jest-watch-typeahead": "^0.6.5",
+    "make-coverage-badge": "^1.2.0"
   },
   "jest": {
     "collectCoverageFrom": [

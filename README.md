@@ -1,5 +1,7 @@
 # Hidra Web
 
+![Coverage](coverage.svg?raw=true "Title")
+
 Este projeto é uma versão do [Hidra](https://github.com/petcomputacaoufrgs/hidracpp) para ambiente web, utilizando TypeScript e React.
 
 ## Link para acesso
