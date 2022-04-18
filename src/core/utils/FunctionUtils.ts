@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/ban-types
-type NullableObject = Object | null;
+type NullableObject = Object | null | undefined;
 
 export function assert(condition: boolean|NullableObject, message: string): asserts condition {
   if (!condition) {

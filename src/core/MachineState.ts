@@ -129,10 +129,7 @@ export abstract class MachineState {
 
   public isFlagTrue(flagName: string): boolean {
     const flag = this.flags.find(flag => flag.getName() === flagName);
-    if (!flag) {
-      throw new Error(`Invalid flag name: ${flagName}`);
-    }
-
+    assert(flag, `Invalid flag name: ${flagName}`);
     return flag.getValue();
   }
 
@@ -142,9 +139,7 @@ export abstract class MachineState {
 
   public setFlagValue(flagName: string, value: boolean): void {
     const flag = this.flags.find(flag => flag.getName() === flagName);
-    if (!flag) {
-      throw new Error(`Invalid flag name: ${flagName}`);
-    }
+    assert(flag, `Invalid flag name: ${flagName}`);
 
     flag.setValue(value);
     this.publishEvent(`FLAG.${flag.getName()}`, value);
@@ -191,10 +186,7 @@ export abstract class MachineState {
 
   public getRegisterInfo(registerName: string): RegisterInfo {
     const register = this.registers.find(register => register.getName().toLowerCase() === registerName.toLowerCase());
-    if (!register) {
-      throw new Error(`Invalid register name: ${registerName}`);
-    }
-
+    assert(register, `Invalid register name: ${registerName}`);
     return register.getInfo();
   }
 
@@ -204,10 +196,7 @@ export abstract class MachineState {
     }
 
     const register = this.registers.find(register => register.getName().toLowerCase() === registerName.toLowerCase());
-    if (!register) {
-      throw new Error(`Invalid register name: ${registerName}`);
-    }
-
+    assert(register, `Invalid register name: ${registerName}`);
     return register.getValue();
   }
 
@@ -217,9 +206,7 @@ export abstract class MachineState {
     }
 
     const register = this.registers.find(register => register.getName().toLowerCase() === registerName.toLowerCase());
-    if (!register) {
-      throw new Error(`Invalid register name: ${registerName}`);
-    }
+    assert(register, `Invalid register name: ${registerName}`);
 
     register.setValue(value);
     this.publishEvent(`REG.${registerName}`, register.getValue());
@@ -269,29 +256,19 @@ export abstract class MachineState {
     const defaultAddressingMode = this.addressingModes.find(
       addressingMode => addressingMode.getAssemblyPattern() === AddressingMode.NO_PATTERN
     );
-
-    if (!defaultAddressingMode) {
-      throw new Error("No default addressing mode found.");
-    }
-
+    assert(defaultAddressingMode, "No default addressing mode found.");
     return defaultAddressingMode.getAddressingModeCode();
   }
 
   public getAddressingModeBitCode(addressingModeCode: AddressingModeCode): number {
     const addressingMode = this.addressingModes.find(addressingMode => addressingMode.getAddressingModeCode() === addressingModeCode);
-    if (!addressingMode) {
-      throw new Error(`Invalid addressing mode code: ${addressingModeCode}`);
-    }
-
+    assert(addressingMode, `Invalid addressing mode code: ${addressingModeCode}`);
     return bitPatternToUnsignedByte(addressingMode.getBitPattern());
   }
 
   public getAddressingModePattern(addressingModeCode: AddressingModeCode): string {
     const addressingMode = this.addressingModes.find(addressingMode => addressingMode.getAddressingModeCode() === addressingModeCode);
-    if (!addressingMode) {
-      return ""; // TODO: Throw?
-    }
-
+    assert(addressingMode, `Invalid addressing mode code: ${addressingModeCode}`);
     return addressingMode.getAssemblyPattern();
   }
 

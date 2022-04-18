@@ -1,4 +1,3 @@
-import { bitPatternToUnsignedByte } from "./utils/Conversions";
 import { RegExpMatcher } from "./utils/RegExpMatcher";
 
 export enum AddressingModeCode {
@@ -16,21 +15,23 @@ export class AddressingMode {
   private readonly bitPattern: string;
   private readonly addressingModeCode: AddressingModeCode;
   private readonly assemblyPattern: string;
-  private readonly patternMatcher: RegExpMatcher | null;
+  private readonly assemblyPatternMatcher: RegExpMatcher | null;
+  private readonly bitPatternMatcher: RegExpMatcher;
 
   constructor(bitPattern: string, addressingModeCode: AddressingModeCode, assemblyPattern: string) {
     this.bitPattern = bitPattern;
     this.addressingModeCode = addressingModeCode;
     this.assemblyPattern = assemblyPattern;
-    this.patternMatcher = assemblyPattern ? new RegExpMatcher(assemblyPattern, "i") : null;
+    this.assemblyPatternMatcher = assemblyPattern ? new RegExpMatcher(assemblyPattern, "i") : null;
+    this.bitPatternMatcher = new RegExpMatcher(bitPattern);
   }
 
   public getBitPattern(): string {
     return this.bitPattern;
   }
 
-  public getBitCode(): number {
-    return bitPatternToUnsignedByte(this.bitPattern);
+  public matchesBitPattern(bitPattern: string): boolean {
+    return this.bitPatternMatcher.fullMatch(bitPattern);
   }
 
   public getAddressingModeCode(): AddressingModeCode {
@@ -42,7 +43,7 @@ export class AddressingMode {
   }
 
   public extractMatchingValue(argument: string): string | null {
-    return this.patternMatcher?.fullMatch(argument) ? this.patternMatcher.cap(1) : null;
+    return this.assemblyPatternMatcher?.fullMatch(argument) ? this.assemblyPatternMatcher.cap(1) : null;
   }
 
 }

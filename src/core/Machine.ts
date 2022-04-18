@@ -2,8 +2,8 @@ import { MachineState } from "./MachineState";
 import { FlagCode } from "./Flag";
 import { Instruction, InstructionCode } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
-import { RegExpMatcher } from "./utils/RegExpMatcher";
 import { unsignedByteToBitPattern, unsignedByteToSigned as toSigned } from "./utils/Conversions";
+import { assert } from "./utils/FunctionUtils";
 
 export abstract class Machine extends MachineState {
 
@@ -260,15 +260,10 @@ export abstract class Machine extends MachineState {
   }
 
   public extractAddressingModeCode(fetchedValue: number): AddressingModeCode {
-    for (const addressingMode of this.getAddressingModes()) {
-      const addressingModeMatcher = new RegExpMatcher(addressingMode.getBitPattern());
-
-      if (addressingModeMatcher.fullMatch(unsignedByteToBitPattern(fetchedValue))) {
-        return addressingMode.getAddressingModeCode();
-      }
-    }
-
-    throw new Error(`Addressing mode not found for fetched value: ${fetchedValue}`);
+    const bitPattern = unsignedByteToBitPattern(fetchedValue);
+    const addressingMode = this.getAddressingModes().find(m => m.matchesBitPattern(bitPattern));
+    assert(addressingMode, `Addressing mode not found for fetched value: ${fetchedValue}`);
+    return addressingMode.getAddressingModeCode();
   }
 
   public extractRegisterName(fetchedValue: number): string {

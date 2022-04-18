@@ -424,10 +424,9 @@ export class Assembler {
   protected isValidNBytesValue(valueString: string, n: number): boolean {
     if (n === 1) {
       return this.isValidValue(valueString, -128, 255);
-    } else if (n === 2) {
-      return this.isValidValue(valueString, -32768, 65535);
     } else {
-      throw new Error("Invalid number of bytes: " + n);
+      assert(n === 2, `Invalid number of bytes: ${n}`);
+      return this.isValidValue(valueString, -32768, 65535);
     }
   }
 
