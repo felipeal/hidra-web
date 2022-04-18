@@ -109,6 +109,14 @@ describe("App: Machine Area", () => {
     expect(getPCArrowAddress()).toBe("3");
   });
 
+  test("stop button: should stop the machine", () => {
+    buildSource("");
+    userEvent.click(screen.getByText("Rodar"));
+    userEvent.click(screen.getByText("Parar"));
+    runPendingTimers();
+    expect(getPCArrowAddress()).toBe("1");
+  });
+
   test("build button: should build the typed code to memory", () => {
     setSourceCode("add h80");
     userEvent.click(screen.getByText("Montar"));

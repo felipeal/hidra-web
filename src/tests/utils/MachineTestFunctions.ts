@@ -67,3 +67,10 @@ export function makeFunction_expectInstructionStrings(assembler: Assembler, mach
     expect(actualInstructionStrings).toDeepEqual(expectedInstructionStrings, source);
   };
 }
+
+export function expectNextOperandAddressAndStep(
+  machine: Machine, finalOperandAddress: number, intermediateAddress = -1, intermediateAddressByte2 = -1
+) {
+  expect(machine.getNextOperandAddress()).toEqual({ intermediateAddress, intermediateAddressByte2, finalOperandAddress });
+  machine.step();
+}

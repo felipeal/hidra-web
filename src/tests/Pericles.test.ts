@@ -2,8 +2,8 @@ import { } from "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
 import { AssemblerErrorCode } from "../core/AssemblerError";
 import { Pericles } from "../core/machines/Pericles";
-import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings, makeFunction_expectRunState }
-  from "./utils/MachineTestFunctions";
+import { expectNextOperandAddressAndStep, makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings,
+  makeFunction_expectRunState } from "./utils/MachineTestFunctions";
 
 const machine = new Pericles();
 const assembler = new Assembler(machine);
@@ -269,6 +269,14 @@ describe("Pericles: Disassembler", () => {
       "dab 46, 10", // LDR ? #10
       "dab 28, 0" // STR ? 0
     ], ["LDR ? #10", "", "STR ? 0"]);
+  });
+
+  test("operands: should be mapped correctly for highlighting", () => {
+    assembler.build(["add a 1000", "add a 2000,I", "ldr X #-128", "add a 4000,X", "org 2000", "dw 2500"].join("\n"));
+    expectNextOperandAddressAndStep(machine, 1000); // Direct
+    expectNextOperandAddressAndStep(machine, 2500, 2000, 2001); // Indirect
+    expectNextOperandAddressAndStep(machine, 7); // Immediate
+    expectNextOperandAddressAndStep(machine, 4000 - 128); // Indexed by X
   });
 
 });

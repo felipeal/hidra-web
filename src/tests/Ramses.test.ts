@@ -2,8 +2,8 @@ import { } from "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
 import { AssemblerErrorCode } from "../core/AssemblerError";
 import { Ramses } from "../core/machines/Ramses";
-import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings, makeFunction_expectRunState }
-  from "./utils/MachineTestFunctions";
+import { expectNextOperandAddressAndStep, makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings,
+  makeFunction_expectRunState } from "./utils/MachineTestFunctions";
 
 const machine = new Ramses();
 const assembler = new Assembler(machine);
@@ -249,6 +249,14 @@ describe("Ramses: Disassembler", () => {
       "dab 46, 10", // LDR ? #10
       "dab 28, 0" // STR ? 0
     ], ["LDR ? #10", "", "STR ? 0"]);
+  });
+
+  test("operands: should be mapped correctly for highlighting", () => {
+    assembler.build(["add a 100", "add a 200,I", "ldr X #-2", "add a 30,X", "org 200", "dab 250, 251"].join("\n"));
+    expectNextOperandAddressAndStep(machine, 100); // Direct
+    expectNextOperandAddressAndStep(machine, 250, 200); // Indirect
+    expectNextOperandAddressAndStep(machine, 5); // Immediate
+    expectNextOperandAddressAndStep(machine, 30 - 2); // Indexed by X
   });
 
 });

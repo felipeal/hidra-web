@@ -60,4 +60,10 @@ describe("Texts", () => {
     expectDistinctStrings(errorMessages);
   });
 
+  test("not found: should throw error", () => {
+    expect(() => Texts.getDirectiveDescription("invalid")).toThrow();
+    expect(() => Texts.getInstructionDescription("invalid", new Neander())).toThrow();
+    expect(() => Texts["getVoltaInstructionDescription"]("invalid")).toThrow();
+  });
+
 });

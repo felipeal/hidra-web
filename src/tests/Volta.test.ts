@@ -199,6 +199,10 @@ describe("Volta: Run", () => {
     expectRunState(["jsr 10,PC"], [], { r_PC: 12 });
   });
 
+  test("stack: should have correct size", () => {
+    expect(machine.getStackSize()).toBe(64);
+  });
+
   test("registers: should overflow at 256 (PC) or 64 (SP)", () => {
     expectRunState(["jmp 255", ""], [], { r_PC: 0 });
     expectRunState(range(63).map(() => "psh #1"), values, { r_SP: 63 });

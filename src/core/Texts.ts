@@ -50,7 +50,7 @@ export class Texts {
 
   public static getInstructionDescription(assemblyFormat: string, machine: Machine | null): [name: string, description: string] {
     if (machine instanceof Volta) {
-      return Texts.getVoltaDescription(assemblyFormat);
+      return Texts.getVoltaInstructionDescription(assemblyFormat);
     }
 
     switch (assemblyFormat) {
@@ -119,7 +119,7 @@ export class Texts {
     return (text.includes("a0") && text.includes("a1")) ? text.replace("a0", "a").replace("a1", "b") : text;
   }
 
-  private static getVoltaDescription(assemblyFormat: string): [string, string] {
+  private static getVoltaInstructionDescription(assemblyFormat: string): [string, string] {
     switch (assemblyFormat) {
       case "nop": return Texts.getInstructionDescription(assemblyFormat, null); // Reuse description
 

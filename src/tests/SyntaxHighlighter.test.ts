@@ -44,7 +44,7 @@ describe("Syntax Highlighter", () => {
     processToken = makeFunction_processToken(new Neander());
   });
 
-  it("instructions: should highlight when valid", () => {
+  test("instructions: should highlight when valid", () => {
     expect(revealStyles("lda 0")).toBe("<i>lda</i> 0");
     expect(revealStyles("LdA 0")).toBe("<i>LdA</i> 0"); // Case-insensitive
     expect(revealStyles("POP 0")).toBe("POP 0"); // Different machine's instruction
@@ -53,7 +53,7 @@ describe("Syntax Highlighter", () => {
     expect(revealStyles("LDA 'LDA'")).toBe("<i>LDA</i> <s>'LDA'</s>"); // With string containing instruction
   });
 
-  it("directives: should highlight when valid", () => {
+  test("directives: should highlight when valid", () => {
     expect(revealStyles("org 0")).toBe("<d>org</d> 0");
     expect(revealStyles("dB")).toBe("<d>dB</d>"); // Case-insensitive
     expect(revealStyles("dw;")).toBe("<d>dw</d><c>;</c>"); // With comment
@@ -61,13 +61,13 @@ describe("Syntax Highlighter", () => {
     expect(revealStyles("daw 'daw'")).toBe("<d>daw</d> <s>'daw'</s>"); // With string containing directive
   });
 
-  it("strings: should highlight finished and unfinished strings", () => {
+  test("strings: should highlight finished and unfinished strings", () => {
     expect(revealStyles(" 'a' ")).toBe(" <s>'a'</s> "); // Finished string
     expect(revealStyles(" 'a ")).toBe(" <s>'a </s>"); // Unfinished string
     expect(revealStyles("'a','b' 'c")).toBe("<s>'a'</s>,<s>'b'</s> <s>'c</s>"); // Unfinished strings after multiple
   });
 
-  it("literal quotes: should be detected correctly and behave as strings", () => {
+  test("literal quotes: should be detected correctly and behave as strings", () => {
     expect(revealStyles("''';")).toBe("<s>'''</s><c>;</c>"); // Literal quote
     expect(revealStyles("'''';")).toBe("<s>'''';</s>"); // Unfinished string with literal quote
     expect(revealStyles("''''';")).toBe("<s>'''''</s><c>;</c>"); // String with literal quote
@@ -77,7 +77,7 @@ describe("Syntax Highlighter", () => {
     expect(revealStyles("'''' ''' '''';")).toBe("<s>'''' ''' ''''</s><c>;</c>"); // String with spaced literal quotes
   });
 
-  it("comments: should be detected correctly", () => {
+  test("comments: should be detected correctly", () => {
     expect(revealStyles("; a b")).toBe("<c>; a b</c>"); // Comment
     expect(revealStyles(";; ;;")).toBe("<c>;; ;;</c>"); // Comment symbols inside comment
     expect(revealStyles("NOP ;")).toBe("<i>NOP</i> <c>;</c>"); // Comment after instruction
