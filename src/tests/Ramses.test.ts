@@ -252,11 +252,12 @@ describe("Ramses: Disassembler", () => {
   });
 
   test("operands: should be mapped correctly for highlighting", () => {
-    assembler.build(["add a 100", "add a 200,I", "ldr X #-2", "add a 30,X", "org 200", "dab 250, 251"].join("\n"));
+    expect(assembler.build(["add a 100", "add a 200,I", "ldr X #-2", "add a 30,X", "nop", "org 200", "dab 250, 251"].join("\n"))).toEqual([]);
     expectNextOperandAddressAndStep(machine, 100); // Direct
     expectNextOperandAddressAndStep(machine, 250, 200); // Indirect
     expectNextOperandAddressAndStep(machine, 5); // Immediate
     expectNextOperandAddressAndStep(machine, 30 - 2); // Indexed by X
+    expectNextOperandAddressAndStep(machine, -1); // NOP
   });
 
 });

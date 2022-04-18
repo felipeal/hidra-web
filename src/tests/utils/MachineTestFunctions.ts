@@ -71,6 +71,6 @@ export function makeFunction_expectInstructionStrings(assembler: Assembler, mach
 export function expectNextOperandAddressAndStep(
   machine: Machine, finalOperandAddress: number, intermediateAddress = -1, intermediateAddressByte2 = -1
 ) {
-  expect(machine.getNextOperandAddress()).toEqual({ intermediateAddress, intermediateAddressByte2, finalOperandAddress });
+  expect(machine.previewNextOperandAddress()).toEqual({ intermediateAddress, intermediateAddressByte2, finalOperandAddress });
   machine.step();
 }

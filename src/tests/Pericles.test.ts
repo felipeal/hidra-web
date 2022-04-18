@@ -272,11 +272,12 @@ describe("Pericles: Disassembler", () => {
   });
 
   test("operands: should be mapped correctly for highlighting", () => {
-    assembler.build(["add a 1000", "add a 2000,I", "ldr X #-128", "add a 4000,X", "org 2000", "dw 2500"].join("\n"));
+    expect(assembler.build(["add a 1000", "add a 2000,I", "ldr X #-128", "add a 4000,X", "nop", "org 2000", "dw 2500"].join("\n"))).toEqual([]);
     expectNextOperandAddressAndStep(machine, 1000); // Direct
     expectNextOperandAddressAndStep(machine, 2500, 2000, 2001); // Indirect
     expectNextOperandAddressAndStep(machine, 7); // Immediate
     expectNextOperandAddressAndStep(machine, 4000 - 128); // Indexed by X
+    expectNextOperandAddressAndStep(machine, -1); // NOP
   });
 
 });

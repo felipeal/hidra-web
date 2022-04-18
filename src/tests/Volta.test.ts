@@ -1,7 +1,7 @@
 import { } from "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
 import { Volta } from "../core/machines/Volta";
-import { makeFunction_expectBuildSuccess, makeFunction_expectRunState } from "./utils/MachineTestFunctions";
+import { expectNextOperandAddressAndStep, makeFunction_expectBuildSuccess, makeFunction_expectRunState } from "./utils/MachineTestFunctions";
 import { range } from "../core/utils/FunctionUtils";
 
 const machine = new Volta();
@@ -209,6 +209,15 @@ describe("Volta: Run", () => {
     expectRunState(range(64).map(() => "psh #1"), values, { r_SP: 0 });
     expectRunState(range(63).map(() => "pop #1"), values, { r_SP: 1 });
     expectRunState(range(64).map(() => "pop #1"), values, { r_SP: 0 });
+  });
+
+  test("operands: should be mapped correctly for highlighting", () => {
+    expect(assembler.build(["psh 10", "psh 20,I", "psh #-2", "psh 30,PC", "nop", "org 20", "dab 250, 251"].join("\n"))).toEqual([]);
+    expectNextOperandAddressAndStep(machine, 10); // Direct
+    expectNextOperandAddressAndStep(machine, 250, 20); // Indirect
+    expectNextOperandAddressAndStep(machine, 5); // Immediate
+    expectNextOperandAddressAndStep(machine, 30 + 8); // Indexed by PC
+    expectNextOperandAddressAndStep(machine, -1); // NOP
   });
 
 });

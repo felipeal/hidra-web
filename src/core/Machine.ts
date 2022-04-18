@@ -445,7 +445,7 @@ export abstract class Machine extends MachineState {
   }
 
   // Used to highlight the next operand
-  public getNextOperandAddress(): { intermediateAddress: number, intermediateAddressByte2: number, finalOperandAddress: number } {
+  public previewNextOperandAddress(): { intermediateAddress: number, intermediateAddressByte2: number, finalOperandAddress: number } {
     const fetchedValue = this.getMemoryValue(this.getPCValue());
     const instruction = this.getInstructionFromValue(fetchedValue);
     const addressingModeCode = this.extractAddressingModeCode(fetchedValue);
@@ -470,16 +470,17 @@ export abstract class Machine extends MachineState {
         finalOperandAddress = this.getMemoryValue(intermediateAddress);
         break;
 
-      case AddressingModeCode.IMMEDIATE: // Immediate addressing mode
+      case AddressingModeCode.IMMEDIATE:
         finalOperandAddress = immediateAddress;
         break;
 
-      case AddressingModeCode.INDEXED_BY_X: // Indexed addressing mode
+      case AddressingModeCode.INDEXED_BY_X:
         finalOperandAddress = this.toValidAddress(this.getMemoryValue(immediateAddress) + this.getRegisterValue("X"));
         break;
 
       case AddressingModeCode.INDEXED_BY_PC:
-        finalOperandAddress = this.toValidAddress(this.getMemoryValue(immediateAddress) + this.getRegisterValue("PC"));
+        // PC will be pointing to the next instruction in memory
+        finalOperandAddress = this.toValidAddress(this.getMemoryValue(immediateAddress) + this.getRegisterValue("PC") + instruction.getNumBytes());
         break;
     }
 

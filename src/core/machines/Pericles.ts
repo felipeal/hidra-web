@@ -79,7 +79,7 @@ export class Pericles extends Machine {
     }
   }
 
-  public getNextOperandAddress(): { intermediateAddress: number, intermediateAddressByte2: number, finalOperandAddress: number } {
+  public previewNextOperandAddress(): { intermediateAddress: number, intermediateAddressByte2: number, finalOperandAddress: number } {
     const fetchedValue = this.getMemoryValue(this.getPCValue());
     const instruction = this.getInstructionFromValue(fetchedValue);
     const addressingModeCode = this.extractAddressingModeCode(fetchedValue);
