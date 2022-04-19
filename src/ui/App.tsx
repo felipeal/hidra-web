@@ -54,15 +54,19 @@ function isSafeToDiscardSource() {
 const showBusy = () => document.body.classList.add("is-busy");
 const hideBusy = () => document.body.classList.remove("is-busy");
 
-const initialMachine = new Neander() as Machine;
-const initialAssembler = new Assembler(initialMachine);
 const navBarHeightPx = 44;
 const showWIP = false;
 
 let timeout: NodeJS.Timeout;
 
+function initialState(): [Machine, Assembler] {
+  const initialMachine = new Neander() as Machine;
+  const initialAssembler = new Assembler(initialMachine);
+  return [initialMachine, initialAssembler];
+}
+
 export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }) {
-  const [[machine, assembler], setState] = useState([initialMachine, initialAssembler]);
+  const [[machine, assembler], setState] = useState(initialState());
   const [errorMessages, setErrorMessages] = useState([] as ErrorMessage[]);
   const [isRunning, setRunning] = useState(machine.isRunning());
 
