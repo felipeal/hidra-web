@@ -12,15 +12,17 @@ import { buildMachine } from "./MachineUtils";
 
 export class FileError extends Error {}
 
+const IDENTIFIER_LENGTH = 3;
+
 export function generateFileNameForMachine(machine: Machine, { isBinary = false } = {}): string {
-  const localDate = new Date().toLocaleString("sv"); // Similar to ISO
-  const sanitizedLocalDate = localDate.replace(" ", "_").replaceAll(":", "-");
+  const localDate = new Date().toLocaleString("sv"); // 2000-12-31 00:00:00
+  const sanitizedLocalDate = localDate.replace(" ", "_").replaceAll(":", "-"); // 2000-12-31_00-00-00
   const extension = isBinary ? "mem" : getMachineFileExtension(machine);
   const fileName = `${machine.getName()}_${sanitizedLocalDate}.${extension}`;
   return fileName;
 }
 
-function getMachineFileExtension(machine: Machine): string {
+export function getMachineFileExtension(machine: Machine): string {
   switch (machine.getName()) {
     case "Neander": return "ned";
     case "Ahmes": return "ahd";
@@ -81,8 +83,8 @@ export async function importMemory(file: File): Promise<Machine> {
     throw new FileError("Binary file is empty.");
   }
 
-  const identifier = new TextDecoder().decode(bytes.slice(1, 1 + (bytes[0] ?? 0)));
-  if (!identifier || identifier.length !== 3) {
+  const identifier = new TextDecoder().decode(bytes.slice(1, 1 + IDENTIFIER_LENGTH));
+  if (bytes[0] !== IDENTIFIER_LENGTH || identifier.length < IDENTIFIER_LENGTH) {
     throw new FileError("Invalid binary file.");
   }
 

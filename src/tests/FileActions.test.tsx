@@ -99,8 +99,8 @@ describe("File Actions", () => {
     userEvent.click(screen.getByText(/Arquivo/));
     userEvent.click(screen.getByText("Salvar"));
 
-    const fileNameRegEx = /Neander_\d\d\d\d-\d\d-\d\d_\d\d-\d\d-\d\d\.ned/;
-    expect(screen.getByTestId<HTMLAnchorElement>("save-file-anchor").download).toMatch(fileNameRegEx);
+    const extensionRegEx = /\.ned$/;
+    expect(screen.getByTestId<HTMLAnchorElement>("save-file-anchor").download).toMatch(extensionRegEx);
     expect(screen.getByTestId<HTMLAnchorElement>("save-file-anchor").href).toMatch(/generated-url/);
     expect(screen.getByTestId("save-file-anchor").click).toHaveBeenCalled();
   });
@@ -140,8 +140,8 @@ describe("File Actions", () => {
     userEvent.click(screen.getByText(/Arquivo/));
     userEvent.click(screen.getByText("Exportar memória"));
 
-    const fileNameRegEx = /Neander_\d\d\d\d-\d\d-\d\d_\d\d-\d\d-\d\d\.mem/;
-    expect(screen.getByTestId<HTMLAnchorElement>("export-memory-anchor").download).toMatch(fileNameRegEx);
+    const extensionRegEx = /\.mem$/;
+    expect(screen.getByTestId<HTMLAnchorElement>("export-memory-anchor").download).toMatch(extensionRegEx);
     expect(screen.getByTestId<HTMLAnchorElement>("export-memory-anchor").href).toMatch(/generated-url/);
   });
 

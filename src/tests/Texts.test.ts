@@ -8,11 +8,7 @@ import { Queops } from "../core/machines/Queops";
 import { Ramses } from "../core/machines/Ramses";
 import { Volta } from "../core/machines/Volta";
 import { buildMachine, getMachineNames } from "../ui/utils/MachineUtils";
-
-function expectDistinctStrings(items: string[]) {
-  expect(items).not.toContain("");
-  expect(new Set(items).size).toBe(items.length);
-}
+import { expectDistinctStrings } from "./utils/StringTestFunctions";
 
 describe("Texts", () => {
 
