@@ -85,7 +85,7 @@ describe("Options", () => {
    * Options -> Char column
    ****************************************************************************/
 
-  test("display chars: shoud display char column", async () => {
+  test("display chars: should display char column", async () => {
     selectMachine("Volta");
     buildSource(["psh #'a'"], { steps: 1 });
 
@@ -96,6 +96,19 @@ describe("Options", () => {
 
     expect(within(screen.getByTestId("data-table")).getByText("a")).toBeInTheDocument();
     expect(within(screen.getByTestId("stack-table")).getByText("a")).toBeInTheDocument();
+  });
+
+  /****************************************************************************
+   * Keyboard
+   ****************************************************************************/
+
+  test("options: should toggle with space", async () => {
+    // Click menu entry
+    userEvent.click(screen.getByText(/Opções/));
+    userEvent.click(screen.getByText(/hex/i));
+    expect(within(screen.getByTestId("data-table")).getByText("01")).toBeInTheDocument();
+    userEvent.keyboard(" ");
+    expect(within(screen.getByTestId("data-table")).queryByText("01")).not.toBeInTheDocument();
   });
 
 });

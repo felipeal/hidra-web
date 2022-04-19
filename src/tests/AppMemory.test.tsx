@@ -24,8 +24,15 @@ describe("App: Memory Areas", () => {
   test("instructions table: should allow editing values", () => {
     buildSource("add 16");
     const inputField = within(screen.getByTestId("instructions-table")).getByDisplayValue("16");
+
     userEvent.type(inputField, "{selectall}32{enter}");
     expect(screen.getByText("ADD 32")).toBeInTheDocument();
+
+    userEvent.keyboard("{shift}{enter}{/shift}{selectall}36{arrowdown}");
+    expect(screen.getByText("ADD 36")).toBeInTheDocument();
+
+    userEvent.keyboard("{arrowup}{selectall}40{arrowup}");
+    expect(screen.getByText("ADD 40")).toBeInTheDocument();
   });
 
   test("instructions table: should show instruction strings", () => {
@@ -40,9 +47,17 @@ describe("App: Memory Areas", () => {
   test("data table: should allow editing values", () => {
     buildSource("add 16");
     const inputField = within(screen.getByTestId("data-table")).getByDisplayValue("16");
+
     userEvent.type(inputField, "{selectall}32{enter}");
     expect(within(screen.getByTestId("data-table")).getByDisplayValue("32")).toBeInTheDocument();
-    expect(screen.getByText("ADD 32")).toBeInTheDocument();
+
+    userEvent.keyboard("{shift}{enter}{/shift}{selectall}36{arrowdown}");
+    expect(within(screen.getByTestId("data-table")).getByDisplayValue("36")).toBeInTheDocument();
+
+    userEvent.keyboard("{arrowup}{selectall}40{arrowup}");
+    expect(within(screen.getByTestId("data-table")).getByDisplayValue("40")).toBeInTheDocument();
+
+    expect(screen.getByText("ADD 40")).toBeInTheDocument();
   });
 
   test("data table: should show labels", () => {
@@ -64,8 +79,15 @@ describe("App: Memory Areas", () => {
     selectMachine("Volta");
     buildSource("psh #16", { steps: 1 });
     const inputField = within(screen.getByTestId("stack-table")).getByDisplayValue("16");
+
     userEvent.type(inputField, "{selectall}32{enter}");
     expect(within(screen.getByTestId("stack-table")).getByDisplayValue("32")).toBeInTheDocument();
+
+    userEvent.keyboard("{shift}{enter}{/shift}{selectall}36{arrowdown}");
+    expect(within(screen.getByTestId("stack-table")).getByDisplayValue("36")).toBeInTheDocument();
+
+    userEvent.keyboard("{arrowup}{selectall}40{arrowup}");
+    expect(within(screen.getByTestId("stack-table")).getByDisplayValue("40")).toBeInTheDocument();
   });
 
   test("stack table: should update correctly", () => {
