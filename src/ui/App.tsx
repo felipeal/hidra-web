@@ -66,7 +66,7 @@ function initialState(): [Machine, Assembler] {
   return [initialMachine, initialAssembler];
 }
 
-export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }) {
+export default function App() {
   const [[machine, assembler], setState] = useState(initialState());
   const [errorMessages, setErrorMessages] = useState([] as ErrorMessage[]);
   const [isRunning, setRunning] = useState(machine.isRunning());
@@ -462,8 +462,7 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
           ********************************************************************/}
 
         {/* Instructions memory area */}
-        <MemoryInstructions instructionsDimensions={instructionsDimensions} firstRowsOnly={firstRowsOnly}
-          machine={machine} assembler={assembler} displayHex={displayHex} />
+        <MemoryInstructions dimensions={instructionsDimensions} machine={machine} assembler={assembler} displayHex={displayHex} />
 
         {/* Data memory area */}
         <table className="data-table" data-testid="data-table" style={{
@@ -478,7 +477,7 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
             </tr>
           </thead>
           <tbody>
-            {range(firstRowsOnly ? 8 : machine.getMemorySize()).map((address) => {
+            {range(machine.getMemorySize()).map((address) => {
               return <MemoryRowData key={address} address={address} machine={machine} assembler={assembler}
                 displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars}
               />;

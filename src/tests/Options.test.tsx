@@ -9,7 +9,7 @@ import { buildSource, getInputByLabel, runPendingTimers, selectMachine, setSourc
 describe("Options", () => {
 
   beforeEach(async () => {
-    render(<App firstRowsOnly />);
+    render(<App/>);
     setSourceCode("");
   });
 

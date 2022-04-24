@@ -9,7 +9,7 @@ import { buildSource, changePCRow, changeSPRow, selectMachine, setSourceCode } f
 describe("App: Memory Areas", () => {
 
   beforeEach(() => {
-    render(<App firstRowsOnly />);
+    render(<App/>);
     setSourceCode("");
   });
 

@@ -26,7 +26,7 @@ export function isPowerOfTwo(size: number): boolean {
 }
 
 export function range(length: number): number[] {
-  return Object.keys(new Array(length).fill(undefined)).map(index => Number(index));
+  return Array.from(Array(length).keys());
 }
 
 export function buildArray<T>(length: number, buildFunction: (index: number) => T): T[] {

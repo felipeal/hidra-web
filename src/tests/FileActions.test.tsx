@@ -28,7 +28,7 @@ function buildRamsesMemoryFile(): Uint8Array {
 describe("File Actions", () => {
 
   beforeEach(async () => {
-    render(<App firstRowsOnly />);
+    render(<App/>);
     setSourceCode("");
   });
 

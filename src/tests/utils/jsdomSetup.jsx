@@ -1,3 +1,5 @@
+import React from "react";
+
 import { TextEncoder, TextDecoder } from "util";
 
 // Always use fake timers
@@ -22,6 +24,16 @@ global.TextDecoder = TextDecoder; // eslint-disable-line no-undef
 jest.mock(
   "react-virtualized-auto-sizer",
   () => ({ children }) => children({ height: 480, width: 640 })
+);
+
+// Mock FixedSizeList component
+jest.mock(
+  "react-window", () => ({
+    // eslint-disable-next-line react/prop-types
+    FixedSizeList: ({ children }) => (<>
+      {[...Array(8).keys()].map(n => children({ index: n }))}
+    </>)
+  })
 );
 
 export default { };

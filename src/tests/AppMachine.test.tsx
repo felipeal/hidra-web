@@ -9,7 +9,7 @@ import { buildSource, changePCRow, getInputByLabel, getPCArrowAddress, runPendin
 describe("App: Machine Area", () => {
 
   beforeEach(() => {
-    render(<App firstRowsOnly />);
+    render(<App/>);
     setSourceCode("");
   });
 
