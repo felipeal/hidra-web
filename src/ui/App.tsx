@@ -1,6 +1,8 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, LegacyRef, useEffect, useLayoutEffect, useRef, useState } from "react";
 import codemirror from "codemirror";
 import Tippy from "@tippyjs/react";
+import { FixedSizeList } from "react-window";
+import AutoSizer from "react-virtualized-auto-sizer";
 import "tippy.js/dist/tippy.css";
 import "tippy.js/themes/light-border.css";
 
@@ -16,6 +18,7 @@ import { Menu, SubMenuCheckBox, SubMenuItem, SubMenuSeparator } from "./Menus";
 import { buildMachine, getMachineNames, resetPCAndSP } from "./utils/MachineUtils";
 import { FileError, buildMachineBasedOnFileName, exportMemory, generateFileNameForMachine, importMemory } from "./utils/MachineFileUtils";
 import { scrollToCurrentPCRow, scrollToFirstDataRow, scrollToLastStackRow, scrollToPCLineAndRow } from "./utils/ScrollHandler";
+import { toPx } from "./utils/LayoutUtils";
 
 import { Machine } from "../core/Machine";
 import { Neander } from "../core/machines/Neander";
@@ -164,6 +167,51 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
     alert(errorMessage);
   }
 
+  const [isMeasured, setIsMeasured] = useState(false);
+
+  const [instructionsDimensions, setInstructionsDimensions] = useState({
+    rowWidth: 0,
+    headerHeight: 0,
+    rowHeight: 0,
+    columnWidths: [0, 0, 0, 0]
+  });
+
+  const headerRef = useRef<HTMLDivElement>();
+  const bodyRef = useRef<HTMLDivElement>();
+
+  useLayoutEffect(() => {
+    if (!isMeasured && headerRef.current && bodyRef.current) {
+      const headerCells = Array.from(headerRef.current.childNodes) as Array<HTMLTableCellElement>;
+      setInstructionsDimensions({
+        rowWidth: headerRef.current.offsetWidth,
+        headerHeight: headerRef.current.offsetHeight,
+        rowHeight: bodyRef.current.offsetHeight,
+        columnWidths: headerCells.map(r => r.offsetWidth)
+      });
+      setIsMeasured(true);
+    }
+  }, [isMeasured]);
+
+  // Render a fake table with the widest texts possible for measuring purposes
+  if (!isMeasured) {
+    return (<div className="table" style={{ display: "table" }}>
+      <div className="tr" ref={headerRef as LegacyRef<HTMLDivElement>}>
+        <div className="th">PC</div>
+        <div className="th">End.</div>
+        <div className="th">Valor</div>
+        <div className="th">Instruções</div>
+      </div>
+      <div className="tr" ref={bodyRef as LegacyRef<HTMLDivElement>} style={{ overflowY: "scroll" }}>
+        <div className="td">→</div>
+        <div className="td">4096</div>
+        <div className="td">
+          <input className="table-value"/>
+        </div>
+        <div className="td">IF R63 255 255</div>
+      </div>
+    </div>);
+  }
+
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }} onDrop={async (event) => {
       event.preventDefault(); // Prevent file from being opened
@@ -180,7 +228,7 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
         **********************************************************************/}
 
       <div className="navbar" style={{
-        height: `${navBarHeightPx}px`, display: "flex", gap: "8px", alignItems: "center", padding: "0 16px", columnGap: "8px"
+        height: toPx(navBarHeightPx), display: "flex", gap: "8px", alignItems: "center", padding: "0 16px", columnGap: "8px"
       }}>
         <span style={{ padding: "8px" }}>Hidra</span>
         <Menu title="Arquivo">
@@ -445,23 +493,35 @@ export default function App({ firstRowsOnly }: { firstRowsOnly?: boolean } = { }
           ********************************************************************/}
 
         {/* Instructions memory area */}
-        <table className="instructions-table" data-testid="instructions-table" style={{
-          height: "100%", display: "block", overflowY: "scroll", minWidth: "10rem"
-        }}>
-          <thead>
-            <tr>
-              <th>PC</th>
-              <th>End.</th>
-              <th>Valor</th>
-              <th>Instrução</th>
-            </tr>
-          </thead>
-          <tbody>
-            {range(firstRowsOnly ? 8 : machine.getMemorySize()).map((address) => {
-              return <MemoryRowInstructions key={address} address={address} machine={machine} assembler={assembler} displayHex={displayHex} />;
-            })}
-          </tbody>
-        </table>
+        <div className="instructions-table table" data-testid="instructions-table" style={{ height: "100%", display: "block" }}>
+          <AutoSizer disableWidth>
+            {({ height: autoSizerHeight }) => (
+              <>
+                <div className="thead" style={{ display: "flex", height: toPx(instructionsDimensions.headerHeight) }}>
+                  <div className="th" style={{ width: toPx(instructionsDimensions.columnWidths[0]) }}>PC</div>
+                  <div className="th" style={{ width: toPx(instructionsDimensions.columnWidths[1]) }}>End.</div>
+                  <div className="th" style={{ width: toPx(instructionsDimensions.columnWidths[2]) }}>Valor</div>
+                  <div className="th" style={{ width: toPx(instructionsDimensions.columnWidths[3]) }}>Instrução</div>
+                </div>
+                {(firstRowsOnly
+                  ? range(8).map((address) => (
+                    <MemoryRowInstructions key={address} columnWidths={instructionsDimensions.columnWidths} style={{}}
+                      address={address} machine={machine} assembler={assembler} displayHex={displayHex}
+                    />
+                  ))
+                  : <FixedSizeList width={instructionsDimensions.rowWidth} height={autoSizerHeight - instructionsDimensions.headerHeight - 2}
+                    itemCount={machine.getMemorySize()} itemSize={instructionsDimensions.rowHeight} style={{ overflowX: "hidden" }}
+                  >
+                    {({ index, style }) => (
+                      <MemoryRowInstructions columnWidths={instructionsDimensions.columnWidths} style={style}
+                        address={index} machine={machine} assembler={assembler} displayHex={displayHex}
+                      />
+                    )}
+                  </FixedSizeList>)}
+              </>
+            )}
+          </AutoSizer>
+        </div>
 
         {/* Data memory area */}
         <table className="data-table" data-testid="data-table" style={{

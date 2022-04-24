@@ -20,7 +20,7 @@ code, .monospace-font, .CodeMirror {
   font-family: Consolas, 'Courier New', monospace;
 }
 
-select, fieldset, button, table, input, .pc-sp-arrow {
+select, fieldset, button, table, .table, input, .pc-sp-arrow {
   font-size: 14px;
 }
 
@@ -261,21 +261,43 @@ fieldset legend {
 /* Right area (memory tables)
 /******************************************************************************/
 
-table {
+/* TODO: Use memory-table instead of table */
+
+table,
+.table {
   border: 1px solid #889;
   border-collapse: collapse;
 }
 
+.table {
+  box-sizing: border-box;
+  display: table;
+}
+.tr {
+  box-sizing: border-box;
+  display: table-row;
+}
+.th, .td {
+  box-sizing: border-box;
+  display: table-cell;
+}
+
 /* Inner borders */
-td + td, th + th {
+td + td, th + th,
+.td + .td, .th + .th {
   border-left: 1px solid #ddd;
 }
-tr + tr {
+tr + tr,
+.tr + .tr {
   border-top: 1px solid #ddd;
 }
 
 /* Sticky header */
-th {
+.thead {
+  background-color: #eee;
+}
+th,
+.th {
   padding: 4px;
   font-weight: unset;
   background-color: #eee;
@@ -286,11 +308,13 @@ th {
   top: 0;
 }
 
-table input {
+table input,
+.table input {
   border: none;
 }
 
-td {
+td,
+.td {
   padding: 4px;
 }
 

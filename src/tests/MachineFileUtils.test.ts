@@ -1,3 +1,5 @@
+import { } from "./utils/jsdomSetup";
+
 import { } from "./utils/CustomExtends";
 import { Neander } from "../core/machines/Neander";
 import { buildMachineBasedOnIdentifier, exportMemory, FileError, generateFileNameForMachine, getMachineFileExtension, importMemory }
@@ -7,7 +9,6 @@ import { expectDistinctStrings } from "./utils/StringTestFunctions";
 import { Machine } from "../core/Machine";
 import { Ahmes } from "../core/machines/Ahmes";
 import { Ramses } from "../core/machines/Ramses";
-import { } from "./utils/jsdomSetup";
 
 function valueToUint8(value: number | string): number {
   return (typeof value === "string") ? value.charCodeAt(0) : value;

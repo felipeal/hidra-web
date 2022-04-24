@@ -18,4 +18,10 @@ Element.prototype.scrollTo = () => {/* */};
 global.TextEncoder = TextEncoder; // eslint-disable-line no-undef
 global.TextDecoder = TextDecoder; // eslint-disable-line no-undef
 
+// Mock AutoSizer component
+jest.mock(
+  "react-virtualized-auto-sizer",
+  () => ({ children }) => children({ height: 480, width: 640 })
+);
+
 export default { };

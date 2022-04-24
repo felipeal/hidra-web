@@ -3,6 +3,7 @@ import { Assembler } from "../core/Assembler";
 import { unsignedByteToString, addressToHex, instructionStringToHex, uncheckedByteStringToNumber } from "../core/utils/Conversions";
 import { Machine } from "../core/Machine";
 import { buildUnsubscribeCallback } from "../core/utils/EventUtils";
+import { classes, toPx } from "./utils/LayoutUtils";
 
 function computeIsCurrentInstruction(address: number, assembler: Assembler): boolean {
   const addressSourceLine = assembler.getAddressCorrespondingSourceLine(address);
@@ -15,8 +16,8 @@ function focusInput(row: number) {
   (tableInputs[row] as HTMLInputElement)?.focus();
 }
 
-export default function MemoryRowInstructions({ address, machine, assembler, displayHex }:
-  { address: number, machine: Machine, assembler: Assembler, displayHex: boolean}
+export default function MemoryRowInstructions({ columnWidths, style, address, machine, assembler, displayHex }:
+  { columnWidths: number[], style: React.CSSProperties, address: number, machine: Machine, assembler: Assembler, displayHex: boolean}
 ) {
   const [value, setValue] = useState(unsignedByteToString(machine.getMemoryValue(address), { displayHex }));
   const [instructionString, setInstructionString] = useState(String(machine.getInstructionString(address)));
@@ -42,12 +43,18 @@ export default function MemoryRowInstructions({ address, machine, assembler, dis
   }, [machine, assembler, displayHex, address]);
 
   return (
-    <tr className={"instruction-row" + (isCurrentInstruction ? " current-instruction-line" : "")}>
-      <td className="monospace-font pc-sp-arrow pc-sp-cell" onClick={() => machine.setPCValue(address)}>
+    <div style={{ ...style, display: "flex", flexDirection: "row" }}
+      className={classes("tr", "instruction-row", (isCurrentInstruction ? "current-instruction-line" : ""))}
+    >
+      <div style={{ width: toPx(columnWidths[0]) }}
+        className="monospace-font pc-sp-arrow pc-sp-cell td" onClick={() => machine.setPCValue(address)}>
         {isCurrentPos ? "→" : ""}
-      </td>
-      <td className="table-address">{displayHex ? addressToHex(address, machine.getMemorySize()) : address}</td>
-      <td>
+      </div>
+
+      <div style={{ width: toPx(columnWidths[1]) }}
+        className="table-address td">{displayHex ? addressToHex(address, machine.getMemorySize()) : address}</div>
+
+      <div className="td" style={{ width: toPx(columnWidths[2]) }}>
         <input className="table-value" inputMode="numeric" value={value} onChange={(event) => {
           setValue(event.target.value);
         }} onBlur={(event) => {
@@ -63,8 +70,11 @@ export default function MemoryRowInstructions({ address, machine, assembler, dis
         }} onFocus={(event) => {
           setTimeout(() => (event.target as HTMLInputElement).select(), 0);
         }} />
-      </td>
-      <td>{displayHex ? instructionStringToHex(instructionString) : instructionString}</td>
-    </tr>
+      </div>
+
+      <div className="td" style={{ width: toPx(columnWidths[3]) }}>
+        {displayHex ? instructionStringToHex(instructionString) : instructionString}
+      </div>
+    </div>
   );
 }

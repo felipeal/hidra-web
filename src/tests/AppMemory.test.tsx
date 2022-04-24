@@ -1,8 +1,9 @@
+import { } from "./utils/jsdomSetup";
+
 import React from "react";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "../ui/App";
-import { } from "./utils/jsdomSetup";
 import { buildSource, changePCRow, changeSPRow, selectMachine, setSourceCode } from "./utils/AppTestFunctions";
 
 describe("App: Memory Areas", () => {

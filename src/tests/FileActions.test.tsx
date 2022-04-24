@@ -1,8 +1,9 @@
+import { } from "./utils/jsdomSetup";
+
 import React from "react";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "../ui/App";
-import { } from "./utils/jsdomSetup";
 import { getSelectedMachine, runPendingTimers, setSourceCode } from "./utils/AppTestFunctions";
 
 async function openFile(fileName: string, arrayBuffer: Uint8Array, inputTestId = "open-file-input") {

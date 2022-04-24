@@ -1,6 +1,12 @@
+import { } from "./jsdomSetup";
+
 import { act, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { } from "./jsdomSetup";
+
+const COLUMN_INDEXES = {
+  PC_SP: 0,
+  ADDRESS: 1
+};
 
 export function getPCArrowAddress() {
   const addressCell = within(screen.getByTestId("instructions-table")).getByText("→").nextSibling;
@@ -33,10 +39,14 @@ export function buildSource(lines: string | string[], { steps }: { steps: number
   }
 }
 
-export function changePCRow(rowIndex: number): void {
-  const arrowCell = within(screen.getByTestId("instructions-table")).getByText<HTMLTableCellElement>("→");
-  const table = arrowCell.parentElement!.parentElement as HTMLTableElement;
-  const cellToBeClicked = table.rows[rowIndex].childNodes[arrowCell.cellIndex] as HTMLElement;
+export function changePCRow(address: number): void {
+  const pcArrowCell = within(screen.getByTestId("instructions-table")).getByText<HTMLTableCellElement>("→");
+
+  const table = pcArrowCell.parentElement!.parentElement as HTMLElement;
+  const tableRows = Array.from(table.childNodes);
+  const rowToBeClicked = tableRows.find(row => row.childNodes[COLUMN_INDEXES.ADDRESS].textContent === String(address))!;
+  const cellToBeClicked = rowToBeClicked.childNodes[COLUMN_INDEXES.PC_SP] as HTMLElement;
+
   userEvent.click(cellToBeClicked);
 }
 

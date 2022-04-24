@@ -1,8 +1,9 @@
+import { } from "./utils/jsdomSetup";
+
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "../ui/App";
-import { } from "./utils/jsdomSetup";
 import { buildSource, changePCRow, getInputByLabel, getPCArrowAddress, runPendingTimers, selectMachine, setSourceCode } from "./utils/AppTestFunctions";
 
 describe("App: Machine Area", () => {
