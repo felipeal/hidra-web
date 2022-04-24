@@ -16,7 +16,7 @@ function focusInput(row: number) {
   (tableInputs[row] as HTMLInputElement)?.focus();
 }
 
-export default function MemoryRowInstructions({ columnWidths, style, address, machine, assembler, displayHex }:
+export default function MemoryInstructionsRow({ columnWidths, style, address, machine, assembler, displayHex }:
   { columnWidths: number[], style: React.CSSProperties, address: number, machine: Machine, assembler: Assembler, displayHex: boolean}
 ) {
   const [value, setValue] = useState(unsignedByteToString(machine.getMemoryValue(address), { displayHex }));
