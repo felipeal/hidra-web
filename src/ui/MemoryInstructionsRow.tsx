@@ -43,7 +43,7 @@ export default function MemoryInstructionsRow({ columnWidths, style, address, ma
   }, [machine, assembler, displayHex, address]);
 
   return (
-    <div style={{ ...style, display: "flex", flexDirection: "row" }}
+    <div style={{ ...style, display: "flex" }}
       className={classes("tr", "instruction-row", (isCurrentInstruction ? "current-instruction-line" : ""))}
     >
       <div style={{ width: toPx(columnWidths[0]) }}

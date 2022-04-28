@@ -1,4 +1,4 @@
-import React, { LegacyRef, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Machine } from "../core/Machine";
 import { Assembler } from "../core/Assembler";
 import CodeMirror, { Editor, LineHandle } from "codemirror";
@@ -31,7 +31,7 @@ export function hasBreakpointAtLine(lineNumber: number): boolean {
 let currentInstructionLineHandle: LineHandle | null = null;
 
 export default function CodeEditor({ machine, assembler, displayWrap }: { machine: Machine, assembler: Assembler, displayWrap: boolean }) {
-  const ref = useRef<HTMLDivElement>();
+  const ref = useRef<HTMLDivElement>(null);
 
   // CodeMirror initialization
   useEffect(() => {
@@ -61,6 +61,6 @@ export default function CodeEditor({ machine, assembler, displayWrap }: { machin
   defineCodeMirrorMode(machine);
 
   return (
-    <div style={{ height: "100%" }} ref={ref as LegacyRef<HTMLDivElement>} />
+    <div style={{ height: "100%" }} ref={ref} />
   );
 }

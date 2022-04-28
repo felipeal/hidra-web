@@ -280,11 +280,12 @@ table,
 .th, .td {
   box-sizing: border-box;
   display: table-cell;
+  white-space: nowrap;
 }
 
 /* Inner borders */
-td + td, th + th,
-.td + .td, .th + .th {
+td + td,
+.td + .td {
   border-left: 1px solid #ddd;
 }
 tr + tr,

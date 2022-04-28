@@ -1,4 +1,5 @@
-import React, { ChangeEvent, LegacyRef, useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { ChangeEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
+import useScrollbarSize from "react-scrollbar-size";
 import codemirror from "codemirror";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
@@ -26,8 +27,8 @@ import { Texts } from "../core/Texts";
 import { ErrorMessage } from "../core/AssemblerError";
 import { range, rethrowUnless } from "../core/utils/FunctionUtils";
 
-// Global pointer required for CodeMirror persistence between live-reloads
 declare global {
+  // Required for CodeMirror persistence between live-reloads
   var codeMirrorInstance: codemirror.Editor; // eslint-disable-line no-var
 }
 
@@ -166,9 +167,9 @@ export default function App() {
   }
 
   const [instructionsDimensions, setInstructionsDimensions] = useState<TableDimensions | null>(null);
-
-  const headerRef = useRef<HTMLDivElement>();
-  const bodyRef = useRef<HTMLDivElement>();
+  const headerRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const { width: scrollbarWidth } = useScrollbarSize();
 
   useLayoutEffect(() => {
     if (!instructionsDimensions && headerRef.current && bodyRef.current) {
@@ -178,7 +179,7 @@ export default function App() {
 
   if (!instructionsDimensions) {
     // Render a fake table with the widest texts possible for measuring purposes
-    return <MemoryInstructionsForMeasurements headerRef={headerRef as LegacyRef<HTMLDivElement>} bodyRef={bodyRef as LegacyRef<HTMLDivElement>} />;
+    return <MemoryInstructionsForMeasurements headerRef={headerRef} bodyRef={bodyRef} />;
   }
 
   return (
@@ -462,7 +463,8 @@ export default function App() {
           ********************************************************************/}
 
         {/* Instructions memory area */}
-        <MemoryInstructions dimensions={instructionsDimensions} machine={machine} assembler={assembler} displayHex={displayHex} />
+        <MemoryInstructions dimensions={instructionsDimensions} scrollbarWidth={scrollbarWidth}
+          machine={machine} assembler={assembler} displayHex={displayHex} />
 
         {/* Data memory area */}
         <table className="data-table" data-testid="data-table" style={{
