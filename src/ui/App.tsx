@@ -7,7 +7,7 @@ import "tippy.js/themes/light-border.css";
 
 import CodeEditor, { hasBreakpointAtLine } from "./CodeEditor";
 import { MemoryInstructions, MemoryInstructionsForMeasurements } from "./MemoryInstructions";
-import MemoryRowData from "./MemoryRowData";
+import { MemoryData, MemoryDataForMeasurements } from "./MemoryData";
 import MemoryRowStack from "./MemoryRowStack";
 import FlagWidget from "./FlagWidget";
 import RegisterWidget from "./RegisterWidget";
@@ -166,20 +166,31 @@ export default function App() {
     alert(errorMessage);
   }
 
-  const [instructionsDimensions, setInstructionsDimensions] = useState<TableDimensions | null>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const bodyRef = useRef<HTMLDivElement>(null);
   const { width: scrollbarWidth } = useScrollbarSize();
 
-  useLayoutEffect(() => {
-    if (!instructionsDimensions && headerRef.current && bodyRef.current) {
-      setInstructionsDimensions(measureTableDimensions(headerRef.current, bodyRef.current));
-    }
-  }, [instructionsDimensions]);
+  const [instructionsDimensions, setInstructionsDimensions] = useState<TableDimensions | null>(null);
+  const instructionsHeaderRef = useRef<HTMLDivElement>(null);
+  const instructionsBodyRef = useRef<HTMLDivElement>(null);
 
-  if (!instructionsDimensions) {
-    // Render a fake table with the widest texts possible for measuring purposes
-    return <MemoryInstructionsForMeasurements headerRef={headerRef} bodyRef={bodyRef} />;
+  const [dataDimensions, setDataDimensions] = useState<TableDimensions | null>(null);
+  const dataHeaderRef = useRef<HTMLDivElement>(null);
+  const dataBodyRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (!instructionsDimensions && instructionsHeaderRef.current && instructionsBodyRef.current) {
+      setInstructionsDimensions(measureTableDimensions(instructionsHeaderRef.current, instructionsBodyRef.current));
+    }
+    if (!dataDimensions && dataHeaderRef.current && dataBodyRef.current) {
+      setDataDimensions(measureTableDimensions(dataHeaderRef.current, dataBodyRef.current));
+    }
+  }, [instructionsDimensions, dataDimensions]);
+
+  // Render fake tables with the widest texts possible for measuring purposes
+  if (!instructionsDimensions || !dataDimensions) {
+    return <div style={{ display: "inline-flex", flexDirection: "column" }}>
+      <MemoryInstructionsForMeasurements headerRef={instructionsHeaderRef} bodyRef={instructionsBodyRef} />;
+      <MemoryDataForMeasurements headerRef={dataHeaderRef} bodyRef={dataBodyRef} />
+    </div>;
   }
 
   return (
@@ -355,7 +366,6 @@ export default function App() {
                         machine.setRunning(false);
                       }
                     }
-
                     timeout = setTimeout(nextStep, 0);
                   } else {
                     machine.updateInstructionStrings();
@@ -467,25 +477,9 @@ export default function App() {
           machine={machine} assembler={assembler} displayHex={displayHex} />
 
         {/* Data memory area */}
-        <table className="data-table" data-testid="data-table" style={{
-          height: "100%", display: "block", overflowY: "scroll", tableLayout: "fixed", minWidth: "10rem"
-        }}>
-          <thead>
-            <tr>
-              <th>End.</th>
-              <th>Dado</th>
-              {displayChars && <th>Car.</th>}
-              <th>Label</th>
-            </tr>
-          </thead>
-          <tbody>
-            {range(machine.getMemorySize()).map((address) => {
-              return <MemoryRowData key={address} address={address} machine={machine} assembler={assembler}
-                displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars}
-              />;
-            })}
-          </tbody>
-        </table>
+        <MemoryData dimensions={dataDimensions} scrollbarWidth={scrollbarWidth}
+          machine={machine} assembler={assembler}
+          displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars} />
 
         {/* Stack memory area */}
         {machine instanceof Volta && <table className="stack-table" data-testid="stack-table" style={{

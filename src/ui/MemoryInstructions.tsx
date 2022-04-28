@@ -51,7 +51,7 @@ export function MemoryInstructionsForMeasurements({ headerRef, bodyRef }: {
     <MemoryInstructionsHeader headerRef={headerRef}/>
     <div className="memory-body-row" ref={bodyRef}>
       <div className="memory-body-cell">→</div>
-      <div className="memory-body-cell">4096</div>
+      <div className="memory-body-cell">4095</div>
       <div className="memory-body-cell">
         <input className="memory-value"/>
       </div>
@@ -81,9 +81,10 @@ function MemoryInstructionsHeader({ dimensions, headerRef }: {
 // Table row
 //////////////////////////////////////////////////
 
-function MemoryInstructionsRow({ columnWidths, style, address, machine, assembler, displayHex }:
-  { columnWidths: number[], style: React.CSSProperties, address: number, machine: Machine, assembler: Assembler, displayHex: boolean}
-) {
+function MemoryInstructionsRow({ columnWidths, style, address, machine, assembler, displayHex }: {
+  columnWidths: number[], style: React.CSSProperties,
+  address: number, machine: Machine, assembler: Assembler, displayHex: boolean
+}) {
   const [value, setValue] = useState(unsignedByteToString(machine.getMemoryValue(address), { displayHex }));
   const [instructionString, setInstructionString] = useState(String(machine.getInstructionString(address)));
   const [isCurrentPos, setIsCurrentPos] = useState(machine.getPCValue() === address);
@@ -108,17 +109,20 @@ function MemoryInstructionsRow({ columnWidths, style, address, machine, assemble
   }, [machine, assembler, displayHex, address]);
 
   return (
-    <div style={{ ...style, display: "flex" }}
-      className={classes("memory-body-row", "instruction-row", (isCurrentInstruction ? "current-instruction-line" : ""))}
-    >
-      <div style={{ width: toPx(columnWidths[0]) }}
-        className="memory-body-cell monospace-font pc-sp-arrow memory-pc-sp-cell" onClick={() => machine.setPCValue(address)}>
+    <div className={classes("memory-body-row", (isCurrentInstruction ? "current-instruction-line" : ""))} style={{ ...style, display: "flex" }}>
+      {/* PC arrow cell */}
+      <div className="memory-body-cell monospace-font pc-sp-arrow memory-pc-sp-cell" style={{ width: toPx(columnWidths[0]) }}
+        onClick={() => machine.setPCValue(address)}
+      >
         {isCurrentPos ? "→" : ""}
       </div>
 
-      <div style={{ width: toPx(columnWidths[1]) }}
-        className="memory-body-cell memory-address td">{displayHex ? addressToHex(address, machine.getMemorySize()) : address}</div>
+      {/* Address cell */}
+      <div className="memory-body-cell memory-address td" style={{ width: toPx(columnWidths[1]) }}>
+        {displayHex ? addressToHex(address, machine.getMemorySize()) : address}
+      </div>
 
+      {/* Value cell */}
       <div className="memory-body-cell" style={{ width: toPx(columnWidths[2]) }}>
         <input className="memory-value" inputMode="numeric" value={value} onChange={(event) => {
           setValue(event.target.value);
@@ -137,6 +141,7 @@ function MemoryInstructionsRow({ columnWidths, style, address, machine, assemble
         }} />
       </div>
 
+      {/* Instruction string cell */}
       <div className="memory-body-cell" style={{ width: toPx(columnWidths[3]) }}>
         {displayHex ? instructionStringToHex(instructionString) : instructionString}
       </div>
