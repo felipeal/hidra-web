@@ -3,6 +3,7 @@ import { Machine } from "../core/Machine";
 import { Assembler } from "../core/Assembler";
 import CodeMirror, { Editor, LineHandle } from "codemirror";
 import { defineCodeMirrorMode } from "./utils/SyntaxHighlighter";
+import { scrollToPCSourceLine } from "./utils/FocusHandler";
 
 function makeBreakpointMarker() {
   const marker = document.createElement("div");
@@ -30,7 +31,9 @@ export function hasBreakpointAtLine(lineNumber: number): boolean {
 
 let currentInstructionLineHandle: LineHandle | null = null;
 
-export default function CodeEditor({ machine, assembler, displayWrap }: { machine: Machine, assembler: Assembler, displayWrap: boolean }) {
+export default function CodeEditor({ machine, assembler, displayFollowPC, displayWrap }: {
+  machine: Machine, assembler: Assembler, displayFollowPC: boolean, displayWrap: boolean
+}) {
   const ref = useRef<HTMLDivElement>(null);
 
   // CodeMirror initialization
@@ -49,14 +52,18 @@ export default function CodeEditor({ machine, assembler, displayWrap }: { machin
 
   useEffect(() => {
     window.codeMirrorInstance.setOption("mode", machine.getName());
-    return machine.subscribeToEvent("REG.PC", (value) => {
+    return machine.subscribeToEvent(`REG.${machine.getPCName()}`, (pcAddress) => {
       currentInstructionLineHandle && codeMirrorInstance.removeLineClass(currentInstructionLineHandle, "background", "current-instruction-line");
       currentInstructionLineHandle && codeMirrorInstance.setGutterMarker(currentInstructionLineHandle, "current-instruction-gutter", null);
-      currentInstructionLineHandle = codeMirrorInstance.getLineHandle(assembler.getAddressCorrespondingSourceLine(value as number));
+      currentInstructionLineHandle = codeMirrorInstance.getLineHandle(assembler.getAddressCorrespondingSourceLine(pcAddress as number));
       currentInstructionLineHandle && codeMirrorInstance.addLineClass(currentInstructionLineHandle, "background", "current-instruction-line");
       currentInstructionLineHandle && codeMirrorInstance.setGutterMarker(currentInstructionLineHandle, "current-instruction-gutter", makePCMarker());
+
+      if (displayFollowPC) {
+        scrollToPCSourceLine(assembler);
+      }
     });
-  }, [machine, assembler]);
+  }, [machine, assembler, displayFollowPC]);
 
   defineCodeMirrorMode(machine);
 

@@ -5,6 +5,7 @@ import { Assembler } from "../core/Assembler";
 import { Machine } from "../core/Machine";
 import { addressToHex, instructionStringToHex, uncheckedByteStringToNumber, unsignedByteToString } from "../core/utils/Conversions";
 import { buildUnsubscribeCallback } from "../core/utils/EventUtils";
+import { focusMemoryInput, onFocusSelectAll, scrollToCurrentPCRow } from "./utils/FocusHandler";
 import { classes, TableDimensions, toPx } from "./utils/LayoutUtils";
 
 function computeIsCurrentInstruction(address: number, assembler: Assembler): boolean {
@@ -13,25 +14,35 @@ function computeIsCurrentInstruction(address: number, assembler: Assembler): boo
   return addressSourceLine === currentSourceLine;
 }
 
-function focusInput(row: number) {
-  const tableInputs = document.querySelectorAll(".instructions-table .memory-value");
-  (tableInputs[row] as HTMLInputElement)?.focus();
-}
-
 //////////////////////////////////////////////////
 // Table
 //////////////////////////////////////////////////
 
-export function MemoryInstructions({ dimensions, scrollbarWidth, machine, assembler, displayHex }: {
-  dimensions: TableDimensions, scrollbarWidth: number, machine: Machine, assembler: Assembler, displayHex: boolean
+export function MemoryInstructions({ dimensions, scrollbarWidth, machine, assembler, displayHex, displayFollowPC }: {
+  dimensions: TableDimensions, scrollbarWidth: number, machine: Machine, assembler: Assembler, displayHex: boolean, displayFollowPC: boolean
 }) {
-  return <div className="memory-table instructions-table" data-testid="instructions-table" style={{ height: "100%", display: "block" }}>
+  const [table, setTable] = useState<FixedSizeList | null>(null);
+
+  useEffect(() => {
+    table?.scrollTo(0);
+  }, [machine, table, dimensions.rowHeight]);
+
+  useEffect(() => {
+    if (displayFollowPC && table) {
+      return machine.subscribeToEvent(`REG.${machine.getPCName()}`, (pcAddress) => {
+        scrollToCurrentPCRow(pcAddress as number, table, dimensions.rowHeight);
+      });
+    }
+  }, [displayFollowPC, machine, table, dimensions.rowHeight]);
+
+  return <div className="memory-table" data-testid="instructions-table" style={{ height: "100%", display: "block" }}>
     <AutoSizer disableWidth>
       {({ height: autoSizerHeight }) => (
         <>
           <MemoryInstructionsHeader dimensions={dimensions} />
           {(<FixedSizeList width={dimensions.rowWidth + scrollbarWidth} height={autoSizerHeight - dimensions.headerHeight - 2}
-            itemCount={machine.getMemorySize()} itemSize={dimensions.rowHeight} style={{ overflowX: "hidden" }}
+            ref={setTable} itemCount={machine.getMemorySize()} itemSize={dimensions.rowHeight} style={{ overflowX: "hidden" }}
+            initialScrollOffset={0}
           >
             {({ index, style }) => (
               <MemoryInstructionsRow key={index} columnWidths={dimensions.columnWidths} style={style}
@@ -99,8 +110,8 @@ function MemoryInstructionsRow({ columnWidths, style, address, machine, assemble
 
     // Event subscriptions
     return buildUnsubscribeCallback([
-      machine.subscribeToEvent(`REG.${machine.getPCName()}`, (newValue) => {
-        setIsCurrentPos(newValue === address);
+      machine.subscribeToEvent(`REG.${machine.getPCName()}`, (pcAddress) => {
+        setIsCurrentPos(pcAddress === address);
         setIsCurrentInstruction(computeIsCurrentInstruction(address, assembler));
       }),
       machine.subscribeToEvent(`MEM.${address}`, (newValue) => setValue(unsignedByteToString(newValue as number, { displayHex }))),
@@ -118,7 +129,7 @@ function MemoryInstructionsRow({ columnWidths, style, address, machine, assemble
       </div>
 
       {/* Address cell */}
-      <div className="memory-body-cell memory-address td" style={{ width: toPx(columnWidths[1]) }}>
+      <div className="memory-body-cell memory-address" style={{ width: toPx(columnWidths[1]) }}>
         {displayHex ? addressToHex(address, machine.getMemorySize()) : address}
       </div>
 
@@ -132,13 +143,11 @@ function MemoryInstructionsRow({ columnWidths, style, address, machine, assemble
           machine.updateInstructionStrings();
         }} onKeyDown={(event) => {
           if (event.key === "ArrowUp" || (event.key === "Enter" && event.shiftKey)) {
-            focusInput(address - 1);
+            focusMemoryInput(event.target as HTMLInputElement, "PREVIOUS");
           } else if (event.key === "ArrowDown" || event.key === "Enter") {
-            focusInput(address + 1);
+            focusMemoryInput(event.target as HTMLInputElement, "NEXT");
           }
-        }} onFocus={(event) => {
-          setTimeout(() => (event.target as HTMLInputElement).select(), 0);
-        }} />
+        }} onFocus={onFocusSelectAll} />
       </div>
 
       {/* Instruction string cell */}

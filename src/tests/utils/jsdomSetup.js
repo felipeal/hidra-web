@@ -1,6 +1,5 @@
-import React from "react";
-
 import { TextEncoder, TextDecoder } from "util";
+import { MockFixedSizeList } from "./MockFixedSizeList";
 
 // Always use fake timers
 jest.useFakeTimers();
@@ -12,9 +11,6 @@ document.createRange = () => {
   range.getClientRects = jest.fn(() => ({ item: () => null, length: 0 }));
   return range;
 };
-
-// Fix scrollTo errors
-Element.prototype.scrollTo = () => {/* */};
 
 // TextEncoder/TextDecoder support
 global.TextEncoder = TextEncoder; // eslint-disable-line no-undef
@@ -29,10 +25,7 @@ jest.mock(
 // Mock FixedSizeList component
 jest.mock(
   "react-window", () => ({
-    // eslint-disable-next-line react/prop-types
-    FixedSizeList: ({ children }) => (<>
-      {[...Array(8).keys()].map(n => children({ index: n }))}
-    </>)
+    FixedSizeList: MockFixedSizeList
   })
 );
 

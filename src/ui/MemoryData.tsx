@@ -5,14 +5,10 @@ import { Assembler } from "../core/Assembler";
 import { Machine } from "../core/Machine";
 import { addressToHex, charCodeToString, uncheckedByteStringToNumber, unsignedByteToString } from "../core/utils/Conversions";
 import { buildUnsubscribeCallback } from "../core/utils/EventUtils";
+import { calculateScrollOffset, focusMemoryInput, onFocusSelectAll } from "./utils/FocusHandler";
 import { TableDimensions, toPx } from "./utils/LayoutUtils";
 
 const CHAR_COLUMN_INDEX = 2;
-
-function focusInput(row: number) {
-  const tableInputs = document.querySelectorAll(".data-table .memory-value");
-  (tableInputs[row] as HTMLInputElement)?.focus();
-}
 
 //////////////////////////////////////////////////
 // Table
@@ -23,14 +19,21 @@ export function MemoryData({ dimensions, scrollbarWidth, machine, assembler, dis
   machine: Machine, assembler: Assembler,
   displayHex: boolean, displayNegative: boolean, displayChars: boolean
 }) {
+  const [table, setTable] = useState<FixedSizeList | null>(null);
+
+  useEffect(() => {
+    table?.scrollTo(calculateScrollOffset(machine.getDefaultDataStartingAddress(), dimensions.rowHeight));
+  }, [machine, table, dimensions.rowHeight]);
+
   const hiddenCharColumnWidth = (displayChars ? 0 : dimensions.columnWidths[CHAR_COLUMN_INDEX]);
-  return <div className="memory-table data-table" data-testid="data-table" style={{ height: "100%", display: "block" }}>
+  return <div className="memory-table" data-testid="data-table" style={{ height: "100%", display: "block" }}>
     <AutoSizer disableWidth>
       {({ height: autoSizerHeight }) => (
         <>
           <MemoryDataHeader dimensions={dimensions} displayChars={displayChars} />
           {(<FixedSizeList width={dimensions.rowWidth + scrollbarWidth - hiddenCharColumnWidth} height={autoSizerHeight - dimensions.headerHeight - 2}
-            itemCount={machine.getMemorySize()} itemSize={dimensions.rowHeight} style={{ overflowX: "hidden" }}
+            ref={setTable} itemCount={machine.getMemorySize()} itemSize={dimensions.rowHeight} style={{ overflowX: "hidden" }}
+            initialScrollOffset={calculateScrollOffset(machine.getDefaultDataStartingAddress(), dimensions.rowHeight)}
           >
             {({ index, style }) => (
               <MemoryDataRow key={index} columnWidths={dimensions.columnWidths} style={style}
@@ -119,13 +122,11 @@ export function MemoryDataRow({ columnWidths, style, address, machine, assembler
           machine.updateInstructionStrings();
         }} onKeyDown={(event) => {
           if (event.key === "ArrowUp" || (event.key === "Enter" && event.shiftKey)) {
-            focusInput(address - 1);
+            focusMemoryInput(event.target as HTMLInputElement, "PREVIOUS");
           } else if (event.key === "ArrowDown" || event.key === "Enter") {
-            focusInput(address + 1);
+            focusMemoryInput(event.target as HTMLInputElement, "NEXT");
           }
-        }} onFocus={(event) => {
-          setTimeout(() => (event.target as HTMLInputElement).select(), 0);
-        }} />
+        }} onFocus={onFocusSelectAll} />
       </div>
 
       {/* Character cell */}

@@ -16,7 +16,6 @@ import { Menu, SubMenuCheckBox, SubMenuItem, SubMenuSeparator } from "./Menus";
 
 import { buildMachine, getMachineNames, resetPCAndSP } from "./utils/MachineUtils";
 import { FileError, buildMachineBasedOnFileName, exportMemory, generateFileNameForMachine, importMemory } from "./utils/MachineFileUtils";
-import { scrollToCurrentPCRow, scrollToFirstDataRow, scrollToLastStackRow, scrollToPCLineAndRow } from "./utils/ScrollHandler";
 import { calculateTableDimensions as measureTableDimensions, TableDimensions, toPx } from "./utils/LayoutUtils";
 
 import { Machine } from "../core/Machine";
@@ -89,25 +88,11 @@ export default function App() {
     // Restore values on machine change
     setRunning(machine.isRunning());
 
-    // Reset scroll positions
-    scrollToCurrentPCRow(machine);
-    scrollToFirstDataRow();
-    scrollToLastStackRow();
-
     hideBusy();
 
     // Event subscriptions
     return machine.subscribeToEvent("RUNNING", (value) => setRunning(Boolean(value)));
   }, [machine, assembler]);
-
-  useEffect(() => {
-    // Event subscription to follow PC
-    return machine.subscribeToEvent(`REG.${machine.getPCName()}`, () => {
-      if (displayFollowPC) {
-        scrollToPCLineAndRow(machine, assembler);
-      }
-    });
-  }, [machine, assembler, displayFollowPC]);
 
   async function onFileOpened(event: ChangeEvent<HTMLInputElement>) {
     await loadFile(event.target.files?.[0]);
@@ -277,7 +262,7 @@ export default function App() {
 
           {/* Code editor */}
           <div className="code-editor" style={{ flex: 1, overflowY: "auto" }}>
-            <CodeEditor machine={machine} assembler={assembler} displayWrap={displayWrap} />
+            <CodeEditor machine={machine} assembler={assembler} displayFollowPC={displayFollowPC} displayWrap={displayWrap} />
           </div>
 
           {/* Error messages */}
@@ -474,7 +459,7 @@ export default function App() {
 
         {/* Instructions memory area */}
         <MemoryInstructions dimensions={instructionsDimensions} scrollbarWidth={scrollbarWidth}
-          machine={machine} assembler={assembler} displayHex={displayHex} />
+          machine={machine} assembler={assembler} displayHex={displayHex} displayFollowPC={displayFollowPC} />
 
         {/* Data memory area */}
         <MemoryData dimensions={dataDimensions} scrollbarWidth={scrollbarWidth}
