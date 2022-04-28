@@ -4,7 +4,7 @@ import { buildUnsubscribeCallback } from "../core/utils/EventUtils";
 import { Volta } from "../core/machines/Volta";
 
 function focusInput(row: number) {
-  const tableInputs = document.querySelectorAll(".stack-table .table-value");
+  const tableInputs = document.querySelectorAll(".stack-table .memory-value");
   (tableInputs[row] as HTMLInputElement)?.focus();
 }
 
@@ -33,12 +33,12 @@ export default function MemoryRowStack({ row, address, voltaMachine, displayHex,
 
   return (
     <tr>
-      <td className="monospace-font pc-sp-arrow pc-sp-cell" onClick={() => voltaMachine.setSPValue(address)}>
+      <td className="monospace-font pc-sp-arrow memory-pc-sp-cell" onClick={() => voltaMachine.setSPValue(address)}>
         {isCurrentStackPos ? "→" : ""}
       </td>
-      <td className="table-address">{displayHex ? addressToHex(address, voltaMachine.getStackSize()) : address}</td>
+      <td className="memory-address">{displayHex ? addressToHex(address, voltaMachine.getStackSize()) : address}</td>
       <td>
-        <input className={`table-value ${isAboveStackPos ? "table-value-above-sp" : ""}`} inputMode="numeric" value={value} onChange={(event) => {
+        <input className={`memory-value ${isAboveStackPos ? "memory-value-above-sp" : ""}`} inputMode="numeric" value={value} onChange={(event) => {
           setValue(event.target.value);
         }} onBlur={(event) => {
           // Write value to memory on focus out

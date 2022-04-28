@@ -20,7 +20,7 @@ code, .monospace-font, .CodeMirror {
   font-family: Consolas, 'Courier New', monospace;
 }
 
-select, fieldset, button, table, .table, input, .pc-sp-arrow {
+select, fieldset, button, table, .memory-table, input, .pc-sp-arrow {
   font-size: 14px;
 }
 
@@ -264,20 +264,20 @@ fieldset legend {
 /* TODO: Use memory-table instead of table */
 
 table,
-.table {
+.memory-table {
   border: 1px solid #889;
   border-collapse: collapse;
 }
 
-.table {
+.memory-table {
   box-sizing: border-box;
   display: table;
 }
-.tr {
+.memory-header-row, .memory-body-row {
   box-sizing: border-box;
   display: table-row;
 }
-.th, .td {
+.memory-header-cell, .memory-body-cell {
   box-sizing: border-box;
   display: table-cell;
   white-space: nowrap;
@@ -285,20 +285,20 @@ table,
 
 /* Inner borders */
 td + td,
-.td + .td {
+.memory-body-cell + .memory-body-cell {
   border-left: 1px solid #ddd;
 }
 tr + tr,
-.tr + .tr {
+.memory-body-row + .memory-body-row {
   border-top: 1px solid #ddd;
 }
 
 /* Sticky header */
-.thead {
+.memory-header-row {
   background-color: #eee;
 }
 th,
-.th {
+.memory-header-cell {
   padding: 4px;
   font-weight: unset;
   background-color: #eee;
@@ -310,25 +310,25 @@ th,
 }
 
 table input,
-.table input {
+.memory-body-cell input {
   border: none;
 }
 
 td,
-.td {
+.memory-body-cell {
   padding: 4px;
 }
 
-.table-address,
-.table-value-above-sp:not(:focus) {
+.memory-address,
+.memory-value-above-sp:not(:focus) {
   color: gray;
 }
 
-.table-value {
+.memory-value {
   width: 50px;
 }
 
-.pc-sp-cell {
+.memory-pc-sp-cell {
   cursor: pointer;
 }
 

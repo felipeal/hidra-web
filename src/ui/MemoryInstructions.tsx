@@ -9,7 +9,7 @@ import { Assembler } from "../core/Assembler";
 export function MemoryInstructions({ dimensions, scrollbarWidth, machine, assembler, displayHex }: {
   dimensions: TableDimensions, scrollbarWidth: number, machine: Machine, assembler: Assembler, displayHex: boolean
 }) {
-  return <div className="instructions-table table" data-testid="instructions-table" style={{ height: "100%", display: "block" }}>
+  return <div className="memory-table instructions-table" data-testid="instructions-table" style={{ height: "100%", display: "block" }}>
     <AutoSizer disableWidth>
       {({ height: autoSizerHeight }) => (
         <>
@@ -31,15 +31,15 @@ export function MemoryInstructions({ dimensions, scrollbarWidth, machine, assemb
 export function MemoryInstructionsForMeasurements({ headerRef, bodyRef }: {
   headerRef: RefObject<HTMLDivElement>, bodyRef: RefObject<HTMLDivElement>,
 }) {
-  return (<div className="table" style={{ display: "table" }}>
+  return (<div className="memory-table">
     <MemoryInstructionsHeader headerRef={headerRef}/>
-    <div className="tr" ref={bodyRef}>
-      <div className="td">→</div>
-      <div className="td">4096</div>
-      <div className="td">
-        <input className="table-value"/>
+    <div className="memory-body-row" ref={bodyRef}>
+      <div className="memory-body-cell">→</div>
+      <div className="memory-body-cell">4096</div>
+      <div className="memory-body-cell">
+        <input className="memory-value"/>
       </div>
-      <div className="td">IF R63 255 255</div>
+      <div className="memory-body-cell">IF R63 255 255</div>
     </div>
   </div>);
 }
@@ -49,10 +49,10 @@ function MemoryInstructionsHeader({ dimensions, headerRef }: {
   headerRef?: RefObject<HTMLDivElement>
 }) {
   const display = dimensions && "flex"; // Once already measured, uses flex to fill with background color
-  return <div ref={headerRef} className="tr thead" style={{ height: toPx(dimensions?.headerHeight), display }}>
-    <div className="th" style={{ width: toPx(dimensions?.columnWidths[0]) }}>PC</div>
-    <div className="th" style={{ width: toPx(dimensions?.columnWidths[1]) }}>End.</div>
-    <div className="th" style={{ width: toPx(dimensions?.columnWidths[2]) }}>Valor</div>
-    <div className="th" style={{ width: toPx(dimensions?.columnWidths[3]) }}>Instrução</div>
+  return <div ref={headerRef} className="memory-header-row" style={{ height: toPx(dimensions?.headerHeight), display }}>
+    <div className="memory-header-cell" style={{ width: toPx(dimensions?.columnWidths[0]) }}>PC</div>
+    <div className="memory-header-cell" style={{ width: toPx(dimensions?.columnWidths[1]) }}>End.</div>
+    <div className="memory-header-cell" style={{ width: toPx(dimensions?.columnWidths[2]) }}>Valor</div>
+    <div className="memory-header-cell" style={{ width: toPx(dimensions?.columnWidths[3]) }}>Instrução</div>
   </div>;
 }

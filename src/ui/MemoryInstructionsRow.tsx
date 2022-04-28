@@ -12,7 +12,7 @@ function computeIsCurrentInstruction(address: number, assembler: Assembler): boo
 }
 
 function focusInput(row: number) {
-  const tableInputs = document.querySelectorAll(".instructions-table .table-value");
+  const tableInputs = document.querySelectorAll(".instructions-table .memory-value");
   (tableInputs[row] as HTMLInputElement)?.focus();
 }
 
@@ -44,18 +44,18 @@ export default function MemoryInstructionsRow({ columnWidths, style, address, ma
 
   return (
     <div style={{ ...style, display: "flex" }}
-      className={classes("tr", "instruction-row", (isCurrentInstruction ? "current-instruction-line" : ""))}
+      className={classes("memory-body-row", "instruction-row", (isCurrentInstruction ? "current-instruction-line" : ""))}
     >
       <div style={{ width: toPx(columnWidths[0]) }}
-        className="monospace-font pc-sp-arrow pc-sp-cell td" onClick={() => machine.setPCValue(address)}>
+        className="memory-body-cell monospace-font pc-sp-arrow memory-pc-sp-cell" onClick={() => machine.setPCValue(address)}>
         {isCurrentPos ? "→" : ""}
       </div>
 
       <div style={{ width: toPx(columnWidths[1]) }}
-        className="table-address td">{displayHex ? addressToHex(address, machine.getMemorySize()) : address}</div>
+        className="memory-body-cell memory-address td">{displayHex ? addressToHex(address, machine.getMemorySize()) : address}</div>
 
-      <div className="td" style={{ width: toPx(columnWidths[2]) }}>
-        <input className="table-value" inputMode="numeric" value={value} onChange={(event) => {
+      <div className="memory-body-cell" style={{ width: toPx(columnWidths[2]) }}>
+        <input className="memory-value" inputMode="numeric" value={value} onChange={(event) => {
           setValue(event.target.value);
         }} onBlur={(event) => {
           // Write value to memory on focus out
@@ -72,7 +72,7 @@ export default function MemoryInstructionsRow({ columnWidths, style, address, ma
         }} />
       </div>
 
-      <div className="td" style={{ width: toPx(columnWidths[3]) }}>
+      <div className="memory-body-cell" style={{ width: toPx(columnWidths[3]) }}>
         {displayHex ? instructionStringToHex(instructionString) : instructionString}
       </div>
     </div>

@@ -5,7 +5,7 @@ import { Machine } from "../core/Machine";
 import { buildUnsubscribeCallback } from "../core/utils/EventUtils";
 
 function focusInput(row: number) {
-  const tableInputs = document.querySelectorAll(".data-table .table-value");
+  const tableInputs = document.querySelectorAll(".data-table .memory-value");
   (tableInputs[row] as HTMLInputElement)?.focus();
 }
 
@@ -29,9 +29,9 @@ export default function MemoryRowData({ address, machine, assembler, displayHex,
 
   return (
     <tr className={machine.getDefaultDataStartingAddress() === address ? "first-data-row" : undefined}>
-      <td className="table-address">{displayHex ? addressToHex(address, machine.getMemorySize()) : address}</td>
+      <td className="memory-address">{displayHex ? addressToHex(address, machine.getMemorySize()) : address}</td>
       <td>
-        <input className="table-value" inputMode="numeric" value={value} onChange={(event) => {
+        <input className="memory-value" inputMode="numeric" value={value} onChange={(event) => {
           setValue(event.target.value);
         }} onBlur={(event) => {
           // Write value to memory on focus out
