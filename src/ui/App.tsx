@@ -80,7 +80,6 @@ export default function App() {
   const [displayHex, setDisplayHex] = useState(false);
   const [displayNegative, setDisplayNegative] = useState(false);
   const [displayChars, setDisplayChars] = useState(false);
-  const [displayFast, setDisplayFast] = useState(false);
   const [displayFollowPC, setDisplayFollowPC] = useState(true);
   const [displayWrap, setDisplayWrap] = useState(false);
 
@@ -247,10 +246,6 @@ export default function App() {
           }}/>
           <SubMenuCheckBox title="Exibir coluna de caracteres" checked={displayChars} setChecked={setDisplayChars}/>
           <SubMenuSeparator/>
-          <SubMenuCheckBox title="Execução rápida" checked={displayFast} setChecked={(checked) => {
-            machine.setRunning(false);
-            setDisplayFast(checked);
-          }}/>
           <SubMenuCheckBox title="Tela segue execução" checked={displayFollowPC} setChecked={setDisplayFollowPC}/>
           {showWIP && <SubMenuCheckBox title="Quebra de linha" checked={displayWrap} setChecked={setDisplayWrap}/>}
         </Menu>
@@ -352,12 +347,9 @@ export default function App() {
                 machine.setRunning(true);
                 const nextStep = function () {
                   if (machine.isRunning()) {
-                    let numUpdates = displayFast ? 10 : 1;
-                    while (machine.isRunning() && numUpdates--) {
-                      machine.step();
-                      if (hasBreakpointAtLine(assembler.getPCCorrespondingSourceLine())) {
-                        machine.setRunning(false);
-                      }
+                    machine.step();
+                    if (hasBreakpointAtLine(assembler.getPCCorrespondingSourceLine())) {
+                      machine.setRunning(false);
                     }
                     timeout = setTimeout(nextStep, 0);
                   } else {
