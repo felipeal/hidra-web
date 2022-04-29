@@ -178,7 +178,7 @@ export default function App() {
 
   // Render fake tables with the widest texts possible for measuring purposes
   if (!instructionsDimensions || !dataDimensions || !stackDimensions) {
-    return <div style={{ display: "block"}}>
+    return <div style={{ display: "block" }}>
       <MemoryInstructionsForMeasurements headerRef={instructionsHeaderRef} bodyRef={instructionsBodyRef} />
       <MemoryDataForMeasurements headerRef={dataHeaderRef} bodyRef={dataBodyRef} />
       <MemoryStackForMeasurements headerRef={stackHeaderRef} bodyRef={stackBodyRef} />
@@ -468,7 +468,7 @@ export default function App() {
 
         {/* Stack memory */}
         {machine instanceof Volta && <MemoryStack dimensions={stackDimensions} scrollbarWidth={scrollbarWidth} machine={machine}
-          displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars} />}
+          displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars} displayFollowPC={displayFollowPC} />}
 
       </div>
     </div>

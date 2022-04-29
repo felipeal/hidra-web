@@ -5,7 +5,7 @@ import { Assembler } from "../core/Assembler";
 import { Machine } from "../core/Machine";
 import { addressToHex, instructionStringToHex, uncheckedByteStringToNumber, unsignedByteToString } from "../core/utils/Conversions";
 import { buildUnsubscribeCallback } from "../core/utils/EventUtils";
-import { focusMemoryInput, onFocusSelectAll, scrollToCurrentPCRow } from "./utils/FocusHandler";
+import { focusMemoryInput, onFocusSelectAll, scrollToRow } from "./utils/FocusHandler";
 import { classes, TableDimensions, toPx } from "./utils/LayoutUtils";
 
 function computeIsCurrentInstruction(address: number, assembler: Assembler): boolean {
@@ -30,7 +30,7 @@ export function MemoryInstructions({ dimensions, scrollbarWidth, machine, assemb
   useEffect(() => {
     if (displayFollowPC && table) {
       return machine.subscribeToEvent(`REG.${machine.getPCName()}`, (pcAddress) => {
-        scrollToCurrentPCRow(pcAddress as number, table, dimensions.rowHeight);
+        scrollToRow(pcAddress as number, table, dimensions.rowHeight);
       });
     }
   }, [displayFollowPC, machine, table, dimensions.rowHeight]);

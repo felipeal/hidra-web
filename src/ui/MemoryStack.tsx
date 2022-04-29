@@ -4,7 +4,7 @@ import { FixedSizeList } from "react-window";
 import { Volta } from "../core/machines/Volta";
 import { addressToHex, charCodeToString, uncheckedByteStringToNumber, unsignedByteToString } from "../core/utils/Conversions";
 import { buildUnsubscribeCallback } from "../core/utils/EventUtils";
-import { calculateScrollOffset, focusMemoryInput, onFocusSelectAll } from "./utils/FocusHandler";
+import { calculateScrollOffset, focusMemoryInput, onFocusSelectAll, scrollToRow } from "./utils/FocusHandler";
 import { classes, TableDimensions, toPx } from "./utils/LayoutUtils";
 
 const CHAR_COLUMN_INDEX = 3;
@@ -13,15 +13,24 @@ const CHAR_COLUMN_INDEX = 3;
 // Table
 //////////////////////////////////////////////////
 
-export function MemoryStack({ dimensions, scrollbarWidth, machine, displayHex, displayNegative, displayChars }: {
+export function MemoryStack({ dimensions, scrollbarWidth, machine, displayHex, displayNegative, displayChars, displayFollowPC }: {
   dimensions: TableDimensions, scrollbarWidth: number, machine: Volta,
-  displayHex: boolean, displayNegative: boolean, displayChars: boolean
+  displayHex: boolean, displayNegative: boolean, displayChars: boolean, displayFollowPC: boolean
 }) {
   const [table, setTable] = useState<FixedSizeList | null>(null);
 
   useEffect(() => {
     table?.scrollToItem(machine.getStackSize() - 1, "end");
   }, [machine, table, dimensions.rowHeight]);
+
+  useEffect(() => {
+    if (displayFollowPC && table) {
+      return machine.subscribeToEvent("REG.SP", (spAddress) => {
+        const rowIndex = machine.getStackSize() - 1 - (spAddress as number);
+        scrollToRow(rowIndex, table, dimensions.rowHeight);
+      });
+    }
+  }, [displayFollowPC, machine, table, dimensions.rowHeight]);
 
   const hiddenCharColumnWidth = (displayChars ? 0 : dimensions.columnWidths[CHAR_COLUMN_INDEX]);
   return <div className="memory-table" data-testid="stack-table" style={{ height: "100%", display: "block" }}>

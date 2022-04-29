@@ -4,23 +4,23 @@ import { Assembler } from "../../core/Assembler";
 
 const MARGIN_LINES = 3;
 
-export function scrollToCurrentPCRow(pcAddress: number, table: FixedSizeList, rowHeight: number): void {
+export function scrollToRow(rowIndex: number, table: FixedSizeList, rowHeight: number): void {
   const viewportHeight = Number(table.props.height);
   const viewportTop = (table.state as { scrollOffset: number; }).scrollOffset;
   const viewportBottom = viewportTop + viewportHeight;
 
-  const pcRowTop = calculateScrollOffset(pcAddress, rowHeight);
-  const pcRowBottom = pcRowTop + rowHeight;
+  const targetRowTop = calculateScrollOffset(rowIndex, rowHeight);
+  const targetRowBottom = targetRowTop + rowHeight;
   const margin = (rowHeight * MARGIN_LINES);
 
-  // If top pixels of PC row are above top margin
-  if (pcRowTop < viewportTop + margin) {
-    table.scrollTo(pcRowTop - margin);
+  // If top pixels of target row are above top margin
+  if (targetRowTop < viewportTop + margin) {
+    table.scrollTo(targetRowTop - margin);
   }
 
-  // If bottom pixels of PC row are below bottom margin
-  if (pcRowBottom >= viewportBottom - margin) {
-    table.scrollTo(pcRowBottom - viewportHeight + margin);
+  // If bottom pixels of target row are below bottom margin
+  if (targetRowBottom >= viewportBottom - margin) {
+    table.scrollTo(targetRowBottom - viewportHeight + margin);
   }
 }
 
