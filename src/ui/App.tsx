@@ -260,7 +260,7 @@ export default function App() {
         }}>GitHub</a>
       </div>
 
-      <div style={{ height: `calc(100vh - 32px - ${navBarHeightPx}px)`, display: "flex", margin: "16px", gap: "16px" }}>
+      <div style={{ height: `calc(100vh - 32px - ${navBarHeightPx}px)`, display: "flex", padding: "16px", gap: "16px", overflow: "auto" }}>
 
         {/********************************************************************
           * Left area (code editor and error messages)
@@ -352,7 +352,7 @@ export default function App() {
                 machine.setRunning(true);
                 const nextStep = function () {
                   if (machine.isRunning()) {
-                    let numUpdates = displayFast ? 100 : 1;
+                    let numUpdates = displayFast ? 10 : 1;
                     while (machine.isRunning() && numUpdates--) {
                       machine.step();
                       if (hasBreakpointAtLine(assembler.getPCCorrespondingSourceLine())) {
