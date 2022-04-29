@@ -8,7 +8,7 @@ import "tippy.js/themes/light-border.css";
 import CodeEditor, { hasBreakpointAtLine } from "./CodeEditor";
 import { MemoryInstructions, MemoryInstructionsForMeasurements } from "./MemoryInstructions";
 import { MemoryData, MemoryDataForMeasurements } from "./MemoryData";
-import MemoryRowStack from "./MemoryRowStack";
+import { MemoryStack, MemoryStackForMeasurements } from "./MemoryStack";
 import FlagWidget from "./FlagWidget";
 import RegisterWidget from "./RegisterWidget";
 import Information from "./Information";
@@ -24,7 +24,7 @@ import { Volta } from "../core/machines/Volta";
 import { Assembler } from "../core/Assembler";
 import { Texts } from "../core/Texts";
 import { ErrorMessage } from "../core/AssemblerError";
-import { range, rethrowUnless } from "../core/utils/FunctionUtils";
+import { rethrowUnless } from "../core/utils/FunctionUtils";
 
 declare global {
   // Required for CodeMirror persistence between live-reloads
@@ -161,6 +161,10 @@ export default function App() {
   const dataHeaderRef = useRef<HTMLDivElement>(null);
   const dataBodyRef = useRef<HTMLDivElement>(null);
 
+  const [stackDimensions, setStackDimensions] = useState<TableDimensions | null>(null);
+  const stackHeaderRef = useRef<HTMLDivElement>(null);
+  const stackBodyRef = useRef<HTMLDivElement>(null);
+
   useLayoutEffect(() => {
     if (!instructionsDimensions && instructionsHeaderRef.current && instructionsBodyRef.current) {
       setInstructionsDimensions(measureTableDimensions(instructionsHeaderRef.current, instructionsBodyRef.current));
@@ -168,13 +172,17 @@ export default function App() {
     if (!dataDimensions && dataHeaderRef.current && dataBodyRef.current) {
       setDataDimensions(measureTableDimensions(dataHeaderRef.current, dataBodyRef.current));
     }
-  }, [instructionsDimensions, dataDimensions]);
+    if (!stackDimensions && stackHeaderRef.current && stackBodyRef.current) {
+      setStackDimensions(measureTableDimensions(stackHeaderRef.current, stackBodyRef.current));
+    }
+  }, [instructionsDimensions, dataDimensions, stackDimensions]);
 
   // Render fake tables with the widest texts possible for measuring purposes
-  if (!instructionsDimensions || !dataDimensions) {
-    return <div style={{ display: "inline-flex", flexDirection: "column" }}>
-      <MemoryInstructionsForMeasurements headerRef={instructionsHeaderRef} bodyRef={instructionsBodyRef} />;
+  if (!instructionsDimensions || !dataDimensions || !stackDimensions) {
+    return <div style={{ display: "block"}}>
+      <MemoryInstructionsForMeasurements headerRef={instructionsHeaderRef} bodyRef={instructionsBodyRef} />
       <MemoryDataForMeasurements headerRef={dataHeaderRef} bodyRef={dataBodyRef} />
+      <MemoryStackForMeasurements headerRef={stackHeaderRef} bodyRef={stackBodyRef} />
     </div>;
   }
 
@@ -457,35 +465,18 @@ export default function App() {
           * Right area (memory tables)
           ********************************************************************/}
 
-        {/* Instructions memory area */}
+        {/* Instructions memory */}
         <MemoryInstructions dimensions={instructionsDimensions} scrollbarWidth={scrollbarWidth}
           machine={machine} assembler={assembler} displayHex={displayHex} displayFollowPC={displayFollowPC} />
 
-        {/* Data memory area */}
+        {/* Data memory */}
         <MemoryData dimensions={dataDimensions} scrollbarWidth={scrollbarWidth}
           machine={machine} assembler={assembler}
           displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars} />
 
-        {/* Stack memory area */}
-        {machine instanceof Volta && <table className="stack-table" data-testid="stack-table" style={{
-          height: "100%", display: "block", overflowY: "scroll", minWidth: "8rem"
-        }}>
-          <thead>
-            <tr>
-              <th>SP</th>
-              <th>End.</th>
-              <th>Dado</th>
-              {displayChars && <th>Car.</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {(range(machine.getStackSize())).map((index) => {
-              return <MemoryRowStack key={index} row={index} address={machine.getStackSize() - 1 - index} voltaMachine={machine}
-                displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars}
-              />;
-            })}
-          </tbody>
-        </table>}
+        {/* Stack memory */}
+        {machine instanceof Volta && <MemoryStack dimensions={stackDimensions} scrollbarWidth={scrollbarWidth} machine={machine}
+          displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars} />}
 
       </div>
     </div>

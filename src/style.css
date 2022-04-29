@@ -261,15 +261,9 @@ fieldset legend {
 /* Right area (memory tables)
 /******************************************************************************/
 
-/* TODO: Use memory-table instead of table */
-
-table,
 .memory-table {
   border: 1px solid #889;
   border-collapse: collapse;
-}
-
-.memory-table {
   box-sizing: border-box;
   display: table;
 }
@@ -284,20 +278,17 @@ table,
 }
 
 /* Inner borders */
-td + td,
 .memory-body-cell + .memory-body-cell {
   border-left: 1px solid #ddd;
 }
-tr + tr,
 .memory-body-row + .memory-body-row {
   border-top: 1px solid #ddd;
 }
 
-/* Sticky header */
+/* Header */
 .memory-header-row {
   background-color: #eee;
 }
-th,
 .memory-header-cell {
   padding: 4px;
   font-weight: unset;
@@ -309,12 +300,10 @@ th,
   top: 0;
 }
 
-table input,
 .memory-body-cell input {
   border: none;
 }
 
-td,
 .memory-body-cell {
   padding: 4px;
 }

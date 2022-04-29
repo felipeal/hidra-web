@@ -40,20 +40,21 @@ export function buildSource(lines: string | string[], { steps }: { steps: number
 }
 
 export function changePCRow(address: number): void {
-  const pcArrowCell = within(screen.getByTestId("instructions-table")).getByText<HTMLTableCellElement>("→");
+  changePCSPRow(address, "instructions-table");
+}
+
+export function changeSPRow(address: number): void {
+  changePCSPRow(address, "stack-table");
+}
+
+function changePCSPRow(address: number, tableTestId: string) {
+  const pcArrowCell = within(screen.getByTestId(tableTestId)).getByText<HTMLTableCellElement>("→");
 
   const table = pcArrowCell.parentElement!.parentElement as HTMLElement;
   const tableRows = Array.from(table.childNodes);
   const rowToBeClicked = tableRows.find(row => row.childNodes[COLUMN_INDEXES.ADDRESS].textContent === String(address))!;
   const cellToBeClicked = rowToBeClicked.childNodes[COLUMN_INDEXES.PC_SP] as HTMLElement;
 
-  userEvent.click(cellToBeClicked);
-}
-
-export function changeSPRow(rowIndex: number): void {
-  const arrowCell = within(screen.getByTestId("stack-table")).getByText<HTMLTableCellElement>("→");
-  const table = arrowCell.parentElement!.parentElement as HTMLTableElement;
-  const cellToBeClicked = table.rows[rowIndex].childNodes[arrowCell.cellIndex] as HTMLElement;
   userEvent.click(cellToBeClicked);
 }
 

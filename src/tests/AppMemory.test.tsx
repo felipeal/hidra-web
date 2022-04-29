@@ -72,7 +72,7 @@ describe("App: Memory Areas", () => {
 
   test("stack table: should allow changing SP by clicking", () => {
     selectMachine("Volta");
-    changeSPRow(61);
+    changeSPRow(2);
     expect(screen.getByLabelText("SP")).toHaveValue("2");
   });
 
