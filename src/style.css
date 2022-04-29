@@ -308,8 +308,7 @@ fieldset legend {
   padding: 4px;
 }
 
-.memory-address,
-.memory-value-above-sp:not(:focus) {
+.memory-address {
   color: gray;
 }
 

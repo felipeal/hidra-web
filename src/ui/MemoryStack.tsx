@@ -5,7 +5,7 @@ import { Volta } from "../core/machines/Volta";
 import { addressToHex, charCodeToString, uncheckedByteStringToNumber, unsignedByteToString } from "../core/utils/Conversions";
 import { buildUnsubscribeCallback } from "../core/utils/EventUtils";
 import { calculateScrollOffset, focusMemoryInput, onFocusSelectAll, scrollToRow } from "./utils/FocusHandler";
-import { classes, TableDimensions, toPx } from "./utils/LayoutUtils";
+import { TableDimensions, toPx } from "./utils/LayoutUtils";
 
 const CHAR_COLUMN_INDEX = 3;
 
@@ -99,20 +99,15 @@ export function MemoryStackRow({ columnWidths, style, address, machine, displayH
 }) {
   const [value, setValue] = useState(unsignedByteToString(machine.getStackValue(address), { displayHex, displayNegative }));
   const [isCurrentStackPos, setIsCurrentStackPos] = useState(machine.getSPValue() === address);
-  const [isAboveStackPos, setIsAboveStackPos] = useState(address > machine.getSPValue());
 
   useEffect(() => {
     // Restore values on external change
     setValue(unsignedByteToString(machine.getStackValue(address), { displayHex, displayNegative }));
     setIsCurrentStackPos(machine.getSPValue() === address);
-    setIsAboveStackPos(address > machine.getSPValue());
 
     // Event subscriptions
     return buildUnsubscribeCallback([
-      machine.subscribeToEvent("REG.SP", (spAddress) => {
-        setIsCurrentStackPos((spAddress as number) === address);
-        setIsAboveStackPos(address > (spAddress as number));
-      }),
+      machine.subscribeToEvent("REG.SP", (spAddress) => setIsCurrentStackPos((spAddress as number) === address)),
       machine.subscribeToEvent(`STACK.${address}`, (newValue) => setValue(unsignedByteToString(newValue as number, { displayHex, displayNegative })))
     ]);
   }, [machine, displayHex, displayNegative, address]);
@@ -133,7 +128,7 @@ export function MemoryStackRow({ columnWidths, style, address, machine, displayH
 
       {/* Data cell */}
       <div className="memory-body-cell" style={{ width: toPx(columnWidths[2]) }}>
-        <input className={classes("memory-value", (isAboveStackPos ? "memory-value-above-sp" : ""))} inputMode="numeric" value={value} onChange={(event) => {
+        <input className="memory-value" inputMode="numeric" value={value} onChange={(event) => {
           setValue(event.target.value);
         }} onBlur={(event) => {
           // Write value to memory on focus out
