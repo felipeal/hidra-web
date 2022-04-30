@@ -458,12 +458,11 @@ export default function App() {
           ********************************************************************/}
 
         {/* Instructions memory */}
-        <MemoryInstructions dimensions={instructionsDimensions} scrollbarWidth={scrollbarWidth}
-          machine={machine} assembler={assembler} displayHex={displayHex} displayFollowPC={displayFollowPC} />
+        <MemoryInstructions dimensions={instructionsDimensions} scrollbarWidth={scrollbarWidth} machine={machine} assembler={assembler}
+          displayHex={displayHex} displayNegative={displayNegative} displayFollowPC={displayFollowPC} />
 
         {/* Data memory */}
-        <MemoryData dimensions={dataDimensions} scrollbarWidth={scrollbarWidth}
-          machine={machine} assembler={assembler}
+        <MemoryData dimensions={dataDimensions} scrollbarWidth={scrollbarWidth} machine={machine} assembler={assembler}
           displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars} />
 
         {/* Stack memory */}

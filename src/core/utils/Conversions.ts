@@ -1,5 +1,7 @@
 import { RegisterInfo } from "../Register";
 
+type DisplayHexOrNegative = { displayHex?: boolean, displayNegative?: boolean };
+
 export function bitPatternToUnsignedByte(bitPattern: string): number {
   let value = 0;
 
@@ -54,15 +56,30 @@ export function addressToHex(value: number, memorySize: number): string {
   return unsignedNumberToHex(value, numDigits);
 }
 
-export function instructionStringToHex(instructionString: string): string {
+export function instructionStringToDisplayMode(instructionString: string, { displayHex, displayNegative }: DisplayHexOrNegative): string {
+  if (displayHex) {
+    return numbersToHex(instructionString);
+  } else if (displayNegative) {
+    return immediateValuesToNegative(instructionString);
+  } else {
+    return instructionString;
+  }
+}
+
+export function numbersToHex(instructionString: string): string {
   return instructionString.replace(/\b\d+\b/g, (v) => unsignedNumberToHexCodeString(Number(v)));
+}
+
+// Note: Assumes 8-bit immediate values
+export function immediateValuesToNegative(instructionString: string): string {
+  return instructionString.replace(/#\d+\b/g, (v) => "#" + String(unsignedByteToSigned(Number(v.slice(1)))));
 }
 
 export function unsignedNumberToHexCodeString(value: number): string {
   return "h" + value.toString(16).toUpperCase();
 }
 
-export function unsignedByteToString(value: number, { displayHex, displayNegative }: { displayHex?: boolean, displayNegative?: boolean}): string {
+export function unsignedByteToString(value: number, { displayHex, displayNegative }: DisplayHexOrNegative): string {
   if (displayHex) {
     return unsignedNumberToHex(value, 2);
   } else if (displayNegative) {
@@ -72,10 +89,7 @@ export function unsignedByteToString(value: number, { displayHex, displayNegativ
   }
 }
 
-export function registerValueToString(
-  { value, numBits, isData }: RegisterInfo,
-  { displayHex, displayNegative }: { displayHex?: boolean, displayNegative?: boolean}
-): string {
+export function registerValueToString({ value, numBits, isData }: RegisterInfo, { displayHex, displayNegative }: DisplayHexOrNegative): string {
   if (displayHex) {
     return unsignedNumberToHex(value, Math.ceil(numBits / 4));
   } else if (displayNegative && isData) {

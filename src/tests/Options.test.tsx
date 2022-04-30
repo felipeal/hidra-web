@@ -61,25 +61,26 @@ describe("Options", () => {
    ****************************************************************************/
 
   test("display negative: should toggle negative values", async () => {
+    buildSource(["lda MinusOne", "jmp 128", "MinusOne: DB -1"], { steps: 2 });
+
+    expect(getInputByLabel("AC")).toHaveValue("255"); // Unsigned AC (with toggle off)
+
     // Click menu entry
     userEvent.click(screen.getByText(/Opções/));
     userEvent.click(screen.getByText(/negativ/i));
     userEvent.click(screen.getByText("Hidra")); // Close menu
 
-    buildSource(["lda MinusOne", "jmp 128", "MinusOne: DB -1"], { steps: 2 });
-
     expect(getInputByLabel("AC")).toHaveValue("-1"); // Negative AC
     expect(getInputByLabel("PC")).toHaveValue("128"); // Unsigned PC
-
-    // TODO: expect(screen.getByText("PSH #-1")).toBeInTheDocument(); // Negative immediate
 
     expect(within(screen.getByTestId("instructions-table")).getByDisplayValue("255")).toBeInTheDocument(); // Unsigned instructions
     expect(within(screen.getByTestId("data-table")).getByDisplayValue("-1")).toBeInTheDocument(); // Signed data
 
-    // Stack
     selectMachine("Volta");
-    buildSource(["psh #-1"], { steps: 1 });
-    expect(within(screen.getByTestId("stack-table")).getByDisplayValue("-1")).toBeInTheDocument();
+    buildSource(["psh #255"], { steps: 1 });
+
+    expect(within(screen.getByTestId("instructions-table")).getByText("PSH #-1")).toBeInTheDocument(); // Signed instruction string
+    expect(within(screen.getByTestId("stack-table")).getByDisplayValue("-1")).toBeInTheDocument(); // Signed stack data
   });
 
   /****************************************************************************

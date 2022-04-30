@@ -3,7 +3,7 @@ import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList } from "react-window";
 import { Assembler } from "../core/Assembler";
 import { Machine } from "../core/Machine";
-import { addressToHex, instructionStringToHex, uncheckedByteStringToNumber, unsignedByteToString } from "../core/utils/Conversions";
+import { addressToHex, immediateValuesToNegative, numbersToHex, uncheckedByteStringToNumber, unsignedByteToString } from "../core/utils/Conversions";
 import { buildUnsubscribeCallback } from "../core/utils/EventUtils";
 import { focusMemoryInput, onFocusSelectAll, scrollToRow } from "./utils/FocusHandler";
 import { classes, TableDimensions, toPx } from "./utils/LayoutUtils";
@@ -18,8 +18,10 @@ function computeIsCurrentInstruction(address: number, assembler: Assembler): boo
 // Table
 //////////////////////////////////////////////////
 
-export function MemoryInstructions({ dimensions, scrollbarWidth, machine, assembler, displayHex, displayFollowPC }: {
-  dimensions: TableDimensions, scrollbarWidth: number, machine: Machine, assembler: Assembler, displayHex: boolean, displayFollowPC: boolean
+export function MemoryInstructions({ dimensions, scrollbarWidth, machine, assembler, displayHex, displayNegative, displayFollowPC }: {
+  dimensions: TableDimensions, scrollbarWidth: number,
+  machine: Machine, assembler: Assembler,
+  displayHex: boolean, displayNegative: boolean, displayFollowPC: boolean
 }) {
   const [table, setTable] = useState<FixedSizeList | null>(null);
 
@@ -46,7 +48,8 @@ export function MemoryInstructions({ dimensions, scrollbarWidth, machine, assemb
           >
             {({ index, style }) => (
               <MemoryInstructionsRow key={index} columnWidths={dimensions.columnWidths} style={style}
-                address={index} machine={machine} assembler={assembler} displayHex={displayHex} />
+                address={index} machine={machine} assembler={assembler}
+                displayHex={displayHex} displayNegative={displayNegative} />
             )}
           </FixedSizeList>)}
         </>
@@ -92,9 +95,9 @@ function MemoryInstructionsHeader({ dimensions, headerRef }: {
 // Table row
 //////////////////////////////////////////////////
 
-function MemoryInstructionsRow({ columnWidths, style, address, machine, assembler, displayHex }: {
+function MemoryInstructionsRow({ columnWidths, style, address, machine, assembler, displayHex, displayNegative }: {
   columnWidths: number[], style: React.CSSProperties,
-  address: number, machine: Machine, assembler: Assembler, displayHex: boolean
+  address: number, machine: Machine, assembler: Assembler, displayHex: boolean, displayNegative: boolean
 }) {
   const [value, setValue] = useState(unsignedByteToString(machine.getMemoryValue(address), { displayHex }));
   const [instructionString, setInstructionString] = useState(String(machine.getInstructionString(address)));
@@ -152,7 +155,7 @@ function MemoryInstructionsRow({ columnWidths, style, address, machine, assemble
 
       {/* Instruction string cell */}
       <div className="memory-body-cell" style={{ width: toPx(columnWidths[3]) }}>
-        {displayHex ? instructionStringToHex(instructionString) : instructionString}
+        {displayHex ? numbersToHex(instructionString) : (displayNegative ? immediateValuesToNegative(instructionString) : instructionString)}
       </div>
     </div>
   );

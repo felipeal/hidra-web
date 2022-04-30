@@ -1,6 +1,8 @@
-import { addressToHex, bitPatternToUnsignedByte, charCodeToString, codeStringToNumber, instructionStringToHex,
-  uncheckedByteStringToNumber, unsignedNumberToHex, unsignedByteToBitPattern, unsignedByteToSigned,
-  unsignedNumberToHexCodeString, unsignedByteToString, registerValueToString } from "../core/utils/Conversions";
+import {
+  addressToHex, bitPatternToUnsignedByte, charCodeToString, codeStringToNumber, numbersToHex, uncheckedByteStringToNumber, unsignedNumberToHex,
+  unsignedByteToBitPattern, unsignedByteToSigned, unsignedNumberToHexCodeString, unsignedByteToString, registerValueToString, immediateValuesToNegative,
+  instructionStringToDisplayMode
+} from "../core/utils/Conversions";
 
 describe("Conversions", () => {
 
@@ -74,12 +76,24 @@ describe("Conversions", () => {
     expect(addressToHex(0x0F, 512)).toBe("00F");
   });
 
-  test("instructionStringToHex: should replace numbers correctly", () => {
-    expect(instructionStringToHex("ADD 255")).toBe("ADD hFF");
-    expect(instructionStringToHex("ADD 255,I")).toBe("ADD hFF,I");
-    expect(instructionStringToHex("ADD #255")).toBe("ADD #hFF");
-    expect(instructionStringToHex("TWO 128 255")).toBe("TWO h80 hFF"); // Two arguments
-    expect(instructionStringToHex("IF R10 128 255")).toBe("IF R10 h80 hFF"); // Number in register (not replaced)
+  test("numbersToHex: should convert to hex syntax", () => {
+    expect(numbersToHex("ADD 255")).toBe("ADD hFF");
+    expect(numbersToHex("ADD 255,I")).toBe("ADD hFF,I");
+    expect(numbersToHex("ADD #255")).toBe("ADD #hFF");
+    expect(numbersToHex("ABC 128 255")).toBe("ABC h80 hFF"); // Two arguments
+    expect(numbersToHex("IF R10 128 255")).toBe("IF R10 h80 hFF"); // Number in register (not replaced)
+  });
+
+  test("immediateValuesToNegative: should convert only immediate values", () => {
+    expect(immediateValuesToNegative("ABC #0 #127 #128 #255")).toBe("ABC #0 #127 #-128 #-1"); // Immediate values
+    expect(immediateValuesToNegative("ABC 0 127 128 255")).toBe("ABC 0 127 128 255"); // Non-immediate addresses
+    expect(immediateValuesToNegative("IF R10 128 #255")).toBe("IF R10 128 #-1"); // Number in register (not replaced)
+  });
+
+  test("instructionStringToDisplayMode: should convert according to mode", () => {
+    expect(instructionStringToDisplayMode("ABC 0 255,PC #0 #255", {})).toBe("ABC 0 255,PC #0 #255");
+    expect(instructionStringToDisplayMode("ABC 0 255,PC #0 #255", { displayHex: true })).toBe("ABC h0 hFF,PC #h0 #hFF");
+    expect(instructionStringToDisplayMode("ABC 0 255,PC #0 #255", { displayNegative: true })).toBe("ABC 0 255,PC #0 #-1");
   });
 
   test("unsignedNumberToHexCodeString: should convert correctly", () => {
