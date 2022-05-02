@@ -384,11 +384,11 @@ export default function App() {
             <legend>Diretivas</legend>
             <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px" }}>
               {["org", "db", "dw", "dab/daw"].map((directive, index) => {
-                const description = Texts.getDirectiveDescription(directive);
+                const description = Texts.getDirectiveDescription(directive, machine);
                 return <div className="monospace-font" style={{ minWidth: "56px", whiteSpace: "nowrap", marginLeft: "16px" }} key={index}>
                   <Tippy className="tooltip" content={<span>
                     <strong>{description.name}</strong>
-                    <p>{description.description}</p>
+                    {description.description.split("\n").map((line, index) => <p key={index}>{line}</p>)}
                     <p>{description.examples}</p>
                   </span>}>
                     <span>{Texts.shortenArguments(directive.toUpperCase())}</span>

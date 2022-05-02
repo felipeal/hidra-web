@@ -24,11 +24,20 @@ describe("Texts", () => {
 
   test("directives: should have distinct descriptions", () => {
     const directives = [...Assembler.DIRECTIVES, "dab/daw"];
-    const descriptions = directives.map(d => Texts.getDirectiveDescription(d));
+    const descriptions = directives.map(d => Texts.getDirectiveDescription(d, new Neander()));
 
     expectDistinctStrings(descriptions.map(d => d.name));
     expectDistinctStrings(descriptions.map(d => d.description));
     expectDistinctStrings(descriptions.map(d => d.examples));
+  });
+
+  test("directives: should have specific descriptions for big and little endian words", () => {
+    const wordDirectives = ["dw", "daw", "dab/daw"];
+    const bigEndianDescriptions = wordDirectives.map(d => Texts.getDirectiveDescription(d, new Neander()));
+    const littleEndianDescriptions = wordDirectives.map(d => Texts.getDirectiveDescription(d, new Pericles()));
+    const combinedDescriptions = [...bigEndianDescriptions, ...littleEndianDescriptions];
+
+    expectDistinctStrings(combinedDescriptions.map(d => d.description));
   });
 
   test("addressing modes: should have distinct descriptions", () => {
@@ -57,7 +66,7 @@ describe("Texts", () => {
   });
 
   test("not found: should throw error", () => {
-    expect(() => Texts.getDirectiveDescription("invalid")).toThrow();
+    expect(() => Texts.getDirectiveDescription("invalid", new Neander())).toThrow();
     expect(() => Texts.getInstructionDescription("invalid", new Neander())).toThrow();
     expect(() => Texts["getVoltaInstructionDescription"]("invalid")).toThrow();
   });
