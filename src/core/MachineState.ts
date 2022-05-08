@@ -15,12 +15,16 @@ interface MachineSettings {
   registers: Register[],
   instructions: Instruction[],
   addressingModes: AddressingMode[],
-  littleEndian?: boolean
+
+  // Settings with default values
+  littleEndian?: boolean,
+  pcName?: string,
+  immediateNumBytes?: number
 }
 
 export abstract class MachineState {
 
-  // Machine setttings (always provided in constructor)
+  // Machine setttings (always assigned in constructor)
   private name!: string;
   private identifier!: string;
   private memorySize!: number;
@@ -28,7 +32,11 @@ export abstract class MachineState {
   private registers!: Register[];
   private instructions!: Instruction[];
   private addressingModes!: AddressingMode[];
-  private littleEndian: boolean;
+
+  // Machine settings with default values
+  private littleEndian = false;
+  private pcName = "PC";
+  private immediateNumBytes = 1;
 
   private pc: Register;
   private memory: Byte[] = [];
@@ -37,7 +45,6 @@ export abstract class MachineState {
   private instructionCount = 0;
   private accessCount = 0;
   private memoryMask!: number; // Memory address mask, populated by setMemorySize
-  private immediateNumBytes = 1; // Applies to all current machines, including Pericles
 
   private eventSubscriptions: Record<string, EventCallback[]> = {};
 
@@ -45,10 +52,9 @@ export abstract class MachineState {
     // Assign settings
     Object.assign(this, settings);
     this.setMemorySize(settings.memorySize);
-    this.littleEndian = settings.littleEndian ?? false;
 
-    this.pc = this.registers.find(register => register.getName() === "PC")!;
-    assert(this.pc, "Register PC not found.");
+    this.pc = this.registers.find(register => register.getName() === this.getPCName())!;
+    assert(this.pc, `Register ${this.getPCName()} not found.`);
   }
 
   //////////////////////////////////////////////////
@@ -220,7 +226,7 @@ export abstract class MachineState {
   }
 
   public getPCName(): string {
-    return this.pc.getName();
+    return this.pcName;
   }
 
   public getPCValue(): number {
