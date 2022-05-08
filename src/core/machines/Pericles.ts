@@ -43,9 +43,9 @@ export class Pericles extends Machine {
       ],
       addressingModes: [
         new AddressingMode("......00", AddressingModeCode.DIRECT, AddressingMode.NO_PATTERN),
-        new AddressingMode("......01", AddressingModeCode.INDIRECT, "(.*),i"),
-        new AddressingMode("......10", AddressingModeCode.IMMEDIATE, "#(.*)"),
-        new AddressingMode("......11", AddressingModeCode.INDEXED_BY_X, "(.*),x")
+        new AddressingMode("......01", AddressingModeCode.INDIRECT, "a,I"),
+        new AddressingMode("......10", AddressingModeCode.IMMEDIATE, "#a"),
+        new AddressingMode("......11", AddressingModeCode.INDEXED_BY_X, "a,X")
       ],
       littleEndian: true
     });
@@ -136,7 +136,7 @@ export class Pericles extends Machine {
     // Add addressing mode syntax
     if (addressingModePattern !== AddressingMode.NO_PATTERN) {
       // Surround argument string with the corresponding addressing mode syntax
-      argument = addressingModePattern.replace("(.*)", argument).toUpperCase();
+      argument = addressingModePattern.replace("a", argument);
     }
 
     return { argument, argumentsSize };

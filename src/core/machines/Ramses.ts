@@ -42,9 +42,9 @@ export class Ramses extends Machine {
       ],
       addressingModes: [
         new AddressingMode("......00", AddressingModeCode.DIRECT, AddressingMode.NO_PATTERN),
-        new AddressingMode("......01", AddressingModeCode.INDIRECT, "(.*),i"),
-        new AddressingMode("......10", AddressingModeCode.IMMEDIATE, "#(.*)"),
-        new AddressingMode("......11", AddressingModeCode.INDEXED_BY_X, "(.*),x")
+        new AddressingMode("......01", AddressingModeCode.INDIRECT, "a,I"),
+        new AddressingMode("......10", AddressingModeCode.IMMEDIATE, "#a"),
+        new AddressingMode("......11", AddressingModeCode.INDEXED_BY_X, "a,X")
       ]
     });
 

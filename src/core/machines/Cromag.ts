@@ -37,7 +37,7 @@ export class Cromag extends Machine {
       ],
       addressingModes: [
         new AddressingMode(".......0", AddressingModeCode.DIRECT, AddressingMode.NO_PATTERN),
-        new AddressingMode(".......1", AddressingModeCode.INDIRECT, "(.*),i")
+        new AddressingMode(".......1", AddressingModeCode.INDIRECT, "a,I")
       ]
     });
   }

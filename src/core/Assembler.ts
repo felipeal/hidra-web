@@ -412,8 +412,8 @@ export class Assembler {
       reservedKeywords.push(...usableRegisters);
     }
 
-    // Addressing modes (letter sequences only)
-    reservedKeywords.push(...this.machine.getAddressingModes().map(a => a.getAssemblyPattern().toLowerCase().replace(/[^a-z]/g, "")).filter(a => a));
+    // Addressing modes (uppercase letter sequences only)
+    reservedKeywords.push(...this.machine.getAddressingModes().map(a => a.getAssemblyPattern().replace(/[^A-Z]/g, "").toLowerCase()).filter(a => a));
 
     return reservedKeywords;
   }

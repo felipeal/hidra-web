@@ -429,7 +429,7 @@ export abstract class Machine extends MachineState {
 
     if (addressingModePattern !== AddressingMode.NO_PATTERN) {
       // Surround argument string with the corresponding addressing mode syntax
-      argument = addressingModePattern.replace("(.*)", argument).toUpperCase();
+      argument = addressingModePattern.replace("a", argument);
     }
 
     const argumentsSize = instruction.getNumBytes() - 1;

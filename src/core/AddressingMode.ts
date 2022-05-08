@@ -8,6 +8,10 @@ export enum AddressingModeCode {
   INDEXED_BY_PC = "INDEXED_BY_PC"
 }
 
+function defaultPatternToMatcher(assemblyPattern: string): RegExpMatcher {
+  return new RegExpMatcher(assemblyPattern.replace("a", "(.*)"), "i");
+}
+
 export class AddressingMode {
 
   static readonly NO_PATTERN = "";
@@ -18,11 +22,11 @@ export class AddressingMode {
   private readonly assemblyPatternMatcher: RegExpMatcher | null;
   private readonly bitPatternMatcher: RegExpMatcher;
 
-  constructor(bitPattern: string, addressingModeCode: AddressingModeCode, assemblyPattern: string) {
+  constructor(bitPattern: string, addressingModeCode: AddressingModeCode, assemblyPattern: string, patternToMatcher = defaultPatternToMatcher) {
     this.bitPattern = bitPattern;
     this.addressingModeCode = addressingModeCode;
     this.assemblyPattern = assemblyPattern;
-    this.assemblyPatternMatcher = assemblyPattern ? new RegExpMatcher(assemblyPattern, "i") : null;
+    this.assemblyPatternMatcher = assemblyPattern ? patternToMatcher(assemblyPattern) : null;
     this.bitPatternMatcher = new RegExpMatcher(bitPattern);
   }
 

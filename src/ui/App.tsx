@@ -432,7 +432,7 @@ export default function App() {
                       <p>{description.description}</p>
                       <p>{description.examples}</p>
                     </span>}>
-                      <span>{addressingMode.getAssemblyPattern().toUpperCase().replace("(.*)", "a") || "a"}</span>
+                      <span>{addressingMode.getAssemblyPattern() || "a"}</span>
                     </Tippy>
                   </div>;
                 })}
