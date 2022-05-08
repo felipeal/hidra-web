@@ -24,14 +24,14 @@ export class Assembler {
   protected buildSuccessful = false;
   protected firstErrorLine = -1;
 
-  private pcValue = 0;
-  private assemblerMemory: Byte[] = [];
-  private addressCorrespondingSourceLine: number[];
-  private sourceLineCorrespondingAddress: number[] = [];
-  private addressCorrespondingLabel: string[];
-  private labelPCMap: Map<string, number> = new Map();
-  private reservedKeywords: Set<string>;
-  private eventSubscriptions: Record<string, EventCallback[]> = {};
+  protected pcValue = 0;
+  protected assemblerMemory: Byte[] = [];
+  protected addressCorrespondingSourceLine: number[];
+  protected sourceLineCorrespondingAddress: number[] = [];
+  protected addressCorrespondingLabel: string[];
+  protected labelPCMap: Map<string, number> = new Map();
+  protected reservedKeywords: Set<string>;
+  protected eventSubscriptions: Record<string, EventCallback[]> = {};
 
   constructor(machine: Machine) {
     this.machine = machine;
@@ -118,14 +118,7 @@ export class Assembler {
 
           const instruction = this.machine.getInstructionFromMnemonic(mnemonic);
           if (instruction !== null) {
-            let numBytes = instruction.getNumBytes();
-
-            if (numBytes === 0) { // If instruction has variable number of bytes
-              const valueArgument = args.split(Assembler.WHITESPACE)[instruction.getArguments().indexOf("a")] || "";
-              const { addressingModeCode } = this.extractArgumentAddressingModeCode(valueArgument);
-              numBytes = this.machine.calculateInstructionNumBytes(instruction, addressingModeCode);
-            }
-
+            const numBytes = this.calculateNumBytes(instruction, args);
             this.reserveAssemblerMemory(numBytes, lineIndex);
           } else if (Assembler.DIRECTIVES.includes(mnemonic)) {
             this.obeyDirective(mnemonic, args, true, lineIndex);
@@ -189,6 +182,32 @@ export class Assembler {
     this.machine.clearAfterBuild();
 
     return [];
+  }
+
+  protected calculateNumBytes(instruction: Instruction, args: string): number {
+    // Fixed number of bytes
+    if (instruction.getNumBytes() > 0) {
+      return instruction.getNumBytes();
+
+    // Variable number of bytes and 1 argument
+    } else if (instruction.getArguments().includes("a")) {
+      const argumentList = args.split(Assembler.WHITESPACE);
+      const argument = this.extractArgument(argumentList, instruction, "a");
+      const { addressingModeCode } = this.extractArgumentAddressingModeCode(argument);
+      return this.machine.calculateInstructionNumBytes(instruction, addressingModeCode);
+    }
+
+    assert(false, "Invalid argument pattern for instruction with variable number of bytes: " + instruction.getAssemblyFormat());
+  }
+
+  // TODO: Check if other places could break because of the array access
+  // Extracts argument that corresponds to a given parameter. Throws AssemblerError if missing.
+  protected extractArgument(argumentList: string[], instruction: Instruction, parameter: string): string {
+    const argument = argumentList[instruction.getParameterPos(parameter)];
+    if (!argument) {
+      throw new AssemblerError(AssemblerErrorCode.TOO_FEW_ARGUMENTS);
+    }
+    return argument;
   }
 
   protected removeComment(line: string): string {
@@ -266,12 +285,8 @@ export class Assembler {
           const value = this.argumentToValue(argument, { isImmediate: true, defineNumBytes: bytesPerArgument, allowLabels });
 
           // Write value
-          if (bytesPerArgument === 2 && this.machine.isLittleEndian()) {
-            this.setAssemblerMemoryNext(value & 0xFF); // Least significant byte first
-            this.setAssemblerMemoryNext((value >> 8) & 0xFF);
-          } else if (bytesPerArgument === 2) { // Big endian
-            this.setAssemblerMemoryNext((value >> 8) & 0xFF); // Most significant byte first
-            this.setAssemblerMemoryNext(value & 0xFF);
+          if (bytesPerArgument === 2) {
+            this.setAssemblerMemoryNextWord(value);
           } else {
             this.setAssemblerMemoryNext(value & 0xFF);
           }
@@ -297,11 +312,7 @@ export class Assembler {
 
     // If argumentList contains a register
     if (instructionArguments.includes("r")) {
-      registerBitCode = this.machine.getRegisterBitCode(argumentList[instructionArguments.indexOf("r")]);
-
-      if (registerBitCode === Register.NO_BIT_CODE) {
-        throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT); // Register not found (or invisible)
-      }
+      registerBitCode = this.registerNameToBitCode(argumentList[instructionArguments.indexOf("r")]);
     }
 
     // If argumentList contains an address/value
@@ -323,14 +334,31 @@ export class Assembler {
     // Write second and third bytes (if 2-byte addresses)
     } else if (instructionArguments.includes("a")) {
       const address = this.argumentToValue(argumentList[instructionArguments.indexOf("a")], { isImmediate });
-
-      this.setAssemblerMemoryNext(address & 0xFF); // Least significant byte (little-endian)
-      this.setAssemblerMemoryNext((address >> 8) & 0xFF); // Most significant byte
+      this.setAssemblerMemoryNextWord(address);
 
     // If instruction has two addresses (REG_IF), write both addresses
     } else if (instructionArguments.includes("a0") && instructionArguments.includes("a1")) {
       this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instructionArguments.indexOf("a0")], { isImmediate }));
       this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instructionArguments.indexOf("a1")], { isImmediate }));
+    }
+  }
+
+  protected registerNameToBitCode(registerName: string): number {
+    const registerBitCode = this.machine.getRegisterBitCode(registerName);
+    if (registerBitCode === Register.NO_BIT_CODE) {
+      throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT); // TODO: Register not found
+    }
+    return registerBitCode;
+  }
+
+  // Increments PC
+  protected setAssemblerMemoryNextWord(value: number): void {
+    if (this.machine.isLittleEndian()) {
+      this.setAssemblerMemoryNext(value & 0xFF); // Least significant byte first
+      this.setAssemblerMemoryNext((value >> 8) & 0xFF);
+    } else {
+      this.setAssemblerMemoryNext((value >> 8) & 0xFF); // Most significant byte first
+      this.setAssemblerMemoryNext(value & 0xFF);
     }
   }
 
@@ -350,7 +378,7 @@ export class Assembler {
     }
   }
 
-  // Reserve 'sizeToReserve' bytes starting from PC, associate addresses with a source line. Throws exception on overlap.
+  // Reserves 'sizeToReserve' bytes starting from PC, associates addresses with a source line. Throws exception on overlap.
   protected reserveAssemblerMemory(sizeToReserve: number, associatedSourceLine: number): void {
     while (sizeToReserve > 0) {
       if (!this.reserved[this.getPCValue()]) {
@@ -505,29 +533,16 @@ export class Assembler {
     return { argument, addressingModeCode: this.machine.getDefaultAddressingModeCode() };
   }
 
-  protected argumentToValue(
-    argument: string,
-    { isImmediate, defineNumBytes, allowLabels = true }: {isImmediate: boolean, defineNumBytes?: number, allowLabels?: boolean}
-  ): number {
+  // TODO: Value may be negative, review all usages
+  protected argumentToValue(argument: string, { isImmediate, defineNumBytes, allowLabels = true, allowLabelOffset = true }: {
+    isImmediate: boolean, defineNumBytes?: number, allowLabels?: boolean, allowLabelOffset?: boolean, relativeLabels?: boolean
+  }): number {
     const charMatcher = new RegExpMatcher("'(.)'");
-    const offsetMatcher = new RegExpMatcher(`(${Assembler.LABEL_PATTERN})(\\+|-)(\\w+)`); // (label)(+|-)(offset)
     const immediateNumBytes = defineNumBytes ?? this.machine.getImmediateNumBytes();
 
-    // Convert label with +/- offset to number
-    if (offsetMatcher.fullMatch(argument.toLowerCase())) {
-      const sign = (offsetMatcher.cap(2) === "+") ? +1 : -1;
-
-      if (!allowLabels) {
-        throw new AssemblerError(AssemblerErrorCode.LABEL_NOT_ALLOWED);
-      } else if (!this.labelPCMap.has(offsetMatcher.cap(1))) { // Validate label's existence
-        throw new AssemblerError(AssemblerErrorCode.INVALID_LABEL);
-      } else if (!this.isValidValueFormat(offsetMatcher.cap(3))) { // Validate offset format
-        throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
-      }
-
-      // Argument = Label + Offset
-      argument = String(this.labelPCMap.get(offsetMatcher.cap(1))! + sign * codeStringToNumber(offsetMatcher.cap(3)));
-    }
+    // Extract offset from argument
+    const [offset, argumentWithoutOffset] = this.extractOffsetFromArgument(argument, allowLabelOffset);
+    argument = argumentWithoutOffset;
 
     // Convert label to number string
     if (this.labelPCMap.has(argument.toLowerCase())) {
@@ -535,7 +550,7 @@ export class Assembler {
         throw new AssemblerError(AssemblerErrorCode.LABEL_NOT_ALLOWED);
       }
 
-      argument = String(this.labelPCMap.get(argument.toLowerCase()));
+      argument = String(this.labelPCMap.get(argument.toLowerCase())! + offset);
     }
 
     if (isImmediate) {
@@ -549,7 +564,7 @@ export class Assembler {
         throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
       }
     } else {
-      if (this.isValidAddress(argument)) { // Address
+      if (this.isValidAddress(argument)) {
         return codeStringToNumber(argument);
       } else if (this.isValidValueFormat(argument)) {
         throw new AssemblerError(AssemblerErrorCode.INVALID_ADDRESS);
@@ -558,6 +573,25 @@ export class Assembler {
       } else {
         throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
       }
+    }
+  }
+
+  protected extractOffsetFromArgument(argument: string, allowLabelOffset: boolean): [offset: number, argumentWithoutOffset: string] {
+    const offsetMatcher = new RegExpMatcher(`(${Assembler.LABEL_PATTERN})(\\+|-)(\\w+)`); // (label)(+|-)(offset)
+
+    if (offsetMatcher.fullMatch(argument.toLowerCase())) {
+      if (!allowLabelOffset) {
+        throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT); // TODO: More specific
+      } else if (!this.isValidValueFormat(offsetMatcher.cap(3))) { // Validate offset format
+        throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
+      }
+
+      const sign = (offsetMatcher.cap(2) === "+") ? 1 : -1;
+      const offset = sign * codeStringToNumber(offsetMatcher.cap(3));
+      const argumentWithoutOffset = offsetMatcher.cap(1); // Label only
+      return [offset, argumentWithoutOffset];
+    } else {
+      return [0, argument];
     }
   }
 

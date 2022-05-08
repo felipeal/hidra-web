@@ -53,6 +53,16 @@ export class Instruction {
     return this.arguments;
   }
 
+  // TODO: Use elsewhere
+  // Returns -1 if not found
+  public getParameterPos(argument: string): number {
+    return this.arguments.indexOf(argument);
+  }
+
+  public hasParameter(argument: string): boolean {
+    return this.arguments.includes(argument);
+  }
+
   public getAssemblyFormat(): string {
     return this.assemblyFormat;
   }
