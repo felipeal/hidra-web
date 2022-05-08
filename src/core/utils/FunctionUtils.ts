@@ -25,6 +25,10 @@ export function isPowerOfTwo(size: number): boolean {
   return (size === 1);
 }
 
+export function clamp(value: number, min: number, max: number): number {
+  return (value < min) ? min : ((value > max) ? max : value);
+}
+
 export function range(length: number): number[] {
   return Array.from(Array(length).keys());
 }

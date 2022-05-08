@@ -1,6 +1,7 @@
 import { FocusEvent } from "react";
 import { FixedSizeList } from "react-window";
 import { Assembler } from "../../core/Assembler";
+import { clamp } from "../../core/utils/FunctionUtils";
 
 const MARGIN_LINES = 3;
 
@@ -9,7 +10,9 @@ export function scrollToRow(rowIndex: number, table: FixedSizeList, rowHeight: n
   const viewportTop = (table.state as { scrollOffset: number; }).scrollOffset;
   const viewportBottom = viewportTop + viewportHeight;
 
-  const targetRowTop = calculateScrollOffset(rowIndex, rowHeight);
+  const clampedRowIndex = clamp(rowIndex, MARGIN_LINES, table.props.itemCount - MARGIN_LINES);
+
+  const targetRowTop = calculateScrollOffset(clampedRowIndex, rowHeight);
   const targetRowBottom = targetRowTop + rowHeight;
   const margin = (rowHeight * MARGIN_LINES);
 
