@@ -15,7 +15,9 @@ describe("Conversions", () => {
   });
 
   test("unsignedByteToBitPattern: should have the correct result", () => {
-    expect(unsignedByteToBitPattern(0b10001111)).toBe("10001111");
+    expect(unsignedByteToBitPattern(0b10001111)).toBe("10001111"); // Negative
+    expect(unsignedByteToBitPattern(0b00000010)).toBe("00000010"); // Padded
+    expect(unsignedByteToBitPattern(0)).toBe("00000000"); // Zero
   });
 
   test("unsignedByteToSigned: should have the correct result", () => {
