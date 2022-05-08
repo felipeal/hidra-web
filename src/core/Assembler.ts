@@ -190,14 +190,14 @@ export class Assembler {
       return instruction.getNumBytes();
 
     // Variable number of bytes and 1 argument
-    } else if (instruction.getArguments().includes("a")) {
+    } else if (instruction.hasParameter("a")) {
       const argumentList = args.split(Assembler.WHITESPACE);
       const argument = this.extractArgument(argumentList, instruction, "a");
       const { addressingModeCode } = this.extractArgumentAddressingModeCode(argument);
       return this.machine.calculateInstructionNumBytes(instruction, addressingModeCode);
     }
 
-    assert(false, "Invalid argument pattern for instruction with variable number of bytes: " + instruction.getAssemblyFormat());
+    assert(false, "Unexpected parameter format for instruction with variable number of bytes: " + instruction.getAssemblyFormat());
   }
 
   // TODO: Check if other places could break because of the array access
@@ -297,28 +297,27 @@ export class Assembler {
 
   protected buildInstruction(instruction: Instruction, args: string): void {
     const argumentList = args.split(Assembler.WHITESPACE).filter(argument => /\S/.test(argument)); // Filters out empty strings
-    const instructionArguments: string[] = instruction.getArguments();
 
     let isImmediate = false;
     let registerBitCode = 0b00000000;
     let addressingModeBitCode = 0b00000000;
 
     // Check if number of arguments is correct
-    if (argumentList.length < instruction.getNumberOfArguments()) {
+    if (argumentList.length < instruction.getNumberOfParameters()) {
       throw new AssemblerError(AssemblerErrorCode.TOO_FEW_ARGUMENTS);
-    } else if (argumentList.length > instruction.getNumberOfArguments()) {
+    } else if (argumentList.length > instruction.getNumberOfParameters()) {
       throw new AssemblerError(AssemblerErrorCode.TOO_MANY_ARGUMENTS);
     }
 
     // If argumentList contains a register
-    if (instructionArguments.includes("r")) {
-      registerBitCode = this.registerNameToBitCode(argumentList[instructionArguments.indexOf("r")]);
+    if (instruction.hasParameter("r")) {
+      registerBitCode = this.registerNameToBitCode(argumentList[instruction.getParameterPos("r")]);
     }
 
     // If argumentList contains an address/value
-    if (instructionArguments.includes("a")) {
-      const { argument: extractedArgument, addressingModeCode } = this.extractArgumentAddressingModeCode(argumentList[instructionArguments.indexOf("a")]);
-      argumentList[instructionArguments.indexOf("a")] = extractedArgument;
+    if (instruction.hasParameter("a")) {
+      const { argument: extractedArgument, addressingModeCode } = this.extractArgumentAddressingModeCode(argumentList[instruction.getParameterPos("a")]);
+      argumentList[instruction.getParameterPos("a")] = extractedArgument;
       addressingModeBitCode = this.machine.getAddressingModeBitCode(addressingModeCode);
       isImmediate = (addressingModeCode === AddressingModeCode.IMMEDIATE);
     }
@@ -328,18 +327,18 @@ export class Assembler {
 
     // Write second byte (if 1-byte address/immediate value)
     if (instruction.getNumBytes() === 2 || isImmediate) {
-      const value = this.argumentToValue(argumentList[instructionArguments.indexOf("a")], { isImmediate });
+      const value = this.argumentToValue(argumentList[instruction.getParameterPos("a")], { isImmediate });
       this.setAssemblerMemoryNext(value);
 
     // Write second and third bytes (if 2-byte addresses)
-    } else if (instructionArguments.includes("a")) {
-      const address = this.argumentToValue(argumentList[instructionArguments.indexOf("a")], { isImmediate });
+    } else if (instruction.hasParameter("a")) {
+      const address = this.argumentToValue(argumentList[instruction.getParameterPos("a")], { isImmediate });
       this.setAssemblerMemoryNextWord(address);
 
     // If instruction has two addresses (REG_IF), write both addresses
-    } else if (instructionArguments.includes("a0") && instructionArguments.includes("a1")) {
-      this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instructionArguments.indexOf("a0")], { isImmediate }));
-      this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instructionArguments.indexOf("a1")], { isImmediate }));
+    } else if (instruction.hasParameter("a0") && instruction.hasParameter("a1")) {
+      this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instruction.getParameterPos("a0")], { isImmediate }));
+      this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instruction.getParameterPos("a1")], { isImmediate }));
     }
   }
 

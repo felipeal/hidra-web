@@ -25,7 +25,7 @@ export class Instruction {
   private readonly byteRegExp: RegExpMatcher;
   private readonly mnemonic: string;
   private readonly assemblyFormat: string;
-  private readonly arguments: string[];
+  private readonly parameters: string[];
   private readonly instructionCode: InstructionCode;
 
   constructor(numBytes: number, bitPattern: string, instructionCode: InstructionCode, assemblyFormat: string) {
@@ -37,7 +37,7 @@ export class Instruction {
     const assemblyFormatList = assemblyFormat.split(" ");
 
     this.mnemonic = assemblyFormatList.shift()!;
-    this.arguments = assemblyFormatList; // Mnemonic not included
+    this.parameters = assemblyFormatList; // Mnemonic not included
     this.assemblyFormat = assemblyFormat;
   }
 
@@ -49,18 +49,18 @@ export class Instruction {
     return this.mnemonic;
   }
 
-  public getArguments(): string[] {
-    return this.arguments;
+  public getParameters(): string[] {
+    return this.parameters;
   }
 
   // TODO: Use elsewhere
   // Returns -1 if not found
-  public getParameterPos(argument: string): number {
-    return this.arguments.indexOf(argument);
+  public getParameterPos(parameter: string): number {
+    return this.parameters.indexOf(parameter);
   }
 
-  public hasParameter(argument: string): boolean {
-    return this.arguments.includes(argument);
+  public hasParameter(parameter: string): boolean {
+    return this.parameters.includes(parameter);
   }
 
   public getAssemblyFormat(): string {
@@ -75,8 +75,8 @@ export class Instruction {
     return this.numBytes;
   }
 
-  public getNumberOfArguments(): number {
-    return this.arguments.length;
+  public getNumberOfParameters(): number {
+    return this.parameters.length;
   }
 
   public getInstructionCode(): InstructionCode {

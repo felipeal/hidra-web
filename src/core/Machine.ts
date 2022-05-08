@@ -407,7 +407,7 @@ export abstract class Machine extends MachineState {
     memoryString = instruction.getMnemonic().toUpperCase();
 
     // Register name
-    if (instruction.getArguments().includes("r")) {
+    if (instruction.hasParameter("r")) {
       memoryString += " " + ((registerName !== "") ? registerName : "?");
     }
 

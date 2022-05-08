@@ -403,7 +403,7 @@ export default function App() {
             <legend>Instruções</legend>
             <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px" }}>
               {machine.getInstructions().map((instruction, index) => {
-                const assemblyFormat = [instruction.getMnemonic().toUpperCase(), ...instruction.getArguments()].join(" ");
+                const assemblyFormat = [instruction.getMnemonic().toUpperCase(), ...instruction.getParameters()].join(" ");
                 const [name, description] = Texts.getInstructionDescription(instruction.getAssemblyFormat(), machine);
                 return <div className="monospace-font" style={{ minWidth: "56px", whiteSpace: "nowrap", marginLeft: "16px" }} key={index}>
                   <Tippy className="tooltip" content={<span>

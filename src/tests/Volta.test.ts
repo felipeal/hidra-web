@@ -154,7 +154,7 @@ describe("Volta: Run", () => {
     expectRunState(["psh #127", "psh #126", "sle"], [], { r_PC: 5, r_SP: 0 });
     expectRunState(["psh #128", "psh #127", "sle"], [], { r_PC: 6, r_SP: 0 });
 
-    // Jumps/Subroutines
+    // Jumps / Subroutines
     expectRunState(["jmp 128"], [], { r_PC: 128, r_SP: 0 });
     expectRunState(["nop", "jsr 128"], [], { s_1: 3, r_PC: 128, r_SP: 1 });
     expectRunState(["nop", "jsr 128", "hlt", "org 128", "rts"], [], { s_1: 3, r_PC: 4, r_SP: 0 });
