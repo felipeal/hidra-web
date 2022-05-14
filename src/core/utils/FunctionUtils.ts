@@ -40,3 +40,7 @@ export function range(length: number): number[] {
 export function buildArray<T>(length: number, buildFunction: (index: number) => T): T[] {
   return range(length).map(buildFunction);
 }
+
+export function removeItem<T>(array: T[], removeIndex: number): T[] {
+  return [...array.slice(0, removeIndex), ...array.slice(removeIndex + 1)];
+}

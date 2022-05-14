@@ -21,4 +21,10 @@ export class RegExpMatcher extends RegExp {
     return this.lastMatch[index];
   }
 
+  groups(): Record<string, string> {
+    assert(this.lastMatch, "Groups accessed without lastMatch.");
+    assert(this.lastMatch.groups, "No groups defined for lastMatch.");
+    return this.lastMatch.groups;
+  }
+
 }

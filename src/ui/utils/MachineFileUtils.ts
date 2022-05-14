@@ -1,4 +1,5 @@
 import { Assembler } from "../../core/Assembler";
+import { CesarAssembler } from "../../core/CesarAssembler";
 import { Machine } from "../../core/Machine";
 import { Ahmes } from "../../core/machines/Ahmes";
 import { Cesar } from "../../core/machines/Cesar";
@@ -82,7 +83,11 @@ export function buildMachineBasedOnIdentifier(identifier: string): Machine | nul
 }
 
 export function buildAssemblerBasedOnMachine(machine: Machine): Assembler {
-  return new Assembler(machine);
+  if (machine instanceof Cesar) {
+    return new CesarAssembler(machine);
+  } else {
+    return new Assembler(machine);
+  }
 }
 
 export async function importMemory(file: File): Promise<Machine> {
@@ -102,7 +107,8 @@ export async function importMemory(file: File): Promise<Machine> {
     throw new FileError(`Unknown identifier: ${identifier}`);
   }
 
-  // TODO: is Cesar 2-to-1 bytes? What about Pericles on Hidra?
+  // FIXME: No padding for Cesar
+  // TODO: What about Pericles on Hidra C++?
   const memory = bytes.slice(1 + identifier.length).filter((_value, index) => (index % 2) === 0);
   if (bytes.length !== (1 + newMachine.getIdentifier().length) + (newMachine.getMemorySize() * 2)) {
     throw new FileError("Invalid binary size.");

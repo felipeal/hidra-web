@@ -15,8 +15,12 @@ function readTextFile(filePath: string) {
 function readMachineBinary(filePath: string) {
   const binary = readBinaryFile(filePath);
   const identifier = binary.slice(1, 1 + binary[0]).toString();
-  const memory = binary.slice(1 + identifier.length).filter((_value, index) => (index % 2) === 0);
-  return [memory, identifier];
+  let bytes = Array.from(binary.slice(1 + identifier.length));
+  if (bytes.length < 65536) {
+    bytes = bytes.filter((_value, index) => (index % 2) === 0); // Skip every two bytes for 8-bit machines
+  }
+  expect(bytes.length).toBeGreaterThanOrEqual(256);
+  return [bytes, identifier];
 }
 
 type MemoryComparison = { buildOnly?: boolean, instructions?: number; accesses?: number; extraAccesses?: number; }
@@ -33,7 +37,8 @@ describe("Memory Comparisons", () => {
     ["ahmes_instructions_1.ahd", { instructions: 56, accesses: 153, extraAccesses: 4 }],
     ["ahmes_instructions_2.ahd", { instructions: 67, accesses: 163, extraAccesses: 8 }],
     ["ramses_instructions.rad", { instructions: 80, accesses: 176, extraAccesses: 0 }],
-    ["assembler.rad", { buildOnly: true }]
+    ["assembler.rad", { buildOnly: true }],
+    ["cesar_assembler.ced", { buildOnly: true }]
   ])("%s: should match Daedalus and original simulators' output", (fileName, { instructions, accesses, extraAccesses, buildOnly }: MemoryComparison) => {
     // Build
     const machine = buildMachineBasedOnFileName(fileName);
@@ -46,7 +51,7 @@ describe("Memory Comparisons", () => {
     expect(machine.getIdentifier()).toStrictEqual(expectedIdentifier);
     expect(errorMessages).toStrictEqual([]);
     expect(assembler.getBuildSuccessful()).toBe(true);
-    for (let i = 0; i < 256; i++) {
+    for (let i = 0; i < expectedMemoryBeforeRunning.length; i++) {
       expect(`MEM[${i}] = ${machine.getMemoryValue(i)}`).toBe(`MEM[${i}] = ${expectedMemoryBeforeRunning[i]}`);
     }
 
@@ -62,7 +67,7 @@ describe("Memory Comparisons", () => {
 
     // Test execute
     const [expectedMemoryAfterRunning] = readMachineBinary(fileName.replace(/\..*/, ".run.mem"));
-    for (let i = 0; i < 256; i++) {
+    for (let i = 0; i < expectedMemoryAfterRunning.length; i++) {
       expect(`MEM[${i}] = ${machine.getMemoryValue(i)}`).toBe(`MEM[${i}] = ${expectedMemoryAfterRunning[i]}`);
     }
     expect(machine.getInstructionCount()).toBe(instructions);

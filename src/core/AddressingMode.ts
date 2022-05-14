@@ -60,4 +60,8 @@ export class AddressingMode {
     return this.assemblyPatternMatcher?.fullMatch(argument) ? this.assemblyPatternMatcher.cap(1) : null;
   }
 
+  public extractMatchingGroups(argument: string): Record<string, string> | null {
+    return this.assemblyPatternMatcher?.fullMatch(argument) ? this.assemblyPatternMatcher.groups() : null;
+  }
+
 }
