@@ -1,3 +1,9 @@
+let firstTextExecution = true;
+
 export default () => {
-  console.log("\n".repeat(25)); // Whitespace between test executions
+  if (firstTextExecution) {
+    firstTextExecution = false;
+  } else {
+    console.log("\n".repeat(25)); // Whitespace between test executions
+  }
 };
