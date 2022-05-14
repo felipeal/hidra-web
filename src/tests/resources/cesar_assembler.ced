@@ -1,0 +1,316 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Directives
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+org 32768
+
+db 'a'
+dw 'A'
+dab 127, -128, 'aBc'
+dab [2]
+daw 65535, -32767, 'AbC'
+daw [2]
+
+org 2
+LowerAddressLabel: dw 1
+
+org 60000
+HigherAddressLabel: dw 2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Flags
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+org 256
+
+; CCC: 0 args
+ccc
+
+; CCC: 1 arg
+ccc n
+ccc z
+ccc v
+ccc c
+
+; CCC: 2 args + different separators
+ccc nz
+ccc n v
+ccc n,c
+ccc z, v
+ccc z ,c
+ccc v , c
+
+; CCC: 3 args + whitespace
+ccc nzv
+ccc n  z  c
+ccc n , v , c
+ccc z  ,  v  ,  c
+
+; CCC: 4 args + different orders
+ccc nzvc
+ccc z, n, c, v
+ccc c v z n
+
+; SCC: 0 to 4 args + mixed case
+scc
+scc N
+scc zV
+scc c N z
+scc V, c, N, z
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Offset instructions (Branching and SOB)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+org 512
+
+BrLabelBefore: db 0
+
+; BR: values, labels, labels+offsets
+br h7F
+br -128
+br #h7f
+br #-128
+br BrLabelBefore
+br BrLabelAfter
+br BrLabelBefore-10
+br BrLabelBefore+10
+br BrLabelAfter-hA
+br BrLabelAfter+hA
+
+; BNE to BLS (same format as BR)
+bne BrLabelAfter
+beq BrLabelAfter
+beq BrLabelAfter
+bpl BrLabelAfter
+bmi BrLabelAfter
+bvc BrLabelAfter
+bvs BrLabelAfter
+bcc BrLabelAfter
+bcs BrLabelAfter
+bge BrLabelAfter
+blt BrLabelAfter
+bgt BrLabelAfter
+ble BrLabelAfter
+bhi BrLabelAfter
+bls BrLabelAfter
+
+; SOB: values, labels, labels+offsets
+sob r0 h7F
+sob r1 -128
+sob r2 BrLabelBefore
+sob r3 BrLabelAfter
+sob r4 BrLabelBefore-10
+sob r5 BrLabelBefore+10
+sob r6 BrLabelAfter-hA
+sob r7 BrLabelAfter+hA
+
+BrLabelAfter: db 0
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Jumps / Subroutines
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+org 768
+
+; JMP: all registers/modes/cases
+; [WARNING] jmp r0
+jmp (R1)+
+jmp -(r2)
+jmp 32769(R3)
+jmp (r4)
+jmp ((R5)+)
+jmp (-(r6))
+jmp (32769(R7))
+
+; JMP: other indexed scenarios
+jmp -32767(r0)
+jmp (-32767(r1))
+jmp LowerAddressLabel(r2)
+jmp (HigherAddressLabel(r3))
+
+; JMP: PC indexing + label
+jmp HigherAddressLabel(r7)
+jmp (HigherAddressLabel(r7))
+
+; JMP: values, labels, labels+offsets
+jmp hFFFF
+jmp -32768
+jmp #h8001
+jmp #-32768
+jmp LowerAddressLabel
+jmp HigherAddressLabel
+jmp LowerAddressLabel-10
+jmp LowerAddressLabel+256
+jmp HigherAddressLabel-hA
+jmp HigherAddressLabel+h100
+
+; JSR: all registers/modes/cases
+; [WARNING] jsr r7 r0
+jsr R6 (r1)+
+jsr r5 -(r2)
+jsr R4 32769(r3)
+jsr r3 (R4)
+jsr R2 ((R5)+)
+jsr r1 (-(R6))
+jsr R0 (32769(R7))
+
+; JSR: other indexed scenarios
+jsr r0 -32767(r7)
+jsr r1 (-32767(r6))
+jsr r2 LowerAddressLabel(r5)
+jsr r3 (HigherAddressLabel(r4))
+
+; JSR: PC indexing + label
+jsr r0 HigherAddressLabel(r7)
+jsr r1 (HigherAddressLabel(r7))
+
+; JSR: pseudo-modes (direct / immediate)
+jsr r0 hFFFF
+jsr r1 -32768
+jsr r2 LowerAddressLabel
+jsr r3 HigherAddressLabel
+jsr r4 LowerAddressLabel-10
+jsr r5 LowerAddressLabel+256
+jsr r6 HigherAddressLabel-hA
+jsr r7 HigherAddressLabel+h100
+jsr r0 #h8001
+jsr r1 #-32768
+jsr r2 #HigherAddressLabel
+jsr r3 #HigherAddressLabel+h100
+
+; RTS: all registers/cases
+rts r0
+rts R1
+rts r2
+rts R3
+rts r4
+rts R5
+rts r6
+rts R7
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Arithmetic (one operand)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+org 1024
+
+; CLR: all registers/modes/cases
+clr r0
+clr (R1)+
+clr -(r2)
+clr 32769(R3)
+clr (r4)
+clr ((R5)+)
+clr (-(r6))
+clr (32769(R7))
+
+; CLR: other indexed scenarios
+clr -32767(r0)
+clr (-32767(r1))
+clr LowerAddressLabel(r2)
+clr (HigherAddressLabel(r3))
+
+; CLR: PC indexing + label
+clr HigherAddressLabel(r7)
+clr (HigherAddressLabel(r7))
+
+; CLR: pseudo-modes (direct / immediate)
+clr 32769
+clr -32767
+clr LowerAddressLabel
+clr HigherAddressLabel
+clr LowerAddressLabel-10
+clr LowerAddressLabel+256
+clr HigherAddressLabel-hA
+clr HigherAddressLabel+h100
+clr #h8001
+clr #-32767
+clr #HigherAddressLabel
+clr #HigherAddressLabel+h100
+
+; NOT to SBC (same format as CLR)
+not (-32767(r7))
+inc (-32767(r7))
+dec (-32767(r7))
+neg (-32767(r7))
+tst (-32767(r7))
+ror (-32767(r7))
+rol (-32767(r7))
+asr (-32767(r7))
+asl (-32767(r7))
+adc (-32767(r7))
+sbc (-32767(r7))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Arithmetic (two operands)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+org 1280
+
+; On the tests below, the 2nd operand follows the same sequence as
+; the 1st operand, but in reverse order. 1st operand alternates case,
+; 2nd operand uses uppercase starting from the second half.
+
+; MOV: all registers/modes/cases
+mov r0          (32769(r7))
+mov (R1)+       (-(r6))
+mov -(r2)       ((r5)+)
+mov 32769(R3)   (r4)
+mov (r4)        32769(R3)
+mov ((R5)+)     -(R2)
+mov (-(r6))     (R1)+
+mov (32769(R7)) R0
+
+; MOV: other indexed scenarios
+mov -32767(r0)               (HigherAddressLabel(r3))
+mov (-32767(R1))             LowerAddressLabel(r2)
+mov LowerAddressLabel(r2)    (-32767(R1))
+mov (HigherAddressLabel(R3)) -32767(R0)
+
+; MOV: PC indexing + label
+;; TODO: Currently not working
+;;;; mov r0 HigherAddressLabel(r7)
+;;;; mov r1 (HigherAddressLabel(r7))
+;;;; mov HigherAddressLabel(r7) r0
+;;;; mov (HigherAddressLabel(r7)) r1
+;;;; mov HigherAddressLabel(r7) (HigherAddressLabel(r7))
+;;;; mov (HigherAddressLabel(r7)) HigherAddressLabel(r7)
+
+; MOV: pseudo-modes (direct / immediate)
+mov 32769                    #HigherAddressLabel+h100
+mov -32767                   #HigherAddressLabel
+mov LowerAddressLabel        #-32767
+mov HigherAddressLabel       #h8001
+mov LowerAddressLabel-10     HigherAddressLabel+h100
+mov LowerAddressLabel+256    HigherAddressLabel-hA
+mov HigherAddressLabel-hA    LowerAddressLabel+256
+mov HigherAddressLabel+h100  LowerAddressLabel-10
+mov #h8001                   HigherAddressLabel
+mov #-32767                  LowerAddressLabel
+mov #HigherAddressLabel      -32767
+mov #HigherAddressLabel+h100 32769
+
+; MOV: combined modes and pseudo-modes
+mov (HigherAddressLabel(R3)) 32000
+mov 32000                    (HigherAddressLabel(R3))
+mov (HigherAddressLabel(R3)) HigherAddressLabel+h100
+mov HigherAddressLabel+h100  (HigherAddressLabel(R3))
+mov (HigherAddressLabel(R3)) #-32000
+mov #-32000                  (HigherAddressLabel(R3))
+mov (HigherAddressLabel(R3)) #HigherAddressLabel+h100
+mov #HigherAddressLabel+h100 (HigherAddressLabel(R3))
+
+;; ADD to OR
+add (-32767(r7)) HigherAddressLabel+h100
+sub (-32767(r7)) HigherAddressLabel+h100
+cmp (-32767(r7)) HigherAddressLabel+h100
+and (-32767(r7)) HigherAddressLabel+h100
+or  (-32767(r7)) HigherAddressLabel+h100
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; NOP / HLT
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+nop
+hlt
