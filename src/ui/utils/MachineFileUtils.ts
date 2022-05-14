@@ -1,3 +1,4 @@
+import { Assembler } from "../../core/Assembler";
 import { Machine } from "../../core/Machine";
 import { Ahmes } from "../../core/machines/Ahmes";
 import { Cesar } from "../../core/machines/Cesar";
@@ -78,6 +79,10 @@ export function buildMachineBasedOnIdentifier(identifier: string): Machine | nul
     case (new Cesar().getIdentifier()): return new Cesar();
     default: return null;
   }
+}
+
+export function buildAssemblerBasedOnMachine(machine: Machine): Assembler {
+  return new Assembler(machine);
 }
 
 export async function importMemory(file: File): Promise<Machine> {

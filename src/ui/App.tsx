@@ -15,8 +15,10 @@ import Information from "./Information";
 import { Menu, SubMenuCheckBox, SubMenuItem, SubMenuSeparator } from "./Menus";
 
 import { buildMachine, getMachineNames, resetPCAndSP } from "./utils/MachineUtils";
-import { FileError, buildMachineBasedOnFileName, exportMemory, generateFileNameForMachine, importMemory } from "./utils/MachineFileUtils";
 import { calculateTableDimensions as measureTableDimensions, TableDimensions, toPx } from "./utils/LayoutUtils";
+import {
+  FileError, buildAssemblerBasedOnMachine, buildMachineBasedOnFileName, exportMemory, generateFileNameForMachine, importMemory
+} from "./utils/MachineFileUtils";
 
 import { Machine } from "../core/Machine";
 import { Neander } from "../core/machines/Neander";
@@ -62,7 +64,7 @@ let timeout: NodeJS.Timeout;
 
 function initialState(): [Machine, Assembler] {
   const initialMachine = new Neander() as Machine;
-  const initialAssembler = new Assembler(initialMachine);
+  const initialAssembler = buildAssemblerBasedOnMachine(initialMachine);
   return [initialMachine, initialAssembler];
 }
 
@@ -123,7 +125,7 @@ export default function App() {
       codeMirrorInstance.setValue(source);
       machine.setRunning(false);
       const newMachine = buildMachineBasedOnFileName(file.name, machine.getName());
-      setState([newMachine, new Assembler(newMachine)]);
+      setState([newMachine, buildAssemblerBasedOnMachine(newMachine)]);
 
       codeMirrorInstance.markClean();
     }
@@ -138,7 +140,7 @@ export default function App() {
     if (file) {
       try {
         const newMachine = await importMemory(file);
-        setState([newMachine, new Assembler(newMachine)]);
+        setState([newMachine, buildAssemblerBasedOnMachine(newMachine)]);
       } catch (error: unknown) {
         rethrowUnless(error instanceof FileError, error);
         showError(error.message);
@@ -299,7 +301,7 @@ export default function App() {
               showBusy();
               setTimeout(() => {
                 setErrorMessages([]);
-                setState([newMachine, new Assembler(newMachine)]);
+                setState([newMachine, buildAssemblerBasedOnMachine(newMachine)]);
               });
             }
           }>

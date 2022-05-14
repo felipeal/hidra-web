@@ -1,7 +1,6 @@
 import fs from "fs";
 
-import { Assembler } from "../core/Assembler";
-import { buildMachineBasedOnFileName } from "../ui/utils/MachineFileUtils";
+import { buildAssemblerBasedOnMachine, buildMachineBasedOnFileName } from "../ui/utils/MachineFileUtils";
 
 const resourcesPath = "src/tests/resources";
 
@@ -38,7 +37,7 @@ describe("Memory Comparisons", () => {
   ])("%s: should match Daedalus and original simulators' output", (fileName, { instructions, accesses, extraAccesses, buildOnly }: MemoryComparison) => {
     // Build
     const machine = buildMachineBasedOnFileName(fileName);
-    const assembler = new Assembler(machine);
+    const assembler = buildAssemblerBasedOnMachine(machine);
     const sourceCode = readTextFile(`${fileName}`);
     const errorMessages = assembler.build(sourceCode);
 
