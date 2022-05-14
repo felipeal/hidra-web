@@ -377,8 +377,11 @@ export default function App() {
           <button className="hide-if-busy build-button" data-testid="build-button" onClick={() => {
             const sourceCode = window.codeMirrorInstance.getValue();
             machine.setRunning(false);
-            setErrorMessages(assembler.build(sourceCode));
-            machine.updateInstructionStrings();
+            const errorMessages = assembler.build(sourceCode);
+            setErrorMessages(errorMessages);
+            if (errorMessages.length === 0) {
+              machine.updateInstructionStrings();
+            }
           }}>Montar</button>
 
           {/* Directives */}
