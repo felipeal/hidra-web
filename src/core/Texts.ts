@@ -6,6 +6,7 @@ import { Machine } from "./Machine";
 import { FlagCode } from "./Flag";
 import { assert } from "./utils/FunctionUtils";
 import { Volta } from "./machines/Volta";
+import { Cesar } from "./machines/Cesar";
 
 interface AddressingModeDescription { name: string, description: string, examples: string }
 interface DirectiveDescription { name: string, description: string, examples: string }
@@ -62,6 +63,10 @@ export class Texts {
   public static getInstructionDescription(assemblyFormat: string, machine: Machine | null): [name: string, description: string] {
     if (machine instanceof Volta) {
       return Texts.getVoltaInstructionDescription(assemblyFormat);
+    }
+
+    if (machine instanceof Cesar) {
+      return Texts.getCesarInstructionDescription(assemblyFormat);
     }
 
     switch (assemblyFormat) {
@@ -179,6 +184,67 @@ export class Texts {
     }
   }
 
+  private static getCesarInstructionDescription(assemblyFormat: string): [string, string] {
+    // TODO: Add descriptions
+
+    switch (assemblyFormat) {
+      case "nop": return Texts.getInstructionDescription(assemblyFormat, null); // Reuse description
+
+      // Condition codes
+      case "ccc f": return ["Clear Condition Codes", ""];
+      case "scc f": return ["Set Condition Codes", ""];
+
+      // Conditional branching
+      case "br o": return ["Branch", ""];
+      case "bne o": return ["Branch if Not Equal", ""];
+      case "beq o": return ["Branch if Equal", ""];
+      case "bpl o": return ["Branch if Plus", ""];
+      case "bmi o": return ["Branch if Minus", ""];
+      case "bvc o": return ["Branch if Overflow Clear", ""];
+      case "bvs o": return ["Branch if Overflow Set", ""];
+      case "bcc o": return ["Branch if Carry Clear", ""];
+      case "bcs o": return ["Branch if Carry Set", ""];
+      case "bge o": return ["Branch if Greater or Equal", ""];
+      case "blt o": return ["Branch if Less Than", ""];
+      case "bgt o": return ["Branch if Greater", ""];
+      case "ble o": return ["Branch if Less or Equal", ""];
+      case "bhi o": return ["Branch if Higher", ""];
+      case "bls o": return ["Branch if Lower or Same", ""];
+
+      // Jumps / Subroutines
+      case "jmp a": return ["Jump", ""];
+      case "sob r o": return ["Subtract One and Branch", ""];
+      case "jsr r a": return ["Jump to Subroutine", ""];
+      case "rts r": return ["Return from Subroutine", ""];
+
+      // Arithmetic (one operand)
+      case "clr a": return ["Clear", ""];
+      case "not a": return ["Not", ""];
+      case "inc a": return ["Increment", ""];
+      case "dec a": return ["Decrement", ""];
+      case "neg a": return ["Negate", ""];
+      case "tst a": return ["Test", ""];
+      case "ror a": return ["Rotate Right", ""];
+      case "rol a": return ["Rotate Left", ""];
+      case "asr a": return ["Arithmetic Shift Right", ""];
+      case "asl a": return ["Arithmetic Shift Left", ""];
+      case "adc a": return ["Add Carry", ""];
+      case "sbc a": return ["Subtract Carry", ""];
+
+      // Arithmetic (two operands)
+      case "mov a0 a1": return ["Move", ""];
+      case "add a0 a1": return ["Add", ""];
+      case "sub a0 a1": return ["Subtract", ""];
+      case "cmp a0 a1": return ["Compare", ""];
+      case "and a0 a1": return ["And", ""];
+      case "or a0 a1": return ["Or", ""];
+
+      case "hlt": return Texts.getInstructionDescription(assemblyFormat, null); // Reuse description
+
+      default: throw new Error(`Missing description for assembly format: ${assemblyFormat}`);
+    }
+  }
+
   public static getAddressingModeDescription(addressingModeCode: AddressingModeCode, machine: Machine): AddressingModeDescription {
     switch (addressingModeCode) {
       case AddressingModeCode.DIRECT: return {
@@ -209,6 +275,57 @@ export class Texts {
         name: "Indexado por PC",
         description: "Endereçamento direto com deslocamento (offset). O endereço do operando é a soma em complemento de dois dos valores de 'a' e do registrador PC (endereço da instrução seguinte).",
         examples: "Exemplos: JMP 128,PC | JMP Label,PC"
+      };
+
+      // Cesar
+      // TODO: Add description and examples
+
+      case AddressingModeCode.REGISTER: return {
+        name: "Registrador",
+        description: "",
+        examples: ""
+      };
+
+      case AddressingModeCode.REGISTER_POST_INC: return {
+        name: "Registrador Pós-Incrementado",
+        description: "",
+        examples: ""
+      };
+
+      case AddressingModeCode.REGISTER_PRE_DEC: return {
+        name: "Registrador Pré-Decrementado",
+        description: "",
+        examples: ""
+      };
+
+      case AddressingModeCode.REGISTER_INDEXED: return {
+        name: "Indexado",
+        description: "",
+        examples: ""
+      };
+
+      case AddressingModeCode.INDIRECT_REGISTER: return {
+        name: "Indireto",
+        description: "",
+        examples: ""
+      };
+
+      case AddressingModeCode.INDIRECT_REGISTER_POST_INC: return {
+        name: "Registrador Pós-Incrementado Indireto",
+        description: "",
+        examples: ""
+      };
+
+      case AddressingModeCode.INDIRECT_REGISTER_PRE_DEC: return {
+        name: "Registrador Pré-Decrementado Indireto",
+        description: "",
+        examples: ""
+      };
+
+      case AddressingModeCode.INDIRECT_REGISTER_INDEXED: return {
+        name: "Indexado Indireto",
+        description: "",
+        examples: ""
       };
     }
   }

@@ -1,5 +1,6 @@
 import { Machine } from "../../core/Machine";
 import { Ahmes } from "../../core/machines/Ahmes";
+import { Cesar } from "../../core/machines/Cesar";
 import { Cromag } from "../../core/machines/Cromag";
 import { Neander } from "../../core/machines/Neander";
 import { Pericles } from "../../core/machines/Pericles";
@@ -33,6 +34,7 @@ export function getMachineFileExtension(machine: Machine): string {
     case "Pericles": return "prd"; // .pid .pit N/A
     case "REG": return "red";
     case "Volta": return "vod";
+    case "Cesar": return "ced";
     default: throw new Error(`No file extension for machine: ${machine.getName()}`);
   }
 }
@@ -51,6 +53,7 @@ export function buildMachineBasedOnFileName(fileName: string, fallbackMachineNam
     case "prd": return new Pericles();
     case "red": return new Reg();
     case "vod": return new Volta();
+    case "ced": return new Cesar();
   }
 
   if (fallbackMachineName) {
@@ -72,6 +75,7 @@ export function buildMachineBasedOnIdentifier(identifier: string): Machine | nul
     case (new Pericles().getIdentifier()): return new Pericles();
     case (new Reg().getIdentifier()): return new Reg();
     case (new Volta().getIdentifier()): return new Volta();
+    case (new Cesar().getIdentifier()): return new Cesar();
     default: return null;
   }
 }

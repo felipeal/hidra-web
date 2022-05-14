@@ -1,5 +1,6 @@
 import { Machine } from "../../core/Machine";
 import { Ahmes } from "../../core/machines/Ahmes";
+import { Cesar } from "../../core/machines/Cesar";
 import { Cromag } from "../../core/machines/Cromag";
 import { Neander } from "../../core/machines/Neander";
 import { Pericles } from "../../core/machines/Pericles";
@@ -20,6 +21,7 @@ export function buildMachine(machineName: string): Machine {
     case "Pericles": return new Pericles();
     case "REG": return new Reg();
     case "Volta": return new Volta();
+    case "Cesar": return new Cesar();
     default: throw new Error(`Invalid machine name: ${machineName}`);
   }
 }

@@ -3,7 +3,7 @@ import { FlagCode } from "./Flag";
 import { Instruction, InstructionCode } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
 import { unsignedByteToBitPattern, unsignedByteToSigned as toSigned } from "./utils/Conversions";
-import { assert } from "./utils/FunctionUtils";
+import { assert, assertUnreachable } from "./utils/FunctionUtils";
 
 export abstract class Machine extends MachineState {
 
@@ -339,6 +339,9 @@ export abstract class Machine extends MachineState {
 
       case AddressingModeCode.INDEXED_BY_PC:
         return this.toValidAddress(this.memoryRead(immediateAddress) + this.getRegisterValue("PC"));
+
+      default:
+        assertUnreachable(`Unsupported addressing mode: ${addressingModeCode}`);
     }
   }
 
