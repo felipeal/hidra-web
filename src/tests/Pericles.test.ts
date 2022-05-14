@@ -34,6 +34,10 @@ describe("Pericles: Build", () => {
     expectBuildSuccess("hlt", [0xF0]);
   });
 
+  test("instructions: should ignore whitespace when calculating the number of bytes", () => {
+    expectBuildSuccess(["str  A  2049,I  ; Comment", "not A"], [0x11, 1, 8, 0x60]);
+  });
+
   test("addressing modes: should build correctly with variable number of bytes", () => {
     expectBuildSuccess(["str A 2049,I", "str A #128", "str A 2049,X"], [0x11, 1, 8, 0x12, 128, 0x13, 1, 8]);
     expectBuildSuccess(["ldr A 2049,I", "ldr A #128", "ldr A 2049,X"], [0x21, 1, 8, 0x22, 128, 0x23, 1, 8]);

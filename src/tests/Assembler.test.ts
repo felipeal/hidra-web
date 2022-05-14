@@ -110,6 +110,7 @@ describe("Assembler: Build", () => {
 
   test("build: should validate number of arguments for instructions", () => {
     expectSuccess("ADD A 0", [48, 0]);
+    expectSuccess("ADD   A   0  ", [48, 0]);
     expectError("ADD A 0 1", AssemblerErrorCode.TOO_MANY_ARGUMENTS);
     expectError("ADD A", AssemblerErrorCode.TOO_FEW_ARGUMENTS);
     expectError("HLT 0", AssemblerErrorCode.TOO_MANY_ARGUMENTS);
@@ -234,6 +235,7 @@ describe("Assembler: Directives", () => {
     expectSuccess("ORG hFF", []); // Hexadecimal
     expectError("ORG -1", AssemblerErrorCode.INVALID_ADDRESS); // Out of bounds
     expectError("ORG", AssemblerErrorCode.TOO_FEW_ARGUMENTS);
+    expectError("ORG  ;  ", AssemblerErrorCode.TOO_FEW_ARGUMENTS);
     expectError("ORG 1 2", AssemblerErrorCode.TOO_MANY_ARGUMENTS);
     expectError("ORG 256", AssemblerErrorCode.INVALID_ADDRESS);
     expectError("ORG h100", AssemblerErrorCode.INVALID_ADDRESS);

@@ -16,6 +16,7 @@ export class Assembler {
   public static readonly LABEL_PATTERN = "[a-z_][a-z0-9_]*";
   public static readonly STRING_PATTERN = /^'('|([^']|''')+)'([,\s]+|$|(?=;))/m; // '(1=string)'(3=separator)
   public static readonly VALUE_PATTERN = /^([^'\s,]+)([,\s]+|$|(?=;))/m; // (1=value)(2=separator)
+  public static readonly ARGUMENTS_SEPARATOR = /\s*,\s*|\s+/; // Accepts commas, only used in directives by default
 
   public static readonly DIRECTIVES = ["org", "db", "dw", "dab", "daw"];
 
@@ -191,7 +192,7 @@ export class Assembler {
 
     // Variable number of bytes and 1 argument
     } else if (instruction.hasParameter("a")) {
-      const argumentList = args.split(Assembler.WHITESPACE);
+      const argumentList = this.splitInstructionArguments(args);
       const argument = this.extractArgument(argumentList, instruction, "a");
       const { addressingModeCode } = this.extractArgumentAddressingModeCode(argument);
       return this.machine.calculateInstructionNumBytes(instruction, addressingModeCode);
@@ -238,7 +239,7 @@ export class Assembler {
     assert(Assembler.DIRECTIVES.includes(mnemonic), `Unexpected argument for obeyDirective: ${mnemonic}`);
 
     if (mnemonic === "org") {
-      const argumentList = args.trim().split(Assembler.WHITESPACE).filter(argument => /\S/.test(argument)); // Filters out empty strings
+      const argumentList = this.splitOrgArguments(args);
       const numberOfArguments = argumentList.length;
 
       if (numberOfArguments < 1) {
@@ -251,7 +252,7 @@ export class Assembler {
 
       this.setPCValue(codeStringToNumber(argumentList[0]));
     } else {
-      const { argumentList, isAllocate } = this.splitArguments(args);
+      const { argumentList, isAllocate } = this.normalizeDirectiveArguments(args);
 
       const bytesPerArgument = (mnemonic === "db" || mnemonic === "dab") ? 1 : 2;
       const isDefineArray = (mnemonic === "dab" || mnemonic === "daw");
@@ -296,7 +297,7 @@ export class Assembler {
   }
 
   protected buildInstruction(instruction: Instruction, args: string): void {
-    const argumentList = args.split(Assembler.WHITESPACE).filter(argument => /\S/.test(argument)); // Filters out empty strings
+    const argumentList = this.splitInstructionArguments(args);
 
     let isImmediate = false;
     let registerBitCode = 0b00000000;
@@ -466,7 +467,22 @@ export class Assembler {
     return this.isValidValue(offsetString, 0, this.machine.getMemorySize() - 1);
   }
 
-  protected splitArguments(args: string): { argumentList: string[], isAllocate: boolean } {
+  // Does not allow commas by default, since it conflicts with addressing modes for 8-bit machines
+  protected splitInstructionArguments(args: string): string[] {
+    const trimmedArguments = args.trim();
+    return (trimmedArguments === "") ? [] : trimmedArguments.split(Assembler.WHITESPACE);
+  }
+
+  protected splitOrgArguments(args: string): string[] {
+    const trimmedArguments = args.trim();
+    return (trimmedArguments === "") ? [] : trimmedArguments.split(Assembler.ARGUMENTS_SEPARATOR);
+  }
+
+  // TODO: Change args to argumentsString, argumentList to argumentsList, finalArgumentList to finalArgumentsList
+
+  // TODO: Instead of isAllocate special handling, return an array of zeroes
+
+  protected normalizeDirectiveArguments(args: string): { argumentList: string[], isAllocate: boolean } {
     let finalArgumentList: string[] = [];
 
     // Regular expressions
