@@ -1,11 +1,12 @@
 {
-  "editor.codeActionsOnSave": {
-    "source.fixAll": true
-  },
   "editor.tabSize": 2,
   "editor.detectIndentation": false,
   "files.trimTrailingWhitespace": true,
   "javascript.preferences.quoteStyle": "double",
   "files.eol": "\n",
   "emmet.showExpandedAbbreviation": "never",
+  "search.exclude": {
+    "**/node_modules": true,
+    "package-lock.json": true
+  }
 }
