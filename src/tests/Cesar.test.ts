@@ -1,14 +1,18 @@
+/* eslint-disable no-multi-spaces */
+
 import { } from "./utils/CustomExtends";
-import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess } from "./utils/MachineTestFunctions";
+import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectRunState } from "./utils/MachineTestFunctions";
 import { Cesar } from "../core/machines/Cesar";
 import { CesarAssembler } from "../core/CesarAssembler";
 import { AssemblerErrorCode } from "../core/AssemblerError";
+import { assert } from "../core/utils/FunctionUtils";
 
 const machine = new Cesar();
 const assembler = new CesarAssembler(machine);
 
 const expectBuildSuccess = makeFunction_expectBuildSuccess(assembler, machine);
 const expectBuildError = makeFunction_expectBuildError(assembler);
+const expectRunState = makeFunction_expectRunState(assembler, machine);
 
 function toBytes(word: number): number[] {
   return [(word & 0xFF00) >> 8, word & 0xFF];
@@ -194,4 +198,160 @@ describe("Cesar: Build", () => {
 
 });
 
-// TODO: "Cesar: Run"
+function expectBranchState(instruction: string, flags: string, taken: boolean) {
+  assert(!flags.match(/[^NZVC]/), `Invalid flags: ${flags}`);
+  expectRunState(["ccc NZVC", `scc ${flags}`, `${instruction} 127`], [], {
+    f_N: flags.includes("N"),
+    f_Z: flags.includes("Z"),
+    f_V: flags.includes("V"),
+    f_C: flags.includes("C"),
+    r_R7: taken ? (4 + 127) : 4
+  });
+}
+
+function expectBranchTaken(instruction: string, flags = "") {
+  expectBranchState(instruction, flags, true);
+}
+
+function expectBranchNotTaken(instruction: string, flags = "") {
+  expectBranchState(instruction, flags, false);
+}
+
+describe("Cesar: Run", () => {
+
+  test("nop / hlt: should reach expected state after running", () => {
+    expectRunState(["nop"], [], { f_N: false, f_Z: true, r_R7: 1 });
+
+    expectRunState(["nop", "nop"], [], { isRunning: true, r_R7: 2 });
+    expectRunState(["hlt", "nop"], [], { isRunning: false, r_R7: 1 });
+  });
+
+  test("condition codes: should reach expected state after running", () => {
+    expectRunState(["scc",      "ccc"],      [], { f_N: false, f_Z: true,  f_V: false, f_C: false, r_R7: 2 }); // Initial state
+    expectRunState(["ccc NZVC", "scc NZVC"], [], { f_N: true,  f_Z: true,  f_V: true,  f_C: true,  r_R7: 2 }); // All set
+    expectRunState(["scc NZVC", "ccc NZVC"], [], { f_N: false, f_Z: false, f_V: false, f_C: false, r_R7: 2 }); // All cleared
+    expectRunState(["ccc NZVC", "scc N"],    [], { f_N: true,  f_Z: false, f_V: false, f_C: false, r_R7: 2 }); // Set N
+    expectRunState(["ccc NZVC", "scc Z"],    [], { f_N: false, f_Z: true,  f_V: false, f_C: false, r_R7: 2 }); // Set Z
+    expectRunState(["ccc NZVC", "scc V"],    [], { f_N: false, f_Z: false, f_V: true,  f_C: false, r_R7: 2 }); // Set V
+    expectRunState(["ccc NZVC", "scc C"],    [], { f_N: false, f_Z: false, f_V: false, f_C: true,  r_R7: 2 }); // Set C
+    expectRunState(["scc NZVC", "ccc N"],    [], { f_N: false, f_Z: true,  f_V: true,  f_C: true,  r_R7: 2 }); // Clear N
+    expectRunState(["scc NZVC", "ccc Z"],    [], { f_N: true,  f_Z: false, f_V: true,  f_C: true,  r_R7: 2 }); // Clear Z
+    expectRunState(["scc NZVC", "ccc V"],    [], { f_N: true,  f_Z: true,  f_V: false, f_C: true,  r_R7: 2 }); // Clear V
+    expectRunState(["scc NZVC", "ccc C"],    [], { f_N: true,  f_Z: true,  f_V: true,  f_C: false, r_R7: 2 }); // Clear C
+  });
+
+  test("conditional branching: should reach expected state after running", () => {
+    // BR: Always taken
+    expectRunState(["br 127"], [], { r_R7: 2 + 127 }); // Positive offset
+    expectRunState(["br -128"], [], { r_R7: 65536 + 2 - 128 }); // Negative offset
+
+    // BNE: Taken when Z = 0
+    expectBranchTaken("bne");
+    expectBranchNotTaken("bne", "Z");
+
+    // BEQ: Taken when Z = 1
+    expectBranchTaken("beq", "Z");
+    expectBranchNotTaken("beq");
+
+    // BPL: Taken when N = 0
+    expectBranchTaken("bpl");
+    expectBranchNotTaken("bpl", "N");
+
+    // BMI: Taken when N = 1
+    expectBranchTaken("bmi", "N");
+    expectBranchNotTaken("bmi");
+
+    // BVC: Taken when V = 0
+    expectBranchTaken("bvc");
+    expectBranchNotTaken("bvc", "V");
+
+    // BVS: Taken when V = 1
+    expectBranchTaken("bvs", "V");
+    expectBranchNotTaken("bvs");
+
+    // BCC: Taken when C = 0
+    expectBranchTaken("bcc");
+    expectBranchNotTaken("bcc", "C");
+
+    // BCS: Taken when C = 1
+    expectBranchTaken("bcs", "C");
+    expectBranchNotTaken("bcs");
+
+    // BGE: Taken when N = V
+    expectBranchTaken("bge");
+    expectBranchTaken("bge", "NV");
+    expectBranchNotTaken("bge", "N");
+    expectBranchNotTaken("bge", "V");
+
+    // BLT: Taken when N != V
+    expectBranchTaken("blt", "N");
+    expectBranchTaken("blt", "V");
+    expectBranchNotTaken("blt");
+    expectBranchNotTaken("blt", "NV");
+
+    // BGT: Taken when N = V and Z = 0
+    expectBranchTaken("bgt");
+    expectBranchTaken("bgt", "NV");
+    expectBranchNotTaken("bgt", "N");
+    expectBranchNotTaken("bgt", "V");
+    expectBranchNotTaken("bgt", "Z");
+    expectBranchNotTaken("bgt", "NZ");
+    expectBranchNotTaken("bgt", "VZ");
+    expectBranchNotTaken("bgt", "NVZ");
+
+    // BLE: Taken when N != V or Z = 1
+    expectBranchTaken("ble", "N");
+    expectBranchTaken("ble", "V");
+    expectBranchTaken("ble", "Z");
+    expectBranchTaken("ble", "ZN");
+    expectBranchTaken("ble", "ZV");
+    expectBranchTaken("ble", "ZNV");
+    expectBranchNotTaken("ble");
+    expectBranchNotTaken("ble", "NV");
+
+    // BHI: Taken when C = 0 and Z = 0
+    expectBranchTaken("bhi");
+    expectBranchNotTaken("bhi", "C");
+    expectBranchNotTaken("bhi", "Z");
+    expectBranchNotTaken("bhi", "CZ");
+
+    // BLS: Taken when C = 1 or Z = 1
+    expectBranchTaken("bls", "C");
+    expectBranchTaken("bls", "Z");
+    expectBranchTaken("bls", "CZ");
+    expectBranchNotTaken("bls");
+  });
+
+  test("jumps / subroutines: should reach expected state after running", () => {
+    expectRunState(["jmp 32769"], [], { r_R7: 32769 });
+
+    // TODO: sob r o
+    // TODO: jsr r a
+    // TODO: rts r
+  });
+
+  test("arithmetic (one operand): should reach expected state after running", () => {
+    // TODO: clr a
+    // TODO: not a
+    // TODO: inc a
+    // TODO: dec a
+    // TODO: neg a
+    // TODO: tst a
+    // TODO: ror a
+    // TODO: rol a
+    // TODO: asr a
+    // TODO: asl a
+    // TODO: adc a
+    // TODO: sbc a
+  });
+
+  test("arithmetic (two operands): should reach expected state after running", () => {
+    // TODO: mov a0 a1
+    // TODO: add a0 a1
+    // TODO: sub a0 a1
+    // TODO: cmp a0 a1
+    // TODO: and a0 a1
+    // TODO: or a0 a1
+  });
+
+});

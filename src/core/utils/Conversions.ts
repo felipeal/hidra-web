@@ -14,6 +14,10 @@ export function unsignedByteToSigned(unsignedValue: number): number {
   return unsignedValue << 24 >> 24;
 }
 
+export function unsignedWordToSigned(unsignedValue: number): number {
+  return unsignedValue << 16 >> 16;
+}
+
 export function codeStringToNumber(decOrHex: string): number {
   if (decOrHex.toLowerCase().startsWith("h")) {
     return parseInt(decOrHex.slice(1), 16); // Slice removes "h" prefix

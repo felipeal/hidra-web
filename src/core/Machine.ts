@@ -498,6 +498,16 @@ export abstract class Machine extends MachineState {
     }
   }
 
+  public addValueToRegister(registerName: string, value: number): number {
+    this.setRegisterValue(registerName, this.getRegisterValue(registerName) + value);
+    return this.getRegisterValue(registerName);
+  }
+
+  public subtractValueFromRegister(registerName: string, value: number): number {
+    this.setRegisterValue(registerName, this.getRegisterValue(registerName) - value);
+    return this.getRegisterValue(registerName);
+  }
+
   public hasAssemblyFormat(assemblyFormat: string): boolean {
     return Boolean(this.getInstructions().find(i => i.getAssemblyFormat() === assemblyFormat));
   }

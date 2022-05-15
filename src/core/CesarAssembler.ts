@@ -151,7 +151,7 @@ export class CesarAssembler extends Assembler {
     if (this.isValidValue(argument, -128, 127)) {
       return codeStringToNumber(argument);
     } else if (this.isValidValueFormat(argument)) {
-      throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT); // TODO: More specific
+      throw new AssemblerError(AssemblerErrorCode.INVALID_VALUE); // TODO: Invalid offset? Out of range?
     } else if (this.isValidLabelFormat(argument) && argument.length > 1) { // Assume label unless single character
       throw new AssemblerError(AssemblerErrorCode.INVALID_LABEL);
     } else {

@@ -11,6 +11,12 @@ export function assertUnreachable(message: string): never {
   throw new Error(`Assertion failure: ${message}`);
 }
 
+export function notNull<T>(value: T): Exclude<T, null | undefined> {
+  assert(value !== null, "Unexpected null value.");
+  assert(value !== undefined, "Unexpected undefined value.");
+  return value!;
+}
+
 export function rethrowUnless(condition: boolean, error: unknown): asserts condition {
   if (!condition) {
     throw error;
@@ -43,4 +49,8 @@ export function buildArray<T>(length: number, buildFunction: (index: number) => 
 
 export function removeItem<T>(array: T[], removeIndex: number): T[] {
   return [...array.slice(0, removeIndex), ...array.slice(removeIndex + 1)];
+}
+
+export function isOneOf<T>(value: T, list: T[]): boolean {
+  return list.includes(value);
 }

@@ -1,7 +1,7 @@
 import {
-  addressToHex, bitPatternToUnsignedByte, charCodeToString, codeStringToNumber, numbersToHex, uncheckedByteStringToNumber, unsignedNumberToHex,
-  unsignedByteToBitPattern, unsignedByteToSigned, unsignedNumberToHexCodeString, unsignedByteToString, registerValueToString, immediateValuesToNegative,
-  instructionStringToDisplayMode
+  addressToHex, bitPatternToUnsignedByte, charCodeToString, codeStringToNumber, immediateValuesToNegative, instructionStringToDisplayMode, numbersToHex,
+  registerValueToString, uncheckedByteStringToNumber, unsignedByteToBitPattern, unsignedByteToSigned, unsignedByteToString, unsignedNumberToHex,
+  unsignedNumberToHexCodeString, unsignedWordToSigned
 } from "../core/utils/Conversions";
 
 describe("Conversions", () => {
@@ -25,6 +25,13 @@ describe("Conversions", () => {
     expect(unsignedByteToSigned(127)).toBe(127);
     expect(unsignedByteToSigned(128)).toBe(-128);
     expect(unsignedByteToSigned(255)).toBe(-1);
+  });
+
+  test("unsignedWordToSigned: should have the correct result", () => {
+    expect(unsignedWordToSigned(0)).toBe(0);
+    expect(unsignedWordToSigned(32767)).toBe(32767);
+    expect(unsignedWordToSigned(32768)).toBe(-32768);
+    expect(unsignedWordToSigned(65535)).toBe(-1);
   });
 
   test("codeStringToNumber: should parse both hex and dec", () => {
