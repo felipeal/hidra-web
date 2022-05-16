@@ -152,6 +152,8 @@ export default function App() {
     alert(errorMessage);
   }
 
+  const isCesar = (machine.getName() === "Cesar");
+
   const { width: scrollbarWidth } = useScrollbarSize();
 
   const [instructionsDimensions, setInstructionsDimensions] = useState<TableDimensions | null>(null);
@@ -288,7 +290,7 @@ export default function App() {
           * Middle area (machine)
           ********************************************************************/}
 
-        <div style={{ width: "360px", minWidth: "360px", display: "inline-flex", flexDirection: "column", overflowY: "auto" }}>
+        <div style={{ width: (isCesar ? "510px" : "360px"), display: "inline-flex", flexShrink: 0, flexDirection: "column", overflowY: "auto" }}>
 
           {/* Machine select */}
           <select className="hide-if-busy" value={machine.getName()} data-testid="machine-select" onChange={
@@ -312,7 +314,7 @@ export default function App() {
 
           {/* Flags */}
           {(machine.getFlags().length > 1) && (
-            <fieldset className="hide-if-busy" style={{ paddingTop: "16px", paddingBottom: "16px" }}>
+            <fieldset className="hide-if-busy" style={{ paddingTop: (isCesar ? "8px" : "16px"), paddingBottom: (isCesar ? "8px" : "16px") }}>
               <legend>Flags</legend>
               <div style={{ display: "flex", justifyContent: "center", gap: "16px" }}>
                 {machine.getFlags().map((flag, index) => {
@@ -323,10 +325,11 @@ export default function App() {
           )}
 
           {/* Registers */}
-          <fieldset className="hide-if-busy" style={{ paddingTop: "32px", paddingBottom: "32px", overflow: "auto" }}>
+          <fieldset className="hide-if-busy" style={{ paddingTop: (isCesar ? "16px" : "32px"), paddingBottom: (isCesar ? "16px" : "32px"), overflow: "auto" }}>
             <legend>Registradores</legend>
             <div style={{
-              display: "grid", justifyContent: "center", gridTemplateColumns: "112px 112px", justifyItems: "center", gap: "16px", flexWrap: "wrap"
+              display: "grid", gridTemplateColumns: (isCesar ? "100px 100px 100px 100px" : "112px 112px"),
+              justifyContent: "center", justifyItems: "center", gap: "16px", flexWrap: "wrap"
             }}>
               {machine.getRegisters().map((register, index) => {
                 return <RegisterWidget key={index} name={register.getName()} machine={machine} displayHex={displayHex} displayNegative={displayNegative} />;
@@ -335,12 +338,12 @@ export default function App() {
           </fieldset>
 
           {/* Information */}
-          <fieldset className="hide-if-busy" style={{ marginTop: "16px", marginBottom: "16px", paddingTop: "16px", paddingBottom: "16px" }}>
+          <fieldset className="hide-if-busy" style={{ marginTop: "16px", padding: (isCesar ? "12px 0" : "16px 0") }}>
             <Information machine={machine} />
           </fieldset>
 
           {/* Machine buttons */}
-          <div className="hide-if-busy" style={{ display: "flex", gap: "8px" }}>
+          <div className="hide-if-busy" style={{ marginTop: "16px", display: "flex", gap: "8px" }}>
             <button className="machine-button" style={{ flex: 1 }} data-testid="reset-pc-button" onClick={() => {
               resetPCAndSP(machine);
             }}>Zerar PC</button>
@@ -388,7 +391,7 @@ export default function App() {
           <fieldset className="hide-if-busy">
             <legend>Diretivas</legend>
             <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "4px", marginBottom: "4px" }}>
-              {["org", "db", "dw", "dab/daw"].map((directive, index) => {
+              {(isCesar ? ["org", "db", "dw", "dab", "daw"] : ["org", "db", "dw", "dab/daw"]).map((directive, index) => {
                 const description = Texts.getDirectiveDescription(directive, machine);
                 return <div className="monospace-font" style={{ minWidth: "56px", whiteSpace: "nowrap", marginLeft: "16px" }} key={index}>
                   <Tippy className="tooltip" content={<span>

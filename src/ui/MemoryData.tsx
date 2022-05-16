@@ -48,12 +48,12 @@ export function MemoryData({ dimensions, scrollbarWidth, machine, assembler, dis
 }
 
 export function MemoryDataForMeasurements({ headerRef, bodyRef }: {
-  headerRef: RefObject<HTMLDivElement>, bodyRef: RefObject<HTMLDivElement>,
+  headerRef: RefObject<HTMLDivElement>, bodyRef: RefObject<HTMLDivElement>
 }) {
   return (<div className="memory-table">
     <MemoryDataHeader headerRef={headerRef} displayChars />
     <div className="memory-body-row" ref={bodyRef}>
-      <div className="memory-body-cell">4095</div>
+      <div className="memory-body-cell">65535</div>
       <div className="memory-body-cell">
         <input className="memory-value"/>
       </div>
