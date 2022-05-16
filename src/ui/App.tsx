@@ -12,6 +12,7 @@ import { MemoryStack, MemoryStackForMeasurements } from "./MemoryStack";
 import FlagWidget from "./FlagWidget";
 import RegisterWidget from "./RegisterWidget";
 import Information from "./Information";
+import CesarDisplay from "./CesarDisplay";
 import { Menu, SubMenuCheckBox, SubMenuItem, SubMenuSeparator } from "./Menus";
 
 import { buildMachine, getMachineNames, resetPCAndSP } from "./utils/MachineUtils";
@@ -336,6 +337,12 @@ export default function App() {
               })}
             </div>
           </fieldset>
+
+          {/* Display */}
+          {isCesar && <fieldset className="hide-if-busy">
+            <legend>Display</legend>
+            <CesarDisplay machine={machine}/>
+          </fieldset>}
 
           {/* Information */}
           <fieldset className="hide-if-busy" style={{ marginTop: "16px", padding: (isCesar ? "12px 0" : "16px 0") }}>

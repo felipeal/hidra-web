@@ -190,6 +190,8 @@ select {
 fieldset {
   border: 1px solid #999;
   margin-top: 6px;
+  margin-left: unset;
+  margin-right: unset;
   border-radius: 4px;
 }
 fieldset legend {
@@ -255,6 +257,23 @@ fieldset legend {
 .tooltip p {
   margin: 0;
   margin-top: 0.35rem;
+}
+
+/* Display */
+.display {
+  margin: 6px 2px;
+  border-radius: 3px;
+  border: 1px solid #444;
+}
+.display-char {
+  font-size: 16px;
+  padding: 4px 0;
+  box-sizing: border-box;
+  text-align: center;
+  white-space: pre;
+}
+.display-char + .display-char {
+  border-left: 1px solid #ddd;
 }
 
 /******************************************************************************
