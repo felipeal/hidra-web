@@ -48,6 +48,12 @@ type ResultWithFlags = {
 
 export class Cesar extends Machine {
 
+  public static SINGLE_BYTE_ACCESS_AREA = 65498;
+
+  public static KEYBOARD_STATUS_ADDRESS = 65498;
+  public static KEYBOARD_BUFFER_ADDRESS = 65499;
+  public static DISPLAY_ADDRESS = 65500;
+
   constructor() {
     super({
       name: "Cesar",
@@ -483,14 +489,20 @@ export class Cesar extends Machine {
   }
 
   memoryReadWord(address: number): number {
-    const mostSignificantByte = this.memoryRead(address);
-    const leastSignificantByte = this.memoryRead(address + 1);
-    return (mostSignificantByte << 8) | leastSignificantByte;
+    if (address >= Cesar.SINGLE_BYTE_ACCESS_AREA) {
+      return this.memoryRead(address);
+    } else {
+      return (this.memoryRead(address) << 8) | this.memoryRead(address + 1);
+    }
   }
 
   memoryWriteWord(address: number, value: number): void {
-    this.memoryWrite(address, (value >> 8) & 0xFF);
-    this.memoryWrite(address + 1, value & 0xFF);
+    if (address >= Cesar.SINGLE_BYTE_ACCESS_AREA) {
+      this.memoryWrite(address, value & 0xFF);
+    } else {
+      this.memoryWrite(address, (value >> 8) & 0xFF);
+      this.memoryWrite(address + 1, value & 0xFF);
+    }
   }
 
   stackPush(value: number): void {

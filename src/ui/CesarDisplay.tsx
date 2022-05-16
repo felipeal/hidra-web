@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Machine } from "../core/Machine";
+import { Cesar } from "../core/machines/Cesar";
 import { charCodeToString } from "../core/utils/Conversions";
 import { range } from "../core/utils/FunctionUtils";
-
-const DISPLAY_ADDRESS = 65500;
 
 export default function CesarDisplay({ machine }: { machine: Machine }) {
   return <div className="display" style={{ display: "flex" }}>
     {range(36).map((charIndex) => (
-      <CesarDisplayChar key={charIndex} address={DISPLAY_ADDRESS + charIndex} machine={machine} />
+      <CesarDisplayChar key={charIndex} address={Cesar.DISPLAY_ADDRESS + charIndex} machine={machine} />
     ))}
   </div>;
 }
