@@ -150,9 +150,9 @@ export class Assembler {
 
     for (const lineIndex of range(sourceLines.length)) {
       try {
-        this.sourceLineCorrespondingAddress[lineIndex] = this.getPCValue();
-
         if (firstTokenMatcher.match(sourceLines[lineIndex])) {
+          this.sourceLineCorrespondingAddress[lineIndex] = this.getPCValue();
+
           const mnemonic = firstTokenMatcher.cap(1).toLowerCase();
           const args = sourceLines[lineIndex].slice(firstTokenMatcher.cap(0).length); // Everything after mnemonic
 

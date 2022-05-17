@@ -128,6 +128,7 @@ describe("Assembler: Build", () => {
 
   test("build: should validate memory exceeded", () => {
     expectSuccess("ORG 255\nHLT", [0]); // Instruction ends inside memory
+    expectSuccess("ORG 255\nHLT\n;", [0]); // New lines after the last instruction
     expectError("ORG 255\nADD A 0", AssemblerErrorCode.MEMORY_LIMIT_EXCEEDED, 2); // Instruction ends outside memory
     expectError("ORG 254\nDAW 1, 2", AssemblerErrorCode.MEMORY_LIMIT_EXCEEDED, 2); // Word starts outside memory
     expectError("ORG 253\nDAW 1, 2", AssemblerErrorCode.MEMORY_LIMIT_EXCEEDED, 2); // Word ends outside memory
