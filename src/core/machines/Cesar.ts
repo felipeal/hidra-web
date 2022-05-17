@@ -362,7 +362,6 @@ export class Cesar extends Machine {
   }
 
   private computeOneOperandResult(instructionCode: InstructionCode, operand: number): ResultWithFlags {
-    const n = this.isFlagTrue("N") ? 1 : 0;
     const c = this.isFlagTrue("C") ? 1 : 0;
 
     switch (instructionCode) {
@@ -374,12 +373,12 @@ export class Cesar extends Machine {
       case InstructionCode.DEC: return this.computeSub(operand, 1);
       case InstructionCode.NEG: return this.computeSub(0, operand);
       case InstructionCode.ADC: return this.computeAdd(operand, c);
-      case InstructionCode.SBC: return this.computeAdd(operand, (c ? 0xFFFF : 0)); // TODO: Should it be Sub? Why does it enable when C = 0?
+      case InstructionCode.SBC: return this.computeSub(operand, c, { carryMeansBorrow: false });
 
-      case InstructionCode.ROR: return { result:     (operand >> 1) | (c << 15),          carry: Boolean(operand & 1),      overflow: (n !== c) };
-      case InstructionCode.ROL: return { result: word(operand << 1) | c,                  carry: Boolean(operand & 0x8000), overflow: (n !== c) };
-      case InstructionCode.ASR: return { result:     (operand >> 1) | (operand & 0x8000), carry: Boolean(operand & 1),      overflow: (n !== c) };
-      case InstructionCode.ASL: return { result: word(operand << 1),                      carry: Boolean(operand & 0x8000), overflow: (n !== c) };
+      case InstructionCode.ROR: return this.computeShiftOverflow({ result:     (operand >> 1) | (c << 15),          carry: Boolean(operand & 1)      });
+      case InstructionCode.ROL: return this.computeShiftOverflow({ result: word(operand << 1) | c,                  carry: Boolean(operand & 0x8000) });
+      case InstructionCode.ASR: return this.computeShiftOverflow({ result:     (operand >> 1) | (operand & 0x8000), carry: Boolean(operand & 1)      });
+      case InstructionCode.ASL: return this.computeShiftOverflow({ result: word(operand << 1),                      carry: Boolean(operand & 0x8000) });
 
       default: assertUnreachable(`Invalid instruction code for one operand arithmetic: ${InstructionCode[instructionCode]}`);
     }
@@ -409,13 +408,19 @@ export class Cesar extends Machine {
     };
   }
 
-  private computeSub(value0: number, value1: number): ResultWithFlags {
+  private computeSub(value0: number, value1: number, { carryMeansBorrow = true } = {}): ResultWithFlags {
     const result = word(value0 - value1);
+    const borrow = (value0 - value1) < 0;
     return {
       result,
-      carry: (value0 - value1) < 0, // True means borrow
+      carry: carryMeansBorrow ? borrow : !borrow,
       overflow: unsignedWordToSigned(value0) - unsignedWordToSigned(value1) !== unsignedWordToSigned(result)
     };
+  }
+
+  private computeShiftOverflow({ result, carry }: { result: number, carry: boolean }): ResultWithFlags {
+    const negative = (result >= 0x8000);
+    return { result, carry, overflow: negative !== carry }; // V = (N xor C)
   }
 
   //////////////////////////////////////////////////

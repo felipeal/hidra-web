@@ -27,7 +27,7 @@ describe("Cesar: Build", () => {
     expectBuildSuccess("scc vc", [0b00100011]);
 
     // Conditional branching
-    expectBuildSuccess("br 127", [0b00110000, 127]);
+    expectBuildSuccess("br 127",  [0b00110000, 127]);
     expectBuildSuccess("bne 127", [0b00110001, 127]);
     expectBuildSuccess("beq 127", [0b00110010, 127]);
     expectBuildSuccess("bpl 127", [0b00110011, 127]);
@@ -44,11 +44,11 @@ describe("Cesar: Build", () => {
     expectBuildSuccess("bls 127", [0b00111110, 127]);
 
     // Jumps / Subroutines
-    expectBuildSuccess("jmp (r0)", [0b01000000, 0x20]);
-    expectBuildSuccess("sob r0, 127", [0b01010000, 127]);
+    expectBuildSuccess("jmp (r0)",     [0b01000000, 0x20]);
+    expectBuildSuccess("sob r0, 127",  [0b01010000, 127]);
     expectBuildSuccess("jsr r0, (r0)", [0b01100000, 0x20]);
     expectBuildSuccess("jsr r0, (r0)", [0b01100000, 0x20]);
-    expectBuildSuccess("rts r0", [0b01110000]);
+    expectBuildSuccess("rts r0",       [0b01110000]);
 
     // Arithmetic (one operand)
     expectBuildSuccess("clr r0", [0b10000000]);
@@ -70,7 +70,7 @@ describe("Cesar: Build", () => {
     expectBuildSuccess("sub r0, r0", [0b10110000]);
     expectBuildSuccess("cmp r0, r0", [0b11000000]);
     expectBuildSuccess("and r0, r0", [0b11010000]);
-    expectBuildSuccess("or r0, r0", [0b11100000]);
+    expectBuildSuccess("or r0, r0",  [0b11100000]);
 
     expectBuildSuccess("hlt", [0b11110000]);
   });
@@ -217,6 +217,16 @@ function expectBranchNotTaken(instruction: string, flags = "") {
   expectBranchState(instruction, flags, false);
 }
 
+function flags(flags: string) {
+  assert(!flags.match(/[^NZVC]/), `Invalid flags: ${flags}`);
+  return {
+    f_N: flags.includes("N"),
+    f_Z: flags.includes("Z"),
+    f_V: flags.includes("V"),
+    f_C: flags.includes("C")
+  };
+}
+
 describe("Cesar: Run", () => {
 
   test("nop / hlt: should reach expected state after running", () => {
@@ -323,26 +333,83 @@ describe("Cesar: Run", () => {
   });
 
   test("jumps / subroutines: should reach expected state after running", () => {
+    expectRunState(["jmp R0"],    [], { r_R7: 2     });
     expectRunState(["jmp 32769"], [], { r_R7: 32769 });
 
-    // TODO: sob r o
-    // TODO: jsr r a
-    // TODO: rts r
+    expectRunState(["mov #1, R1", "sob R1 4"], [], { r_R7: 6, r_R1: 0 });
+    expectRunState(["mov #2, R2", "sob R2 4"], [], { r_R7: 2, r_R2: 1 });
+
+    expectRunState([
+      "mov #64000, R6",
+      "mov #hABCD, R1",
+      "jmp 8000",
+      "org 8000\njsr R1, 16000"
+    ], [], { r_R7: 16000, r_R1: 8004, r_R6: 63998, m_63998: 0xAB, m_63999: 0xCD });
+
+    expectRunState([
+      "mov #64000, R6",
+      "mov #hABCD, -(R6)",
+      "mov #32000, R2",
+      "rts R2"
+    ], [], { r_R7: 32000, r_R2: 0xABCD, r_R6: 64000, m_63998: 0xAB, m_63999: 0xCD });
   });
 
   test("arithmetic (one operand): should reach expected state after running", () => {
-    // TODO: clr a
-    // TODO: not a
-    // TODO: inc a
-    // TODO: dec a
-    // TODO: neg a
-    // TODO: tst a
-    // TODO: ror a
-    // TODO: rol a
-    // TODO: asr a
-    // TODO: asl a
-    // TODO: adc a
-    // TODO: sbc a
+    expectRunState(["mov #hABCD, R1", "clr R1"], [], { r_R1: 0, ...flags("Z") });
+
+    expectRunState([`mov #${0b1011001110001111}, R1`, "not R1"], [], { r_R1: 0b0100110001110000, ...flags("C")  });
+    expectRunState([`mov #${0b0100110001110000}, R1`, "not R1"], [], { r_R1: 0b1011001110001111, ...flags("NC") });
+
+    expectRunState(["mov #0, R1",     "inc R1"], [], { r_R1: 1,     ...flags("")   });
+    expectRunState(["mov #32767, R1", "inc R1"], [], { r_R1: 32768, ...flags("NV") });
+    expectRunState(["mov #65535, R1", "inc R1"], [], { r_R1: 0,     ...flags("ZC") });
+
+    expectRunState(["mov #1, R1",     "dec R1"], [], { r_R1: 0,     ...flags("Z")  });
+    expectRunState(["mov #0, R1",     "dec R1"], [], { r_R1: 65535, ...flags("NC") });
+    expectRunState(["mov #32768, R1", "dec R1"], [], { r_R1: 32767, ...flags("V")  });
+
+    expectRunState(["mov #0, R1",     "neg R1"], [], { r_R1: 0,     ...flags("Z")   });
+    expectRunState(["mov #1, R1",     "neg R1"], [], { r_R1: 65535, ...flags("NC")  });
+    expectRunState(["mov #32767, R1", "neg R1"], [], { r_R1: 32769, ...flags("NC")  });
+    expectRunState(["mov #32768, R1", "neg R1"], [], { r_R1: 32768, ...flags("NVC") });
+    expectRunState(["mov #32769, R1", "neg R1"], [], { r_R1: 32767, ...flags("C")   });
+    expectRunState(["mov #65535, R1", "neg R1"], [], { r_R1: 1,     ...flags("C")   });
+
+    expectRunState(["mov #0, R1",     "tst R1"], [], { r_R1: 0,     ...flags("Z") });
+    expectRunState(["mov #32767, R1", "tst R1"], [], { r_R1: 32767, ...flags("")  });
+    expectRunState(["mov #32768, R1", "tst R1"], [], { r_R1: 32768, ...flags("N") });
+
+    expectRunState([`mov #${0b1001111111111001}, R1`, "ror R1"],                     [], { r_R1: 0b0100111111111100, ...flags("CV") });
+    expectRunState([`mov #${0b1001111111111001}, R1`, "ror R1", "ror R1"],           [], { r_R1: 0b1010011111111110, ...flags("NV") });
+    expectRunState([`mov #${0b1001111111111001}, R1`, "ror R1", "ror R1", "ror R1"], [], { r_R1: 0b0101001111111111, ...flags("")   });
+
+    expectRunState([`mov #${0b1001111111111001}, R1`, "rol R1"],                     [], { r_R1: 0b0011111111110010, ...flags("CV") });
+    expectRunState([`mov #${0b1001111111111001}, R1`, "rol R1", "rol R1"],           [], { r_R1: 0b0111111111100101, ...flags("")   });
+    expectRunState([`mov #${0b1001111111111001}, R1`, "rol R1", "rol R1", "rol R1"], [], { r_R1: 0b1111111111001010, ...flags("NV") });
+
+    expectRunState([`mov #${0b0001111111111000}, R1`, "asr R1"], [], { r_R1: 0b0000111111111100, ...flags("")   });
+    expectRunState([`mov #${0b0001111111111001}, R1`, "asr R1"], [], { r_R1: 0b0000111111111100, ...flags("CV") });
+    expectRunState([`mov #${0b1001111111111000}, R1`, "asr R1"], [], { r_R1: 0b1100111111111100, ...flags("NV") });
+    expectRunState([`mov #${0b1001111111111001}, R1`, "asr R1"], [], { r_R1: 0b1100111111111100, ...flags("NC") });
+
+    expectRunState([`mov #${0b0001111111111000}, R1`, "asl R1"], [], { r_R1: 0b0011111111110000, ...flags("")   });
+    expectRunState([`mov #${0b0101111111111000}, R1`, "asl R1"], [], { r_R1: 0b1011111111110000, ...flags("NV") });
+    expectRunState([`mov #${0b1001111111111000}, R1`, "asl R1"], [], { r_R1: 0b0011111111110000, ...flags("CV") });
+    expectRunState([`mov #${0b1101111111111000}, R1`, "asl R1"], [], { r_R1: 0b1011111111110000, ...flags("NC") });
+
+    expectRunState(["mov #0, R1",     "ccc C", "adc R1"], [], { r_R1: 0,     ...flags("Z")  });
+    expectRunState(["mov #0, R1",     "scc C", "adc R1"], [], { r_R1: 1,     ...flags("")   });
+    expectRunState(["mov #32767, R1", "ccc C", "adc R1"], [], { r_R1: 32767, ...flags("")   });
+    expectRunState(["mov #32767, R1", "scc C", "adc R1"], [], { r_R1: 32768, ...flags("NV") });
+    expectRunState(["mov #65535, R1", "ccc C", "adc R1"], [], { r_R1: 65535, ...flags("N")  });
+    expectRunState(["mov #65535, R1", "scc C", "adc R1"], [], { r_R1: 0,     ...flags("ZC") });
+
+    expectRunState(["mov #1, R1",     "ccc C", "sbc R1"], [], { r_R1: 1,     ...flags("C")  });
+    expectRunState(["mov #1, R1",     "scc C", "sbc R1"], [], { r_R1: 0,     ...flags("ZC") });
+    expectRunState(["mov #0, R1",     "ccc C", "sbc R1"], [], { r_R1: 0,     ...flags("ZC") });
+    expectRunState(["mov #0, R1",     "scc C", "sbc R1"], [], { r_R1: 65535, ...flags("N")  });
+    expectRunState(["mov #32768, R1", "ccc C", "sbc R1"], [], { r_R1: 32768, ...flags("NC") });
+    expectRunState(["mov #32768, R1", "scc C", "sbc R1"], [], { r_R1: 32767, ...flags("VC") });
   });
 
   test("arithmetic (two operands): should reach expected state after running", () => {
