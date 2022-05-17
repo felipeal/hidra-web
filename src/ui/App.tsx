@@ -74,11 +74,6 @@ export default function App() {
   const [errorMessages, setErrorMessages] = useState([] as ErrorMessage[]);
   const [isRunning, setRunning] = useState(machine.isRunning());
 
-  const openFileInput = useRef<HTMLInputElement | null>(null);
-  const saveFileAnchor = useRef<HTMLAnchorElement | null>(null);
-  const importMemoryInput = useRef<HTMLInputElement | null>(null);
-  const exportMemoryAnchor = useRef<HTMLAnchorElement | null>(null);
-
   // Display toggles
   const [displayHex, setDisplayHex] = useState(false);
   const [displayNegative, setDisplayNegative] = useState(false);
@@ -95,6 +90,15 @@ export default function App() {
     // Event subscriptions
     return machine.subscribeToEvent("RUNNING", (value) => setRunning(Boolean(value)));
   }, [machine, assembler]);
+
+  /****************************************************************************
+   * File load/save
+   ****************************************************************************/
+
+  const openFileInput = useRef<HTMLInputElement | null>(null);
+  const saveFileAnchor = useRef<HTMLAnchorElement | null>(null);
+  const importMemoryInput = useRef<HTMLInputElement | null>(null);
+  const exportMemoryAnchor = useRef<HTMLAnchorElement | null>(null);
 
   async function onFileOpened(event: ChangeEvent<HTMLInputElement>) {
     await loadFile(event.target.files?.[0]);
@@ -153,6 +157,10 @@ export default function App() {
     alert(errorMessage);
   }
 
+  /****************************************************************************
+   * Layout measurements
+   ****************************************************************************/
+
   const isCesar = (machine.getName() === "Cesar");
 
   const { width: scrollbarWidth } = useScrollbarSize();
@@ -189,6 +197,10 @@ export default function App() {
       <MemoryStackForMeasurements headerRef={stackHeaderRef} bodyRef={stackBodyRef} />
     </div>;
   }
+
+  /****************************************************************************
+   * Main render
+   ****************************************************************************/
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }} onDrop={async (event) => {
@@ -485,6 +497,7 @@ export default function App() {
           displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars} displayFollowPC={displayFollowPC} />}
 
       </div>
+
     </div>
   );
 }
