@@ -4,7 +4,7 @@ import { AssemblerErrorCode, ErrorMessage } from "./AssemblerError";
 import { AddressingModeCode } from "./AddressingMode";
 import { Machine } from "./Machine";
 import { FlagCode } from "./Flag";
-import { assert, assertUnreachable } from "./utils/FunctionUtils";
+import { assert, assertUnreachable, multiline } from "./utils/FunctionUtils";
 import { Volta } from "./machines/Volta";
 import { Cesar } from "./machines/Cesar";
 
@@ -26,34 +26,44 @@ export class Texts {
       };
       case "db": return {
         name: "Define Byte",
-        description: "Reserva um byte na posição de montagem atual, opcionalmente inicializando-o com um valor." +
-          "\nSuporta negativos (complemento de 2), hexadecimais e caracteres ASCII.",
+        description: multiline(
+          "Reserva um byte na posição de montagem atual, opcionalmente inicializando-o com um valor.",
+          "Suporta negativos (complemento de 2), hexadecimais e caracteres ASCII."
+        ),
         examples: "Exemplos: DB | DB 255 | DB -128 | DB hFF | DB 'z'"
       };
       case "dw": return {
         name: "Define Word",
-        description: "Reserva uma palavra (2 bytes) na posição de montagem atual, opcionalmente inicializando-a com um valor." +
-          "\nSuporta negativos (complemento de 2), hexadecimais e caracteres ASCII." +
-          `\n${endiannessText}`,
+        description: multiline(
+          "Reserva uma palavra (2 bytes) na posição de montagem atual, opcionalmente inicializando-a com um valor.",
+          "Suporta negativos (complemento de 2), hexadecimais e caracteres ASCII.",
+          endiannessText
+        ),
         examples: "Exemplos: DW | DW 65535 | DW hFFFF | DW 'z'"
       };
       case "dab": return {
         name: "Define Array of Bytes",
-        description: "Reserva uma sequência de um ou mais bytes, separados por espaços/vírgulas ou em formato de string." +
-          "\nUm número N entre colchetes permite reservar N posições de memória, inicializadas em zero.",
+        description: multiline(
+          "Reserva uma sequência de um ou mais bytes, separados por espaços/vírgulas ou em formato de string.",
+          "Um número N entre colchetes permite reservar N posições de memória, inicializadas em zero."
+        ),
         examples: "Exemplos: DAB 1, 2 | DAB 1 2 | DAB 'abc' | DAB [20]"
       };
       case "daw": return {
         name: "Define Array of Words",
-        description: "Reserva uma sequência de uma ou mais palavras (valores de 2 bytes), separados por espaços/vírgulas ou em formato de string." +
-          `\n${endiannessText}`,
+        description: multiline(
+          "Reserva uma sequência de uma ou mais palavras (valores de 2 bytes), separados por espaços/vírgulas ou em formato de string.",
+          endiannessText
+        ),
         examples: "Exemplos: DAW 1, 2 | DAW 1 2 | DAW 'abc' | DAW [20]"
       };
       case "dab/daw": return {
         name: "Define Array of Bytes/Words",
-        description: "Reserva uma sequência de um ou mais bytes (DAB) ou palavras de 2 bytes (DAW), separados por espaços/vírgulas ou em formato de string." +
-          "\nUm número N entre colchetes permite reservar N bytes ou palavras de memória, inicializados em zero." +
-          `\n${endiannessText}`,
+        description: multiline(
+          "Reserva uma sequência de um ou mais bytes (DAB) ou palavras de 2 bytes (DAW), separados por espaços/vírgulas ou em formato de string.",
+          "Um número N entre colchetes permite reservar N bytes ou palavras de memória, inicializados em zero.",
+          endiannessText
+        ),
         examples: "Exemplos: DAB 1, 2 | DAW 1 2 | DAB 'abc' | DAW [20]"
       };
       default: assertUnreachable(`Unknown directive: ${directive}`);

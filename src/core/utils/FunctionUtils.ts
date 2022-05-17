@@ -54,3 +54,7 @@ export function removeItem<T>(array: T[], removeIndex: number): T[] {
 export function isOneOf<T>(value: T, list: T[]): boolean {
   return list.includes(value);
 }
+
+export function multiline(...lines: string[]): string {
+  return lines.join("\n");
+}
