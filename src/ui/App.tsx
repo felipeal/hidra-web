@@ -28,6 +28,7 @@ import { Assembler } from "../core/Assembler";
 import { Texts } from "../core/Texts";
 import { ErrorMessage } from "../core/AssemblerError";
 import { rethrowUnless } from "../core/utils/FunctionUtils";
+import { Cesar } from "../core/machines/Cesar";
 
 declare global {
   // Required for CodeMirror persistence between live-reloads
@@ -155,6 +156,47 @@ export default function App() {
 
   function showError(errorMessage: string) {
     alert(errorMessage);
+  }
+
+  /****************************************************************************
+   * Cesar keyboard handling
+   ****************************************************************************/
+
+  function keyToNumber(key: string): number | null {
+    const charCode = key.charCodeAt(0);
+
+    if (key === "Backspace") {
+      return 8;
+    } else if (key === "Enter") {
+      return 13;
+    } else if (key.length === 1 && charCode >= 32 && charCode <= 126) {
+      return charCode;
+    } else {
+      return null;
+    }
+  }
+
+  function handleCesarKeyEvent(event: KeyboardEvent) {
+    // Ignore key combinations
+    if (event.altKey || event.ctrlKey || event.metaKey) {
+      return;
+    }
+
+    const keyNumber = keyToNumber(event.key);
+    if (keyNumber !== null) {
+      machine.setMemoryValue(Cesar.KEYBOARD_BUFFER_ADDRESS, keyNumber);
+      machine.setMemoryValue(Cesar.KEYBOARD_STATUS_ADDRESS, Cesar.KEYBOARD_STATUS_KEY_PRESSED);
+    }
+  }
+
+  function enableCesarKeyListener() {
+    codeMirrorInstance.setOption("readOnly", true);
+    document.addEventListener("keydown", handleCesarKeyEvent);
+  }
+
+  function disableCesarKeyListener() {
+    codeMirrorInstance.setOption("readOnly", false);
+    document.removeEventListener("keydown", handleCesarKeyEvent);
   }
 
   /****************************************************************************
@@ -358,7 +400,7 @@ export default function App() {
 
           {/* Information */}
           <fieldset className="hide-if-busy" style={{ marginTop: "16px", padding: (isCesar ? "12px 0" : "16px 0") }}>
-            <Information machine={machine} />
+            <Information machine={machine} keyboardOn={isCesar ? isRunning : null} />
           </fieldset>
 
           {/* Machine buttons */}
@@ -369,6 +411,7 @@ export default function App() {
             <button className="machine-button" style={{ flex: 1 }} data-testid="run-button" onClick={() => {
               if (!machine.isRunning()) { // Run requested
                 machine.setRunning(true);
+                isCesar && enableCesarKeyListener();
                 const nextStep = function () {
                   if (machine.isRunning()) {
                     machine.step();
@@ -378,6 +421,7 @@ export default function App() {
                     timeout = setTimeout(nextStep, 0);
                   } else {
                     machine.updateInstructionStrings();
+                    isCesar && disableCesarKeyListener();
                   }
                 };
                 nextStep();

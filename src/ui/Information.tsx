@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Machine } from "../core/Machine";
 import { buildUnsubscribeCallback } from "../core/utils/EventUtils";
 
-export default function Information({ machine }: { machine: Machine }) {
+export default function Information({ machine, keyboardOn }: { machine: Machine, keyboardOn: boolean | null }) {
   const [instructionCount, setInstructionCount] = useState(machine.getInstructionCount());
   const [accessCount, setAccessCount] = useState(machine.getAccessCount());
 
@@ -20,7 +20,7 @@ export default function Information({ machine }: { machine: Machine }) {
 
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
-      Instruções: {instructionCount} - Acessos: {accessCount}
+      Instruções: {instructionCount} - Acessos: {accessCount}{(keyboardOn !== null) ? ` - Teclado: ${keyboardOn ? "Ativado" : "Desativado"}` : ""}
     </div>
   );
 }

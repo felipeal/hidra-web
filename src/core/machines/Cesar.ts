@@ -54,6 +54,8 @@ export class Cesar extends Machine {
   public static KEYBOARD_BUFFER_ADDRESS = 65499;
   public static DISPLAY_ADDRESS = 65500;
 
+  public static KEYBOARD_STATUS_KEY_PRESSED = 0x80;
+
   constructor() {
     super({
       name: "Cesar",
