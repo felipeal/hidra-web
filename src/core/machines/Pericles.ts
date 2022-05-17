@@ -4,6 +4,7 @@ import { Flag, FlagCode } from "../Flag";
 import { Instruction, InstructionCode } from "../Instruction";
 import { AddressingMode, AddressingModeCode } from "../AddressingMode";
 import { unsignedByteToSigned } from "../utils/Conversions";
+import { assertUnreachable } from "../utils/FunctionUtils";
 
 export class Pericles extends Machine {
 
@@ -75,7 +76,7 @@ export class Pericles extends Machine {
         return this.toValidAddress(this.memoryReadTwoByteAddress(immediateAddress) + unsignedByteToSigned(this.getRegisterValue("X")));
 
       default:
-        throw new Error("Unexpected addressing mode code.");
+        assertUnreachable(`Unexpected addressing mode code: ${addressingModeCode}`);
     }
   }
 
@@ -115,7 +116,7 @@ export class Pericles extends Machine {
         break;
 
       default:
-        throw new Error("Unexpected addressing mode code.");
+        assertUnreachable("Unexpected addressing mode code: " + addressingModeCode);
     }
 
     return { intermediateAddress, intermediateAddressByte2, finalOperandAddress };

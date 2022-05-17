@@ -9,6 +9,7 @@ import { Queops } from "../../core/machines/Queops";
 import { Ramses } from "../../core/machines/Ramses";
 import { Reg } from "../../core/machines/Reg";
 import { Volta } from "../../core/machines/Volta";
+import { assertUnreachable } from "../../core/utils/FunctionUtils";
 
 export function buildMachine(machineName: string): Machine {
   switch (machineName) {
@@ -22,7 +23,7 @@ export function buildMachine(machineName: string): Machine {
     case "REG": return new Reg();
     case "Volta": return new Volta();
     case "Cesar": return new Cesar();
-    default: throw new Error(`Invalid machine name: ${machineName}`);
+    default: assertUnreachable(`Invalid machine name: ${machineName}`);
   }
 }
 

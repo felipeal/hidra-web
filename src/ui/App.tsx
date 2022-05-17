@@ -36,7 +36,7 @@ declare global {
 }
 
 window.onerror = (errorMessage) => {
-  alert(`Error: ${errorMessage}`);
+  alert(errorMessage);
   return false;
 };
 

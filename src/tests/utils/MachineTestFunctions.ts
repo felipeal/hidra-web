@@ -3,7 +3,7 @@ import { AssemblerErrorCode } from "../../core/AssemblerError";
 import { Machine } from "../../core/Machine";
 import { Volta } from "../../core/machines/Volta";
 import { Texts } from "../../core/Texts";
-import { assert, range } from "../../core/utils/FunctionUtils";
+import { assert, assertUnreachable, range } from "../../core/utils/FunctionUtils";
 
 export function makeFunction_expectBuildSuccess(assembler: Assembler, machine: Machine) {
   return (lines: string | string[], expectedMemory: number[]) => {
@@ -51,7 +51,7 @@ export function makeFunction_expectRunState(assembler: Assembler, machine: Machi
       } else if (key === "isRunning") {
         expect(`${key}: ${machine.isRunning()}`).toDeepEqual(`${key}: ${expectedValue}`, source);
       } else {
-        throw new Error("Invalid key on state object: " + key);
+        assertUnreachable("Invalid key on state object: " + key);
       }
     }
   };

@@ -11,6 +11,7 @@ import { Queops } from "../../core/machines/Queops";
 import { Ramses } from "../../core/machines/Ramses";
 import { Reg } from "../../core/machines/Reg";
 import { Volta } from "../../core/machines/Volta";
+import { assertUnreachable } from "../../core/utils/FunctionUtils";
 import { buildMachine } from "./MachineUtils";
 
 export class FileError extends Error {}
@@ -37,7 +38,7 @@ export function getMachineFileExtension(machine: Machine): string {
     case "REG": return "red";
     case "Volta": return "vod";
     case "Cesar": return "ced";
-    default: throw new Error(`No file extension for machine: ${machine.getName()}`);
+    default: assertUnreachable(`No file extension for machine: ${machine.getName()}`);
   }
 }
 
@@ -61,7 +62,7 @@ export function buildMachineBasedOnFileName(fileName: string, fallbackMachineNam
   if (fallbackMachineName) {
     return buildMachine(fallbackMachineName);
   } else {
-    throw new Error(`No machine found for extension: ${fileExtension}`);
+    assertUnreachable(`No machine found for extension: ${fileExtension}`);
   }
 }
 

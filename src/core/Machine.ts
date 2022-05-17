@@ -12,7 +12,7 @@ export abstract class Machine extends MachineState {
   //////////////////////////////////////////////////
 
   public step(): void {
-    const { fetchedValue, instruction } = this.fetchInstruction(); // Fetched value may be a byte or a word
+    const { fetchedValue, instruction } = this.fetchInstruction();
     const { addressingModeCode, registerName, immediateAddress } = this.decodeInstruction(fetchedValue, instruction);
     this.executeInstruction(instruction, addressingModeCode, registerName, immediateAddress);
   }

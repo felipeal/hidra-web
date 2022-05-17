@@ -4,7 +4,7 @@ import { AssemblerErrorCode, ErrorMessage } from "./AssemblerError";
 import { AddressingModeCode } from "./AddressingMode";
 import { Machine } from "./Machine";
 import { FlagCode } from "./Flag";
-import { assert } from "./utils/FunctionUtils";
+import { assert, assertUnreachable } from "./utils/FunctionUtils";
 import { Volta } from "./machines/Volta";
 import { Cesar } from "./machines/Cesar";
 
@@ -56,7 +56,7 @@ export class Texts {
           `\n${endiannessText}`,
         examples: "Exemplos: DAB 1, 2 | DAW 1 2 | DAB 'abc' | DAW [20]"
       };
-      default: throw new Error(`Unknown directive: ${directive}`);
+      default: assertUnreachable(`Unknown directive: ${directive}`);
     }
   }
 
@@ -127,7 +127,7 @@ export class Texts {
       case "dec r": return ["Decrement", "Decrementa o registrador 'r' de uma unidade."];
       case "if r a0 a1": return ["If Zero", "Se o registrador 'r' for igual a zero, desvia a execução para o endereço 'a0'. Se for diferente de zero, desvia para 'a1'."];
 
-      default: throw new Error(`Missing description for assembly format: ${assemblyFormat}`);
+      default: assertUnreachable(`Missing description for assembly format: ${assemblyFormat}`);
     }
   }
 
@@ -180,7 +180,7 @@ export class Texts {
       case "jsr a": return ["Jump to Subroutine", "Desvio para sub-rotina: empilha endereço de retorno (instrução seguinte) e desvia para o endereço 'a'."];
       case "hlt": return Texts.getInstructionDescription(assemblyFormat, null); // Reuse description
 
-      default: throw new Error(`Missing description for assembly format: ${assemblyFormat}`);
+      default: assertUnreachable(`Missing description for assembly format: ${assemblyFormat}`);
     }
   }
 
@@ -241,7 +241,7 @@ export class Texts {
 
       case "hlt": return Texts.getInstructionDescription(assemblyFormat, null); // Reuse description
 
-      default: throw new Error(`Missing description for assembly format: ${assemblyFormat}`);
+      default: assertUnreachable(`Missing description for assembly format: ${assemblyFormat}`);
     }
   }
 
