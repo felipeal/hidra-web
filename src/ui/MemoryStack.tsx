@@ -3,7 +3,7 @@ import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList } from "react-window";
 import { Volta } from "../core/machines/Volta";
 import { addressToHex, charCodeToString, uncheckedByteStringToNumber, unsignedByteToString } from "../core/utils/Conversions";
-import { buildUnsubscribeCallback } from "../core/utils/EventUtils";
+import { combineUnsubscribeCallbacks } from "../core/utils/EventUtils";
 import { calculateScrollOffset, focusMemoryInput, onFocusSelectAll, scrollToRow } from "./utils/FocusHandler";
 import { TableDimensions, toPx } from "./utils/LayoutUtils";
 
@@ -106,7 +106,7 @@ export function MemoryStackRow({ columnWidths, style, address, machine, displayH
     setIsCurrentStackPos(machine.getSPValue() === address);
 
     // Event subscriptions
-    return buildUnsubscribeCallback([
+    return combineUnsubscribeCallbacks([
       machine.subscribeToEvent("REG.SP", (spAddress) => setIsCurrentStackPos((spAddress as number) === address)),
       machine.subscribeToEvent(`STACK.${address}`, (newValue) => setValue(unsignedByteToString(newValue as number, { displayHex, displayNegative })))
     ]);

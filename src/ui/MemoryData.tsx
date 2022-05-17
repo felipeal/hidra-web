@@ -4,7 +4,7 @@ import { FixedSizeList } from "react-window";
 import { Assembler } from "../core/Assembler";
 import { Machine } from "../core/Machine";
 import { addressToHex, charCodeToString, uncheckedByteStringToNumber, unsignedByteToString } from "../core/utils/Conversions";
-import { buildUnsubscribeCallback } from "../core/utils/EventUtils";
+import { combineUnsubscribeCallbacks } from "../core/utils/EventUtils";
 import { calculateScrollOffset, focusMemoryInput, onFocusSelectAll } from "./utils/FocusHandler";
 import { TableDimensions, toPx } from "./utils/LayoutUtils";
 
@@ -99,7 +99,7 @@ export function MemoryDataRow({ columnWidths, style, address, machine, assembler
     setLabel(assembler.getAddressCorrespondingLabel(address));
 
     // Event subscriptions
-    return buildUnsubscribeCallback([
+    return combineUnsubscribeCallbacks([
       machine.subscribeToEvent(`MEM.${address}`, (newValue) => setValue(unsignedByteToString(newValue as number, { displayHex, displayNegative }))),
       assembler.subscribeToEvent(`LABEL.${address}`, (newLabel) => setLabel(String(newLabel)))
     ]);

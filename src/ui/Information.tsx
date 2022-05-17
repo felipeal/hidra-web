@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Machine } from "../core/Machine";
-import { buildUnsubscribeCallback } from "../core/utils/EventUtils";
+import { combineUnsubscribeCallbacks } from "../core/utils/EventUtils";
 
 export default function Information({ machine, keyboardOn }: { machine: Machine, keyboardOn: boolean | null }) {
   const [instructionCount, setInstructionCount] = useState(machine.getInstructionCount());
@@ -12,7 +12,7 @@ export default function Information({ machine, keyboardOn }: { machine: Machine,
     setAccessCount(machine.getAccessCount());
 
     // Event subscriptions
-    return buildUnsubscribeCallback([
+    return combineUnsubscribeCallbacks([
       machine.subscribeToEvent("INS.COUNT", (newValue) => setInstructionCount(newValue as number)),
       machine.subscribeToEvent("ACC.COUNT", (newValue) => setAccessCount(newValue as number))
     ]);

@@ -4,7 +4,7 @@ import { FixedSizeList } from "react-window";
 import { Assembler } from "../core/Assembler";
 import { Machine } from "../core/Machine";
 import { addressToHex, immediateValuesToNegative, numbersToHex, uncheckedByteStringToNumber, unsignedByteToString } from "../core/utils/Conversions";
-import { buildUnsubscribeCallback } from "../core/utils/EventUtils";
+import { combineUnsubscribeCallbacks } from "../core/utils/EventUtils";
 import { focusMemoryInput, onFocusSelectAll, scrollToRow } from "./utils/FocusHandler";
 import { classes, TableDimensions, toPx } from "./utils/LayoutUtils";
 
@@ -113,7 +113,7 @@ function MemoryInstructionsRow({ columnWidths, style, address, machine, assemble
     setIsCurrentInstruction(computeIsCurrentInstruction(address, assembler));
 
     // Event subscriptions
-    return buildUnsubscribeCallback([
+    return combineUnsubscribeCallbacks([
       machine.subscribeToEvent(`REG.${machine.getPCName()}`, (pcAddress) => {
         setIsCurrentPos(pcAddress === address);
         setIsCurrentInstruction(computeIsCurrentInstruction(address, assembler));
