@@ -28,7 +28,7 @@ export function buildMachine(machineName: string): Machine {
 }
 
 export function getMachineNames(): string[] {
-  return ["Neander", "Ahmes", "Ramses", "Cromag", "Queops", "Pitagoras", "Pericles", "REG", "Volta"];
+  return ["Neander", "Ahmes", "Ramses", "Cromag", "Queops", "Pitagoras", "Pericles", "REG", "Volta", "Cesar"];
 }
 
 export function resetPCAndSP(machine: Machine): void {
