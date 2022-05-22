@@ -221,7 +221,7 @@ export class Texts {
       case "bhi o": return ["Branch if Higher", ""];
       case "bls o": return ["Branch if Lower or Same", ""];
 
-      // Jumps / Subroutines
+      // Flow control
       case "jmp a": return ["Jump", ""];
       case "sob r o": return ["Subtract One and Branch", ""];
       case "jsr r a": return ["Jump to Subroutine", ""];

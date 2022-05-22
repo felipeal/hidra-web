@@ -101,7 +101,7 @@ export class Cesar extends Machine {
         new Instruction(2, "00111101", InstructionCode.BHI, "bhi o"),
         new Instruction(2, "00111110", InstructionCode.BLS, "bls o"),
 
-        // Jumps / Subroutines
+        // Flow control
         new Instruction(0, "0100....", InstructionCode.JMP, "jmp a"),   // 0100.... ..mmmrrr
         new Instruction(2, "0101....", InstructionCode.SOB, "sob r o"), // 0101.rrr oooooooo
         new Instruction(0, "0110....", InstructionCode.JSR, "jsr r a"), // 0110.rrr ..mmmrrr
@@ -215,7 +215,7 @@ export class Cesar extends Machine {
     } else if (instructionArguments.o && instructionCode !== InstructionCode.SOB) {
       this.executeBranchInstruction(instructionCode, instructionArguments.o.value);
 
-    // Jumps / Subroutines
+    // Flow control
     } else if (instructionCode === InstructionCode.JMP) {
       this.executeJMPInstruction(notNull(instructionArguments.a));
 
@@ -292,7 +292,7 @@ export class Cesar extends Machine {
   }
 
   //////////////////////////////////////////////////
-  // Jumps / Subroutines
+  // Flow control
   //////////////////////////////////////////////////
 
   private executeJMPInstruction(argument: RegisterModeArgument): void {

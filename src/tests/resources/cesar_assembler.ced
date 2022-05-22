@@ -108,7 +108,7 @@ sob r7 BrLabelAfter+hA
 BrLabelAfter: db 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Jumps / Subroutines
+; Flow control
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 org 768

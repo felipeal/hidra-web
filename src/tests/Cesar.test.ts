@@ -43,7 +43,7 @@ describe("Cesar: Build", () => {
     expectBuildSuccess("bhi 127", [0b00111101, 127]);
     expectBuildSuccess("bls 127", [0b00111110, 127]);
 
-    // Jumps / Subroutines
+    // Flow control
     expectBuildSuccess("jmp (r0)",     [0b01000000, 0x20]);
     expectBuildSuccess("sob r0, 127",  [0b01010000, 127]);
     expectBuildSuccess("jsr r0, (r0)", [0b01100000, 0x20]);
@@ -337,7 +337,7 @@ describe("Cesar: Run", () => {
     expectBranchNotTaken("bls");
   });
 
-  test("jumps / subroutines: should reach expected state after running", () => {
+  test("flow control: should reach expected state after running", () => {
     // JMP
     expectRunState(["jmp R0"],    [], { r_R7: 2     });
     expectRunState(["jmp 32769"], [], { r_R7: 32769 });
@@ -363,7 +363,7 @@ describe("Cesar: Run", () => {
     ], [], { r_R7: 32000, r_R2: 0xABCD, r_R6: 64000, m_63998: 0xAB, m_63999: 0xCD });
   });
 
-  test("jumps / subroutines: should preserve flags", () => {
+  test("flow control: should preserve flags", () => {
     expectRunState(["scc NZVC", "jmp 0"],     [], { ...flags("NZVC") });
     expectRunState(["scc NZVC", "sob R0, 0"], [], { ...flags("NZVC") });
     expectRunState(["scc NZVC", "jsr R0, 0"], [], { ...flags("NZVC") });
