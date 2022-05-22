@@ -662,8 +662,10 @@ export class Assembler {
   }
 
   protected setAddressCorrespondingLabel(address: number, label: string): void {
-    this.addressCorrespondingLabel[address] = label;
-    this.publishEvent(`LABEL.${address}`, label);
+    if (this.addressCorrespondingLabel[address] !== label) {
+      this.addressCorrespondingLabel[address] = label;
+      this.publishEvent(`LABEL.${address}`, label);
+    }
   }
 
   protected getPCValue(): number {
