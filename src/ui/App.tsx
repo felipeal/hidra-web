@@ -29,6 +29,7 @@ import { Texts } from "../core/Texts";
 import { ErrorMessage } from "../core/AssemblerError";
 import { rethrowUnless } from "../core/utils/FunctionUtils";
 import { Cesar } from "../core/machines/Cesar";
+import { isInputElementActive } from "./utils/FocusHandler";
 
 declare global {
   // Required for CodeMirror persistence between hot reloads
@@ -179,6 +180,11 @@ export default function App() {
   function handleCesarKeyEvent(event: KeyboardEvent) {
     // Ignore key combinations
     if (event.altKey || event.ctrlKey || event.metaKey) {
+      return;
+    }
+
+    // Don't send keys to Cesar while interacting with input areas
+    if (isInputElementActive()) {
       return;
     }
 

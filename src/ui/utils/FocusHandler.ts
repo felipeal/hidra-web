@@ -57,3 +57,9 @@ export function onFocusSelectAll(event: FocusEvent<HTMLInputElement>): void {
     }
   }, 0);
 }
+
+export function isInputElementActive(): boolean {
+  const inputTags = ["INPUT", "TEXTAREA"];
+  const activeElementTag = document.activeElement?.tagName || "";
+  return inputTags.includes(activeElementTag);
+}
