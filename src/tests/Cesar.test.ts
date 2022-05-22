@@ -236,6 +236,11 @@ describe("Cesar: Run", () => {
     expectRunState(["hlt", "nop"], [], { isRunning: false, r_R7: 1 });
   });
 
+  test("nop / hlt: should preserve flags", () => {
+    expectRunState(["scc NZVC", "nop", "hlt"], [], { isRunning: false, r_R7: 3, ...flags("NZVC") });
+    expectRunState(["ccc NZVC", "nop", "hlt"], [], { isRunning: false, r_R7: 3, ...flags("") });
+  });
+
   test("condition codes: should reach expected state after running", () => {
     expectRunState(["scc",      "ccc"],      [], { f_N: false, f_Z: true,  f_V: false, f_C: false, r_R7: 2 }); // Initial state
     expectRunState(["ccc NZVC", "scc NZVC"], [], { f_N: true,  f_Z: true,  f_V: true,  f_C: true,  r_R7: 2 }); // All set
@@ -333,12 +338,15 @@ describe("Cesar: Run", () => {
   });
 
   test("jumps / subroutines: should reach expected state after running", () => {
+    // JMP
     expectRunState(["jmp R0"],    [], { r_R7: 2     });
     expectRunState(["jmp 32769"], [], { r_R7: 32769 });
 
+    // SOB
     expectRunState(["mov #1, R1", "sob R1 4"], [], { r_R7: 6, r_R1: 0 });
     expectRunState(["mov #2, R2", "sob R2 4"], [], { r_R7: 2, r_R2: 1 });
 
+    // JSR
     expectRunState([
       "mov #64000, R6",
       "mov #hABCD, R1",
@@ -346,6 +354,7 @@ describe("Cesar: Run", () => {
       "org 8000\njsr R1, 16000"
     ], [], { r_R7: 16000, r_R1: 8004, r_R6: 63998, m_63998: 0xAB, m_63999: 0xCD });
 
+    // RTS
     expectRunState([
       "mov #64000, R6",
       "mov #hABCD, -(R6)",
@@ -354,7 +363,19 @@ describe("Cesar: Run", () => {
     ], [], { r_R7: 32000, r_R2: 0xABCD, r_R6: 64000, m_63998: 0xAB, m_63999: 0xCD });
   });
 
-  test("arithmetic (one operand): should reach expected state after running", () => {
+  test("jumps / subroutines: should preserve flags", () => {
+    expectRunState(["scc NZVC", "jmp 0"],     [], { ...flags("NZVC") });
+    expectRunState(["scc NZVC", "sob R0, 0"], [], { ...flags("NZVC") });
+    expectRunState(["scc NZVC", "jsr R0, 0"], [], { ...flags("NZVC") });
+    expectRunState(["scc NZVC", "sob R0, 0"], [], { ...flags("NZVC") });
+
+    expectRunState(["ccc NZVC", "jmp 0"],     [], { ...flags("") });
+    expectRunState(["ccc NZVC", "sob R0, 0"], [], { ...flags("") });
+    expectRunState(["ccc NZVC", "jsr R0, 0"], [], { ...flags("") });
+    expectRunState(["ccc NZVC", "sob R0, 0"], [], { ...flags("") });
+  });
+
+  test("arithmetic (one operand): should reach expected result and flags after running", () => {
     expectRunState(["mov #hABCD, R1", "clr R1"], [], { r_R1: 0, ...flags("Z") });
 
     expectRunState([`mov #${0b1011001110001111}, R1`, "not R1"], [], { r_R1: 0b0100110001110000, ...flags("C")  });
