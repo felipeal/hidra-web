@@ -87,7 +87,7 @@ export class Texts {
       case "add a": return ["Add", "Adiciona o valor no endereço 'a' ao acumulador."];
       case "or a": return ["Or", "Realiza um 'ou' lógico entre cada bit de 'a' e o bit correspondente no acumulador."];
       case "and a": return ["And", "Realiza um 'e' lógico entre cada bit de 'a' e o bit correspondente no acumulador."];
-      case "not": return ["Not", "Inverte (complementa para 1) o valor dos bits do acumulador."];
+      case "not": return ["Not", "Inverte (complementa para 1) o valor de cada bit do acumulador."];
       case "jmp a": return ["Jump", "Desvia a execução para o endereço 'a' (desvio incondicional)."];
       case "jn a": return ["Jump if Negative", "Se a flag N estiver ativada (acumulador negativo), desvia a execução para o endereço 'a'."];
       case "jz a": return ["Jump if Zero", "Se a flag Z estiver ativada (acumulador zerado), desvia a execução para o endereço 'a'."];
@@ -119,7 +119,7 @@ export class Texts {
       case "add r a": return ["Add", "Adiciona o valor no endereço 'a' ao registrador 'r'."];
       case "or r a": return ["Or", "Realiza um 'ou' lógico entre cada bit de 'a' e o bit correspondente no registrador 'r'."];
       case "and r a": return ["And", "Realiza um 'e' lógico entre cada bit de 'a' e o bit correspondente no registrador 'r'."];
-      case "not r": return ["Not", "Inverte (complementa para 1) o valor dos bits do registrador 'r'."];
+      case "not r": return ["Not", "Inverte (complementa para 1) o valor de cada bit do registrador 'r'."];
       case "sub r a": return ["Subtract", "Subtrai o valor no endereço 'a' do registrador 'r'."];
       case "jsr a": return ["Jump to Subroutine", "Desvio para sub-rotina: armazena o endereço de retorno (instrução seguinte) em 'a' e desvia a execução para o endereço 'a' + 1."];
       case "neg r": return ["Negate", "Troca o sinal do valor em complemento de 2 do registrador 'r' entre positivo e negativo."];
@@ -142,7 +142,7 @@ export class Texts {
   }
 
   public static shortenArguments(text: string): string {
-    return (text.includes("a0") && text.includes("a1")) ? text.replace("a0", "a").replace("a1", "b") : text;
+    return (text.includes("a0") && text.includes("a1")) ? text.replaceAll("a0", "a").replaceAll("a1", "b") : text;
   }
 
   private static getVoltaInstructionDescription(assemblyFormat: string): [string, string] {
@@ -157,12 +157,12 @@ export class Texts {
 
       // Arithmetic and logic (one operand)
       case "clr": return ["Clear", "Zera o valor no topo da pilha."];
-      case "not": return ["Not", "Inverte (complementa para 1) o valor dos bits do topo da pilha."];
+      case "not": return ["Not", "Inverte (complementa para 1) o valor de cada bit do topo da pilha."];
       case "neg": return ["Negate", "Troca o sinal do valor em complemento de 2 do topo da pilha entre positivo e negativo."];
       case "inc": return ["Increment", "Incrementa em uma unidade o topo da pilha."];
       case "dec": return ["Decrement", "Decrementa de uma unidade o topo da pilha."];
-      case "asr": return ["Arithmetical Shift Right", "Realiza shift aritmético dos bits do topo da pilha para a direita, mantendo seu sinal em complemento de dois (bit mais significativo)."];
-      case "asl": return ["Arithmetical Shift Left", "Realiza shift aritmético dos bits do topo da pilha para a esquerda, preenchendo com zero o bit menos significativo."];
+      case "asr": return ["Arithmetic Shift Right", "Realiza shift aritmético dos bits do topo da pilha para a direita, mantendo seu sinal em complemento de 2 (bit mais significativo)."];
+      case "asl": return ["Arithmetic Shift Left", "Realiza shift aritmético dos bits do topo da pilha para a esquerda, preenchendo com zero o bit menos significativo."];
       case "ror": return ["Rotate Right", "Realiza rotação para a direita dos bits do topo da pilha."];
       case "rol": return ["Rotate Left", "Realiza rotação para a esquerda dos bits do topo da pilha."];
 
@@ -195,59 +195,189 @@ export class Texts {
   }
 
   private static getCesarInstructionDescription(assemblyFormat: string): [string, string] {
-    // TODO: Add descriptions
+    const branchExplanation = "O destino é um deslocamento (offset de -128 a 127) relativo ao registrador R7 (PC, que aponta para a instrução seguinte).";
 
     switch (assemblyFormat) {
       case "nop": return Texts.getInstructionDescription(assemblyFormat, null); // Reuse description
 
       // Condition codes
-      case "ccc f": return ["Clear Condition Codes", ""];
-      case "scc f": return ["Set Condition Codes", ""];
+      case "ccc f": return ["Clear Condition Codes", multiline(
+        "Desliga os códigos de condição (flags) selecionados.",
+        "Exemplos: CCC NZVC | CCC N, C"
+      )];
+      case "scc f": return ["Set Condition Codes", multiline(
+        "Liga os códigos de condição (flags) selecionados.",
+        "Exemplos: SCC NZVC | SCC N, C"
+      )];
 
-      // Conditional branching
-      case "br o": return ["Branch", ""];
-      case "bne o": return ["Branch if Not Equal", ""];
-      case "beq o": return ["Branch if Equal", ""];
-      case "bpl o": return ["Branch if Plus", ""];
-      case "bmi o": return ["Branch if Minus", ""];
-      case "bvc o": return ["Branch if Overflow Clear", ""];
-      case "bvs o": return ["Branch if Overflow Set", ""];
-      case "bcc o": return ["Branch if Carry Clear", ""];
-      case "bcs o": return ["Branch if Carry Set", ""];
-      case "bge o": return ["Branch if Greater or Equal", ""];
-      case "blt o": return ["Branch if Less Than", ""];
-      case "bgt o": return ["Branch if Greater", ""];
-      case "ble o": return ["Branch if Less or Equal", ""];
-      case "bhi o": return ["Branch if Higher", ""];
-      case "bls o": return ["Branch if Lower or Same", ""];
+      // Conditional branching: BR
+      case "br o": return ["Branch", multiline(
+        "Desvia a execução incondicionalmente.",
+        branchExplanation,
+        "Exemplos: BR 127 | BR -128 | BR Label | BR Label+4"
+      )];
+
+      // Conditional branching: BNE / BEQ
+      case "bne o": return ["Branch if Not Equal", multiline(
+        "Desvia a execução se Z = 0 (se CMP X, Y resulta em X ≠ Y).",
+        branchExplanation,
+        "Exemplo: CMP R0, R1 / BNE NotEqual"
+      )];
+      case "beq o": return ["Branch if Equal", multiline(
+        "Desvia a execução se Z = 1 (se CMP X, Y resulta em X = Y).",
+        branchExplanation,
+        "Exemplo: CMP R0, R1 / BEQ Equal"
+      )];
+
+      // Conditional branching: BPL / BMI
+      case "bpl o": return ["Branch if Plus", multiline(
+        "Desvia a execução se N = 0 (resultado positivo ou zero em complemento de 2).",
+        branchExplanation,
+        "Exemplo: ADD R0, R1 / BPL PositiveOrZero"
+      )];
+      case "bmi o": return ["Branch if Minus", multiline(
+        "Desvia a execução se N = 1 (resultado negativo em complemento de 2).",
+        branchExplanation,
+        "Exemplo: ADD R0, R1 / BMI Negative"
+      )];
+
+      // Conditional branching: BVC / BVS
+      case "bvc o": return ["Branch if Overflow Clear", multiline(
+        "Desvia a execução se V = 0 (última operação não causou overflow em complemento de 2).",
+        branchExplanation,
+        "Exemplo: ADD R0, R1 / BVC NoOverflow"
+      )];
+      case "bvs o": return ["Branch if Overflow Set", multiline(
+        "Desvia a execução se V = 1 (última operação causou overflow em complemento de 2).",
+        branchExplanation,
+        "Exemplo: ADD R0, R1 / BVS Overflow"
+      )];
+
+      // Conditional branching: BCC / BCS
+      case "bcc o": return ["Branch if Carry Clear", multiline(
+        "Desvia a execução se C = 0 (última operação não resultou em carry ou borrow, considerando operandos sem-sinal).",
+        branchExplanation,
+        "Exemplos: ADD R0, R1 / BCC NoCarry | SUB R0, R1 / BCC NoBorrow"
+      )];
+      case "bcs o": return ["Branch if Carry Set", multiline(
+        "Desvia a execução se C = 1 (última operação resultou em carry ou borrow, considerando operandos sem-sinal).",
+        branchExplanation,
+        "Exemplo: ADD R0, R1 / BCS Carry | SUB R0, R1 / BCS Borrow"
+      )];
+
+      // Conditional branching: BGT / BLT / BGE / BLE
+      case "bgt o": return ["Branch if Greater Than", multiline(
+        "Desvia a execução se N = V e Z = 0 (se CMP X, Y resulta em X > Y em complemento de 2).",
+        branchExplanation,
+        "Exemplo: CMP R0, R1 / BGT GreaterThan"
+      )];
+      case "blt o": return ["Branch if Less Than", multiline(
+        "Desvia a execução se N ≠ V (se CMP X, Y resulta em X < Y em complemento de 2).",
+        branchExplanation,
+        "Exemplo: CMP R0, R1 / BLT LessThan"
+      )];
+      case "bge o": return ["Branch if Greater or Equal", multiline(
+        "Desvia a execução se N = V (se CMP X, Y resulta em X ≥ Y em complemento de 2).",
+        branchExplanation,
+        "Exemplo: CMP R0, R1 / BGE GreaterOrEqual"
+      )];
+      case "ble o": return ["Branch if Less or Equal", multiline(
+        "Desvia a execução se N ≠ V ou Z = 1 (se CMP X, Y resulta em X ≤ Y em complemento de 2).",
+        branchExplanation,
+        "Exemplo: CMP R0, R1 / BLE LessOrEqual"
+      )];
+
+      // Conditional branching: BHI / BLS
+      case "bhi o": return ["Branch if Higher", multiline(
+        "Desvia a execução se C = 0 e Z = 0 (se CMP X, Y resulta em X > Y considerando operandos sem-sinal).",
+        branchExplanation,
+        "Exemplo: CMP R0, R1 / BHI UnsignedHigher"
+      )];
+      case "bls o": return ["Branch if Lower or Same", multiline(
+        "Desvia a execução se C = 1 ou Z = 1 (se CMP X, Y resulta em X ≤ Y considerando operandos sem-sinal).",
+        branchExplanation,
+        "Exemplo: CMP R0, R1 / BLS UnsignedLowerOrSame"
+      )];
 
       // Flow control
-      case "jmp a": return ["Jump", ""];
-      case "sob r o": return ["Subtract One and Branch", ""];
-      case "jsr r a": return ["Jump to Subroutine", ""];
-      case "rts r": return ["Return from Subroutine", ""];
+      case "jmp a": return ["Jump", "Desvia a execução para o endereço de 'a'."];
+      case "sob r o": return ["Subtract One and Branch", multiline(
+        "Instrução para controle de laço. Subtrai 1 do registrador 'r', desviando sempre que 'r' ≠ 0.",
+        "O destino é relativo ao registrador R7 (PC, que aponta para a instrução seguinte), subtraindo o valor do deslocamento (offset a subtrair, de -128 a 127).",
+        "Exemplo: LoopUntilZero: DEC R0 / SOB R0, LoopUntilZero"
+      )];
+      case "jsr r a": return ["Jump to Subroutine", multiline("Desvio para sub-rotina:",
+        "• Empilha o valor de 'r' (pilha indicada por R6);",
+        "• Armazena o endereço de retorno (instrução seguinte) em 'r';",
+        "• Desvia a execução para o endereço de 'a'."
+      )];
+      case "rts r": return ["Return from Subroutine", multiline("Retorno de sub-rotina:",
+        "• Desvia para o endereço indicado por 'r';",
+        "• Desempilha um valor, armazenando-o em 'r' (pilha indicada por R6)."
+      )];
 
       // Arithmetic (one operand)
-      case "clr a": return ["Clear", ""];
-      case "not a": return ["Not", ""];
-      case "inc a": return ["Increment", ""];
-      case "dec a": return ["Decrement", ""];
-      case "neg a": return ["Negate", ""];
-      case "tst a": return ["Test", ""];
-      case "ror a": return ["Rotate Right", ""];
-      case "rol a": return ["Rotate Left", ""];
-      case "asr a": return ["Arithmetic Shift Right", ""];
-      case "asl a": return ["Arithmetic Shift Left", ""];
-      case "adc a": return ["Add Carry", ""];
-      case "sbc a": return ["Subtract Carry", ""];
+      case "clr a": return ["Clear", "Armazena o valor 0 no local do operando 'a'."];
+      case "not a": return ["Not", "Inverte (complementa para 1) o valor de cada bit do operando 'a'."];
+      case "inc a": return ["Increment", multiline(
+        "Incrementa em 1 o valor do operando 'a'.",
+        "C = Carry (considerando operandos sem-sinal);",
+        "V = Overflow (em complemento de 2)."
+      )];
+      case "dec a": return ["Decrement", multiline(
+        "Decrementa em 1 o valor do operando 'a'.",
+        "C = Borrow (considerando operandos sem-sinal);",
+        "V = Overflow (em complemento de 2)."
+      )];
+      case "neg a": return ["Negate", multiline(
+        "Troca o sinal do valor em complemento de 2 do operando entre positivo e negativo.",
+        "C = Borrow (ao subtrair o operando sem-sinal do valor zero);",
+        "V = Overflow (em complemento de 2)."
+      )];
+      case "tst a": return ["Test", "Testa N e Z sem armazenar o resultado."];
+      case "ror a": return ["Rotate Right", "Realiza rotação para a direita dos bits do operando, incluindo a flag C (carry) como um bit."];
+      case "rol a": return ["Rotate Left", "Realiza rotação para a esquerda dos bits do operando, incluindo a flag C (carry) como um bit."];
+      case "asr a": return ["Arithmetic Shift Right", multiline(
+        "Realiza shift aritmético dos bits do operando para a direita, mantendo seu sinal em complemento de 2 (bit mais significativo).",
+        "Semelhante a uma divisão por 2, porém o arredondamento é em direção ao infinito negativo.",
+        "C = LSB (bit menos significativo) do operando."
+      )];
+      case "asl a": return ["Arithmetic Shift Left", multiline(
+        "Realiza shift aritmético dos bits do operando para a esquerda, preenchendo com zero o bit menos significativo.",
+        "Equivale a uma multiplicação por 2.",
+        "C = MSB (bit mais significativo) do operando;",
+        "V = Overflow (considerando multiplicação por 2 em complemento de 2)."
+      )];
+      case "adc a": return ["Add Carry", multiline(
+        "Adiciona o valor da flag C (1 ou 0) ao operando.",
+        "C = Carry (considerando operandos sem-sinal);",
+        "V = Overflow (em complemento de 2)."
+      )];
+      case "sbc a": return ["Subtract Carry", multiline(
+        "Subtrai o valor da flag C (1 ou 0) do operando.",
+        "C = Not-Borrow (considerando operandos sem-sinal);",
+        "V = Overflow (em complemento de 2)."
+      )];
 
       // Arithmetic (two operands)
-      case "mov a0 a1": return ["Move", ""];
-      case "add a0 a1": return ["Add", ""];
-      case "sub a0 a1": return ["Subtract", ""];
-      case "cmp a0 a1": return ["Compare", ""];
-      case "and a0 a1": return ["And", ""];
-      case "or a0 a1": return ["Or", ""];
+      case "mov a0 a1": return ["Move", "Copia o valor de a0 (origem) para a1 (destino)."];
+      case "add a0 a1": return ["Add", multiline(
+        "Adiciona a1 a a0 (a1 += a0), armazenando o resultado em a1 (destino).",
+        "C = Carry (considerando operandos sem-sinal);",
+        "V = Overflow (em complemento de 2)."
+      )];
+      case "sub a0 a1": return ["Subtract", multiline(
+        "Subtrai a0 de a1 (a1 -= a0), armazenando o resultado em a1 (destino).",
+        "C = Borrow (considerando operandos sem-sinal);",
+        "V = Overflow (em complemento de 2)."
+      )];
+      case "cmp a0 a1": return ["Compare", multiline(
+        "Subtrai a1 de a0 (a0 - a1) para fins de comparação, atualizando as flags sem armazenar o resultado.",
+        "C = Borrow (considerando operandos sem-sinal);",
+        "V = Overflow (em complemento de 2)."
+      )];
+      case "and a0 a1": return ["And", "Realiza um 'e' lógico entre a0 e a1 (a1 &= a0), armazenando o resultado em a1 (destino)."];
+      case "or a0 a1": return ["Or", "Realiza um 'ou' lógico entre a0 e a1 (a1 |= a0), armazenando o resultado em a1 (destino)."];
 
       case "hlt": return Texts.getInstructionDescription(assemblyFormat, null); // Reuse description
 
@@ -277,65 +407,76 @@ export class Texts {
 
       case AddressingModeCode.INDEXED_BY_X: return {
         name: "Indexado por X",
-        description: "Endereçamento direto com deslocamento (offset). O endereço do operando é a soma em complemento de dois dos valores de 'a' e do registrador X.",
+        description: "Endereçamento direto com deslocamento (offset). O endereço do operando é a soma (em complemento de 2) dos valores de 'a' e do registrador X.",
         examples: "Exemplos: JMP 128,X | JMP Label,X"
       };
 
       case AddressingModeCode.INDEXED_BY_PC: return {
         name: "Indexado por PC",
-        description: "Endereçamento direto com deslocamento (offset). O endereço do operando é a soma em complemento de dois dos valores de 'a' e do registrador PC (endereço da instrução seguinte).",
+        description: "Endereçamento direto com deslocamento (offset). O endereço do operando é a soma (em complemento de 2) dos valores de 'a' e do registrador PC (endereço da instrução seguinte).",
         examples: "Exemplos: JMP 128,PC | JMP Label,PC"
       };
 
       // Cesar
-      // TODO: Add description and examples
 
       case AddressingModeCode.REGISTER: return {
         name: "Registrador",
-        description: "",
-        examples: ""
+        description: "Operando é o próprio registrador.",
+        examples: "Exemplo: NOT R0"
       };
 
       case AddressingModeCode.REGISTER_POST_INC: return {
         name: "Registrador Pós-Incrementado",
-        description: "",
-        examples: ""
+        description: multiline(
+          "O endereço do operando ou desvio é indicado pelo valor do registrador.",
+          "O registrador é incrementado em 2 após o uso."
+        ),
+        examples: "Exemplo: NOT (R0)+"
       };
 
       case AddressingModeCode.REGISTER_PRE_DEC: return {
         name: "Registrador Pré-Decrementado",
-        description: "",
-        examples: ""
+        description: multiline(
+          "O endereço do operando ou desvio é indicado pelo valor do registrador.",
+          "O registrador é decrementado em 2 antes do uso."
+        ),
+        examples: "Exemplo: NOT -(R0)"
       };
 
       case AddressingModeCode.REGISTER_INDEXED: return {
         name: "Indexado",
-        description: "",
-        examples: ""
+        description: "O endereço do operando ou desvio é a soma do valor do registrador com um deslocamento (offset).",
+        examples: "Exemplos: NOT 32(R0) | NOT -16384(R0) | NOT Label(R0)"
       };
 
       case AddressingModeCode.INDIRECT_REGISTER: return {
         name: "Indireto",
-        description: "",
-        examples: ""
+        description: "O endereço do operando ou desvio é indicado pelo valor do registrador.",
+        examples: "Exemplo: NOT (R0)"
       };
 
       case AddressingModeCode.INDIRECT_REGISTER_POST_INC: return {
         name: "Registrador Pós-Incrementado Indireto",
-        description: "",
-        examples: ""
+        description: multiline(
+          "Valor do registrador é o endereço intermediário, que por sua vez contém o endereço final do operando ou desvio.",
+          "O registrador é incrementado em 2 após o uso."
+        ),
+        examples: "Exemplo: NOT ((R0)+)"
       };
 
       case AddressingModeCode.INDIRECT_REGISTER_PRE_DEC: return {
         name: "Registrador Pré-Decrementado Indireto",
-        description: "",
-        examples: ""
+        description: multiline(
+          "Valor do registrador é o endereço intermediário, que por sua vez contém o endereço final do operando ou desvio.",
+          "O registrador é decrementado em 2 após o uso."
+        ),
+        examples: "Exemplo: NOT (-(R0))"
       };
 
       case AddressingModeCode.INDIRECT_REGISTER_INDEXED: return {
         name: "Indexado Indireto",
-        description: "",
-        examples: ""
+        description: "Valor do registrador somado ao deslocamento (offset) é o endereço intermediário, que por sua vez contém o endereço final do operando ou desvio.",
+        examples: "Exemplos: NOT (32(R0)) | NOT (-16384(R0)) | NOT (Label(R0)"
       };
     }
   }

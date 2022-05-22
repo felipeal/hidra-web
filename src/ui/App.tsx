@@ -482,9 +482,9 @@ export default function App() {
                 const assemblyFormat = [instruction.getMnemonic().toUpperCase(), ...instruction.getParameters()].join(" ");
                 const [name, description] = Texts.getInstructionDescription(instruction.getAssemblyFormat(), machine);
                 return <div className="monospace-font" style={{ minWidth: "56px", whiteSpace: "nowrap", marginLeft: "16px" }} key={index}>
-                  <Tippy className="tooltip" maxWidth={400} content={<span>
+                  <Tippy className="tooltip" maxWidth={400} content={<span style={{ whiteSpace: "pre-wrap" }}>
                     <strong>{name}</strong>
-                    <p>{Texts.shortenArguments(description)}</p>
+                    {Texts.shortenArguments(description).split(/(?<!;)\n/).map((line, index) => <p key={index}>{line}</p>)}
                   </span>}>
                     <span>{Texts.shortenArguments(assemblyFormat)}</span>
                   </Tippy>
@@ -505,7 +505,7 @@ export default function App() {
                   return <div key={index} className="monospace-font" style={{ width: "56px", marginLeft: "16px" }}>
                     <Tippy className="tooltip" maxWidth={400} content={<span>
                       <strong>{description.name}</strong>
-                      <p>{description.description}</p>
+                      {description.description.split("\n").map((line, index) => <p key={index}>{line}</p>)}
                       <p>{description.examples}</p>
                     </span>}>
                       <span>{addressingMode.getAssemblyPattern() || "a"}</span>
