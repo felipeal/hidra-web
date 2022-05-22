@@ -433,13 +433,37 @@ describe("Cesar: Run", () => {
     expectRunState(["mov #32768, R1", "scc C", "sbc R1"], [], { r_R1: 32767, ...flags("VC") });
   });
 
-  test("arithmetic (two operands): should reach expected state after running", () => {
-    // TODO: mov a0 a1
-    // TODO: add a0 a1
-    // TODO: sub a0 a1
-    // TODO: cmp a0 a1
-    // TODO: and a0 a1
-    // TODO: or a0 a1
+  test("arithmetic (two operands): should reach expected result and flags after running", () => {
+    expectRunState(["mov #0, R1"],          [], { r_R1: 0,      ...flags("Z")  }); // Preserves C = 0
+    expectRunState(["scc c", "mov #0, R1"], [], { r_R1: 0,      ...flags("ZC") }); // Preserves C = 1
+    expectRunState(["mov #hABCD, R1"],      [], { r_R1: 0xABCD, ...flags("N")  });
+    expectRunState(["mov #1, R1"],          [], { r_R1: 1,      ...flags("")   });
+
+    expectRunState(["add #h2000, #h2"],    [], { m_4: 0x20,          m_5: 0x02,          ...flags("")    }); // Positive result
+    expectRunState(["add #hA0B0, #h1122"], [], { m_4: (0xA0 + 0x11), m_5: (0xB0 + 0x22), ...flags("N")   }); // Negative result
+    expectRunState(["add #32767, #1"],     [], { m_4: 0x80,          m_5: 0x00,          ...flags("NV")  }); // Overflow to negative
+    expectRunState(["add #-32768, #-1"],   [], { m_4: 0x7F,          m_5: 0xFF,          ...flags("VC")  }); // Overflow to positive
+    expectRunState(["add #32768, #32768"], [], { m_4: 0,             m_5: 0,             ...flags("ZVC") }); // Overflow to zero
+
+    expectRunState(["sub #h2, #h2000"],      [], { m_4: 0x1F,          m_5: 0xFE,          ...flags("")    }); // Positive result
+    expectRunState(["sub #h1122, #hA0B0"],   [], { m_4: (0xA0 - 0x11), m_5: (0xB0 - 0x22), ...flags("N")   }); // Negative result
+    expectRunState(["sub #-1, #32767"],      [], { m_4: 0x80,          m_5: 0x00,          ...flags("NVC") }); // Overflow to negative
+    expectRunState(["sub #1, #-32768"],      [], { m_4: 0x7F,          m_5: 0xFF,          ...flags("V")   }); // Overflow to positive
+    expectRunState(["sub #-32768, #-32768"], [], { m_4: 0,             m_5: 0,             ...flags("Z")   }); // Cancel out to zero
+
+    expectRunState(["cmp #h2000, #h2"],      [], { m_4: 0x00, m_5: 0x02, ...flags("")    }); // Positive result
+    expectRunState(["cmp #hA0B0, #h1122"],   [], { m_4: 0x11, m_5: 0x22, ...flags("N")   }); // Negative result
+    expectRunState(["cmp #32767, #-1"],      [], { m_4: 0xFF, m_5: 0xFF, ...flags("NVC") }); // Positive overflow
+    expectRunState(["cmp #-32768, #1"],      [], { m_4: 0x00, m_5: 0x01, ...flags("V")   }); // Negative overflow
+    expectRunState(["cmp #-32768, #-32768"], [], { m_4: 0x80, m_5: 0x00, ...flags("Z")   }); // Cancel out to zero
+
+    expectRunState(["and #hF00F, #hF0F0"],   [], { m_4: 0xF0, m_5: 0x00, ...flags("N")  });
+    expectRunState(["scc VC", "and #0, #0"], [], { m_4: 0,    m_5: 0,    ...flags("ZC") }); // Clears V, preserves C = 1
+    expectRunState(["scc V", "and #0, #0"],  [], { m_4: 0,    m_5: 0,    ...flags("Z")  }); // Clears V, preserves C = 0
+
+    expectRunState(["or #hF00F, #hF0F0"],   [], { m_4: 0xF0, m_5: 0xFF, ...flags("N")  });
+    expectRunState(["scc VC", "or #0, #0"], [], { m_4: 0,    m_5: 0,    ...flags("ZC") }); // Clears V, preserves C = 1
+    expectRunState(["scc V", "or #0, #0"],  [], { m_4: 0,    m_5: 0,    ...flags("Z")  }); // Clears V, preserves C = 0
   });
 
 });
