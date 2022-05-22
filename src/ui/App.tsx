@@ -456,7 +456,7 @@ export default function App() {
               {(isCesar ? ["org", "db", "dw", "dab", "daw"] : ["org", "db", "dw", "dab/daw"]).map((directive, index) => {
                 const description = Texts.getDirectiveDescription(directive, machine);
                 return <div className="monospace-font" style={{ minWidth: "56px", whiteSpace: "nowrap", marginLeft: "16px" }} key={index}>
-                  <Tippy className="tooltip" content={<span>
+                  <Tippy className="tooltip" maxWidth={400} content={<span>
                     <strong>{description.name}</strong>
                     {description.description.split("\n").map((line, index) => <p key={index}>{line}</p>)}
                     <p>{description.examples}</p>
@@ -476,7 +476,7 @@ export default function App() {
                 const assemblyFormat = [instruction.getMnemonic().toUpperCase(), ...instruction.getParameters()].join(" ");
                 const [name, description] = Texts.getInstructionDescription(instruction.getAssemblyFormat(), machine);
                 return <div className="monospace-font" style={{ minWidth: "56px", whiteSpace: "nowrap", marginLeft: "16px" }} key={index}>
-                  <Tippy className="tooltip" content={<span>
+                  <Tippy className="tooltip" maxWidth={400} content={<span>
                     <strong>{name}</strong>
                     <p>{Texts.shortenArguments(description)}</p>
                   </span>}>
@@ -497,7 +497,7 @@ export default function App() {
                 {machine.getAddressingModes().map((addressingMode, index) => {
                   const description = Texts.getAddressingModeDescription(addressingMode.getAddressingModeCode(), machine);
                   return <div key={index} className="monospace-font" style={{ width: "56px", marginLeft: "16px" }}>
-                    <Tippy className="tooltip" content={<span>
+                    <Tippy className="tooltip" maxWidth={400} content={<span>
                       <strong>{description.name}</strong>
                       <p>{description.description}</p>
                       <p>{description.examples}</p>
