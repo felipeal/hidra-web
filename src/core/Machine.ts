@@ -58,14 +58,14 @@ export abstract class Machine extends MachineState {
       //////////////////////////////////////////////////
 
       case InstructionCode.LDR:
-        result = this.memoryGetOperandValue(immediateAddress, addressingModeCode);
+        result = this.memoryReadOperandValue(immediateAddress, addressingModeCode);
         this.setRegisterValue(registerName, result);
         this.updateFlags(result);
         break;
 
       case InstructionCode.STR:
         result = this.getRegisterValue(registerName);
-        this.memoryWrite(this.memoryGetOperandAddress(immediateAddress, addressingModeCode), result);
+        this.memoryWrite(this.memoryReadOperandAddress(immediateAddress, addressingModeCode), result);
         break;
 
       //////////////////////////////////////////////////
@@ -74,7 +74,7 @@ export abstract class Machine extends MachineState {
 
       case InstructionCode.ADD:
         value1 = this.getRegisterValue(registerName);
-        value2 = this.memoryGetOperandValue(immediateAddress, addressingModeCode);
+        value2 = this.memoryReadOperandValue(immediateAddress, addressingModeCode);
         result = (value1 + value2) & 0xFF;
 
         this.setRegisterValue(registerName, result);
@@ -85,7 +85,7 @@ export abstract class Machine extends MachineState {
 
       case InstructionCode.OR:
         value1 = this.getRegisterValue(registerName);
-        value2 = this.memoryGetOperandValue(immediateAddress, addressingModeCode);
+        value2 = this.memoryReadOperandValue(immediateAddress, addressingModeCode);
         result = (value1 | value2);
 
         this.setRegisterValue(registerName, result);
@@ -94,7 +94,7 @@ export abstract class Machine extends MachineState {
 
       case InstructionCode.AND:
         value1 = this.getRegisterValue(registerName);
-        value2 = this.memoryGetOperandValue(immediateAddress, addressingModeCode);
+        value2 = this.memoryReadOperandValue(immediateAddress, addressingModeCode);
         result = (value1 & value2);
 
         this.setRegisterValue(registerName, result);
@@ -111,7 +111,7 @@ export abstract class Machine extends MachineState {
 
       case InstructionCode.SUB:
         value1 = this.getRegisterValue(registerName);
-        value2 = this.memoryGetOperandValue(immediateAddress, addressingModeCode);
+        value2 = this.memoryReadOperandValue(immediateAddress, addressingModeCode);
         result = (value1 - value2) & 0xFF;
 
         this.setRegisterValue(registerName, result);
@@ -171,73 +171,73 @@ export abstract class Machine extends MachineState {
 
       case InstructionCode.JMP:
         if (!isImmediate) { // Invalidate immediate jumps
-          this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
+          this.setPCValue(this.memoryReadJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JN:
         if (this.isFlagTrue("N") && !isImmediate) {
-          this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
+          this.setPCValue(this.memoryReadJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JP:
         if (this.isFlagFalse("N") && !isImmediate) {
-          this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
+          this.setPCValue(this.memoryReadJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JV:
         if (this.isFlagTrue("V") && !isImmediate) {
-          this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
+          this.setPCValue(this.memoryReadJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JNV:
         if (this.isFlagFalse("V") && !isImmediate) {
-          this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
+          this.setPCValue(this.memoryReadJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JZ:
         if (this.isFlagTrue("Z") && !isImmediate) {
-          this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
+          this.setPCValue(this.memoryReadJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JNZ:
         if (this.isFlagFalse("Z") && !isImmediate) {
-          this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
+          this.setPCValue(this.memoryReadJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JC:
         if (this.isFlagTrue("C") && !isImmediate) {
-          this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
+          this.setPCValue(this.memoryReadJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JNC:
         if (this.isFlagFalse("C") && !isImmediate) {
-          this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
+          this.setPCValue(this.memoryReadJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JB:
         if (this.isFlagTrue("B") && !isImmediate) {
-          this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
+          this.setPCValue(this.memoryReadJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JNB:
         if (this.isFlagFalse("B") && !isImmediate) {
-          this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
+          this.setPCValue(this.memoryReadJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.JSR:
         if (!isImmediate) {
-          const jumpAddress = this.memoryGetJumpAddress(immediateAddress, addressingModeCode);
+          const jumpAddress = this.memoryReadJumpAddress(immediateAddress, addressingModeCode);
           this.memoryWrite(jumpAddress, this.getPCValue());
           this.setPCValue(jumpAddress + 1);
         }
@@ -315,7 +315,7 @@ export abstract class Machine extends MachineState {
     this.setMemoryValue(address, value);
   }
 
-  // Returns value pointed to by PC, then increments PC; Increments accessCount
+  // Returns value pointed to by PC, then increments PC. Increments accessCount.
   public memoryReadNext(): number {
     const value = this.memoryRead(this.getPCValue());
     this.incrementPCValue();
@@ -323,7 +323,7 @@ export abstract class Machine extends MachineState {
   }
 
   // Increments accessCount
-  public memoryGetOperandAddress(immediateAddress: number, addressingModeCode: AddressingModeCode): number {
+  public memoryReadOperandAddress(immediateAddress: number, addressingModeCode: AddressingModeCode): number {
     switch (addressingModeCode) {
       case AddressingModeCode.DIRECT:
         return this.memoryRead(immediateAddress);
@@ -346,15 +346,16 @@ export abstract class Machine extends MachineState {
   }
 
   // Increments accessCount
-  public memoryGetOperandValue(immediateAddress: number, addressingModeCode: AddressingModeCode): number {
-    return this.memoryRead(this.memoryGetOperandAddress(immediateAddress, addressingModeCode)); // Return 1-byte value
+  public memoryReadOperandValue(immediateAddress: number, addressingModeCode: AddressingModeCode): number {
+    return this.memoryRead(this.memoryReadOperandAddress(immediateAddress, addressingModeCode)); // Return 1-byte value
   }
 
   // Increments accessCount
-  public memoryGetJumpAddress(immediateAddress: number, addressingModeCode: AddressingModeCode): number {
-    return this.memoryGetOperandAddress(immediateAddress, addressingModeCode);
+  public memoryReadJumpAddress(immediateAddress: number, addressingModeCode: AddressingModeCode): number {
+    return this.memoryReadOperandAddress(immediateAddress, addressingModeCode);
   }
 
+  // Increments accessCount
   public memoryReadTwoByteAddress(address: number): number {
     if (this.isLittleEndian()) {
       return this.toValidAddress(this.memoryRead(address) + (this.memoryRead(address + 1) << 8));

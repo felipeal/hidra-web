@@ -281,25 +281,25 @@ export class Volta extends Machine {
         break;
 
       case InstructionCode.VOLTA_PSH:
-        value1 = this.memoryGetOperandValue(immediateAddress, addressingModeCode);
+        value1 = this.memoryReadOperandValue(immediateAddress, addressingModeCode);
         this.stackPush(value1);
         break;
 
       case InstructionCode.VOLTA_POP:
         value1 = this.stackPop();
-        this.memoryWrite(this.memoryGetOperandAddress(immediateAddress, addressingModeCode), value1);
+        this.memoryWrite(this.memoryReadOperandAddress(immediateAddress, addressingModeCode), value1);
         break;
 
       case InstructionCode.VOLTA_JMP:
         if (!isImmediate) {
-          this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
+          this.setPCValue(this.memoryReadJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 
       case InstructionCode.VOLTA_JSR:
         if (!isImmediate) {
           this.stackPush(this.getPCValue());
-          this.setPCValue(this.memoryGetJumpAddress(immediateAddress, addressingModeCode));
+          this.setPCValue(this.memoryReadJumpAddress(immediateAddress, addressingModeCode));
         }
         break;
 

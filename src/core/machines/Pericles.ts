@@ -60,7 +60,8 @@ export class Pericles extends Machine {
     }
   }
 
-  public memoryGetOperandAddress(immediateAddress: number, addressingModeCode: AddressingModeCode): number {
+  // Increments accessCount
+  public memoryReadOperandAddress(immediateAddress: number, addressingModeCode: AddressingModeCode): number {
     switch (addressingModeCode) {
       case AddressingModeCode.DIRECT:
         return this.memoryReadTwoByteAddress(immediateAddress);
