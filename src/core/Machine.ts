@@ -149,7 +149,7 @@ export abstract class Machine extends MachineState {
 
       case InstructionCode.ROR:
         value1 = this.getRegisterValue(registerName);
-        result = ((value1 >> 1) | (this.isFlagTrue("C") ? 0x80 : 0x00)) & 0xFF;
+        result = ((value1 >> 1) | (this.getFlagBit("C") << 7)) & 0xFF;
 
         this.setRegisterValue(registerName, result);
         this.setCarry(value1 & 0x01);
@@ -158,7 +158,7 @@ export abstract class Machine extends MachineState {
 
       case InstructionCode.ROL:
         value1 = this.getRegisterValue(registerName);
-        result = ((value1 << 1) | (this.isFlagTrue("C") ? 0x01 : 0x00)) & 0xFF;
+        result = ((value1 << 1) | this.getFlagBit("C")) & 0xFF;
 
         this.setRegisterValue(registerName, result);
         this.setCarry((value1 & 0x80) ? 1 : 0);

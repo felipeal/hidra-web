@@ -364,7 +364,7 @@ export class Cesar extends Machine {
   }
 
   private computeOneOperandResult(instructionCode: InstructionCode, operand: number): ResultWithFlags {
-    const c = this.isFlagTrue("C") ? 1 : 0;
+    const c = this.getFlagBit("C");
 
     switch (instructionCode) {
       case InstructionCode.CLR: return { result: 0,              carry: false, overflow: false };
