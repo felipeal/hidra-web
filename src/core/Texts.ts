@@ -71,11 +71,11 @@ export class Texts {
   }
 
   public static getInstructionDescription(assemblyFormat: string, machine: Machine | null): [name: string, description: string] {
-    if (machine instanceof Volta) {
+    if (Volta.isVolta(machine)) {
       return Texts.getVoltaInstructionDescription(assemblyFormat);
     }
 
-    if (machine instanceof Cesar) {
+    if (Cesar.isCesar(machine)) {
       return Texts.getCesarInstructionDescription(assemblyFormat);
     }
 

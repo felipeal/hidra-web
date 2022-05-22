@@ -67,6 +67,14 @@ export class Volta extends Machine {
     this.setStackSize(64);
   }
 
+  public static isVolta(machine: Machine | null): machine is Volta {
+    return machine?.getName() === "Volta"; // instanceof would fail on hot-reloads
+  }
+
+  //////////////////////////////////////////////////
+  // Step
+  //////////////////////////////////////////////////
+
   public executeInstruction(instruction: Instruction, addressingModeCode: AddressingModeCode, _registerName: string, immediateAddress: number): void {
     let value1: number, value2: number, result: number, bit: number;
     const instructionCode = (instruction) ? instruction.getInstructionCode() : InstructionCode.NOP;

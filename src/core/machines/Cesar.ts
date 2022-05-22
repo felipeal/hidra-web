@@ -147,6 +147,10 @@ export class Cesar extends Machine {
 
   }
 
+  public static isCesar(machine: Machine | null): machine is Cesar {
+    return machine?.getName() === "Cesar"; // instanceof would fail on hot-reloads
+  }
+
   //////////////////////////////////////////////////
   // Step
   //////////////////////////////////////////////////

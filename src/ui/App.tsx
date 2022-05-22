@@ -31,7 +31,7 @@ import { rethrowUnless } from "../core/utils/FunctionUtils";
 import { Cesar } from "../core/machines/Cesar";
 
 declare global {
-  // Required for CodeMirror persistence between live-reloads
+  // Required for CodeMirror persistence between hot reloads
   var codeMirrorInstance: codemirror.Editor; // eslint-disable-line no-var
 }
 
@@ -202,7 +202,7 @@ export default function App() {
    * Layout measurements
    ****************************************************************************/
 
-  const isCesar = (machine.getName() === "Cesar");
+  const isCesar = Cesar.isCesar(machine);
 
   const { width: scrollbarWidth } = useScrollbarSize();
 
@@ -536,7 +536,7 @@ export default function App() {
           displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars} />
 
         {/* Stack memory */}
-        {machine instanceof Volta && <MemoryStack dimensions={stackDimensions} scrollbarWidth={scrollbarWidth} machine={machine}
+        {Volta.isVolta(machine) && <MemoryStack dimensions={stackDimensions} scrollbarWidth={scrollbarWidth} machine={machine}
           displayHex={displayHex} displayNegative={displayNegative} displayChars={displayChars} displayFollowPC={displayFollowPC} />}
 
       </div>

@@ -84,7 +84,7 @@ export function buildMachineBasedOnIdentifier(identifier: string): Machine | nul
 }
 
 export function buildAssemblerBasedOnMachine(machine: Machine): Assembler {
-  if (machine instanceof Cesar) {
+  if (Cesar.isCesar(machine)) {
     return new CesarAssembler(machine);
   } else {
     return new Assembler(machine);
