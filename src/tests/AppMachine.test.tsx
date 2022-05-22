@@ -1,7 +1,7 @@
 import { } from "./utils/jsdomSetup";
 
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "../ui/App";
 import { buildSource, changePCRow, getInputByLabel, getPCArrowAddress, runPendingTimers, selectMachine, setSourceCode } from "./utils/AppTestFunctions";
@@ -156,6 +156,23 @@ describe("App: Machine Area", () => {
     // Addressing mode
     userEvent.hover(screen.getByText("#a"));
     expect(screen.getByText("Imediato")).toBeInTheDocument();
+  });
+
+  /****************************************************************************
+   * Cesar display
+   ****************************************************************************/
+
+  test("display: should show characters", () => {
+    selectMachine("Cesar");
+    buildSource(["mov #'^', 65500", "mov #'$', 65535"], { steps: 2 });
+
+    // Display
+    const display = screen.getByText("Display").parentNode as HTMLFieldSetElement;
+    expect(display).toBeInTheDocument();
+
+    // Display chars
+    expect(within(display).getByText("^")).toBeInTheDocument();
+    expect(within(display).getByText("$")).toBeInTheDocument();
   });
 
 });
