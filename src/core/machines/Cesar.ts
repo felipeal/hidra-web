@@ -489,13 +489,21 @@ export class Cesar extends Machine {
   // High-level accessors
   //////////////////////////////////////////////////
 
-  memoryReadNextWord(): number {
+  public handleKeyboardInput(asciiValue: number): void {
+    const statusBit = this.getMemoryValue(Cesar.KEYBOARD_STATUS_ADDRESS) & 0x80;
+    if (statusBit === 0) {
+      this.setMemoryValue(Cesar.KEYBOARD_STATUS_ADDRESS, this.getMemoryValue(Cesar.KEYBOARD_STATUS_ADDRESS) | 0x80);
+      this.setMemoryValue(Cesar.KEYBOARD_BUFFER_ADDRESS, asciiValue);
+    }
+  }
+
+  private memoryReadNextWord(): number {
     const mostSignificantByte = this.memoryReadNext();
     const leastSignificantByte = this.memoryReadNext();
     return (mostSignificantByte << 8) | leastSignificantByte;
   }
 
-  memoryReadWord(address: number): number {
+  private memoryReadWord(address: number): number {
     if (address >= Cesar.SINGLE_BYTE_ACCESS_AREA) {
       return this.memoryRead(address);
     } else {
@@ -503,7 +511,7 @@ export class Cesar extends Machine {
     }
   }
 
-  memoryWriteWord(address: number, value: number): void {
+  private memoryWriteWord(address: number, value: number): void {
     if (address >= Cesar.SINGLE_BYTE_ACCESS_AREA) {
       this.memoryWrite(address, value & 0xFF);
     } else {
@@ -512,12 +520,12 @@ export class Cesar extends Machine {
     }
   }
 
-  stackPush(value: number): void {
+  private stackPush(value: number): void {
     this.subtractValueFromRegister("R6", 2);
     this.memoryWriteWord(this.getRegisterValue("R6"), value);
   }
 
-  stackPop(): number {
+  private stackPop(): number {
     const value = this.memoryReadWord(this.getRegisterValue("R6"));
     this.addValueToRegister("R6", 2);
     return value;

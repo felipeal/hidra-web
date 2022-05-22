@@ -162,7 +162,7 @@ export default function App() {
    * Cesar keyboard handling
    ****************************************************************************/
 
-  function keyToNumber(key: string): number | null {
+  function keyNameToAsciiValue(key: string): number | null {
     const charCode = key.charCodeAt(0);
 
     if (key === "Backspace") {
@@ -182,10 +182,9 @@ export default function App() {
       return;
     }
 
-    const keyNumber = keyToNumber(event.key);
-    if (keyNumber !== null) {
-      machine.setMemoryValue(Cesar.KEYBOARD_BUFFER_ADDRESS, keyNumber);
-      machine.setMemoryValue(Cesar.KEYBOARD_STATUS_ADDRESS, Cesar.KEYBOARD_STATUS_KEY_PRESSED);
+    const asciiValue = keyNameToAsciiValue(event.key);
+    if (asciiValue !== null) {
+      (machine as Cesar).handleKeyboardInput(asciiValue);
     }
   }
 
