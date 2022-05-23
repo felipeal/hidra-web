@@ -1,7 +1,7 @@
 import { AssemblerError, AssemblerErrorCode } from "./AssemblerError";
 import { Instruction, InstructionCode } from "./Instruction";
-import { AddressingModeCode } from "./AddressingMode";
-import { assertUnreachable, notNull, removeItem } from "./utils/FunctionUtils";
+import { AddressingMode, AddressingModeCode } from "./AddressingMode";
+import { assertUnreachable, removeItem } from "./utils/FunctionUtils";
 import { codeStringToNumber } from "./utils/Conversions";
 import { Assembler } from "./Assembler";
 
@@ -16,14 +16,14 @@ export class CesarAssembler extends Assembler {
 
     // Variable number of bytes and 1 argument
     } else if (instruction.hasParameter("a")) {
-      const { additionalWord } = this.extractArgumentParts(this.extractArgument(argumentList, instruction, "a"), { skipValues: true });
-      return 2 + (additionalWord !== null ? 2 : 0);
+      const hasAdditionalWord = this.hasAdditionalWord(this.extractArgument(argumentList, instruction, "a"));
+      return 2 + (hasAdditionalWord ? 2 : 0);
 
     // Variable number of bytes and 2 arguments
     } else if (instruction.hasParameter("a0") && instruction.hasParameter("a1")) {
-      const { additionalWord: additionalWord0 } = this.extractArgumentParts(this.extractArgument(argumentList, instruction, "a0"), { skipValues: true });
-      const { additionalWord: additionalWord1 } = this.extractArgumentParts(this.extractArgument(argumentList, instruction, "a1"), { skipValues: true });
-      return 2 + (additionalWord0 !== null ? 2 : 0) + (additionalWord1 !== null ? 2 : 0);
+      const hasAdditionalWordForArg0 = this.hasAdditionalWord(this.extractArgument(argumentList, instruction, "a0"));
+      const hasAdditionalWordForArg1 = this.hasAdditionalWord(this.extractArgument(argumentList, instruction, "a1"));
+      return 2 + (hasAdditionalWordForArg0 ? 2 : 0) + (hasAdditionalWordForArg1 ? 2 : 0);
     }
 
     assertUnreachable("Invalid argument pattern for instruction with variable number of bytes: " + instruction.getAssemblyFormat());
@@ -62,7 +62,7 @@ export class CesarAssembler extends Assembler {
     if (instruction.hasParameter("a0")) {
       const parameterPos = instruction.getParameterPos("a0");
       const wordAddress = this.machine.toValidAddress(this.pcValue + (additionalWords.length * 2) + 2);
-      const { addressingModeCode, registerName, additionalWord } = this.extractArgumentParts(argumentList[parameterPos], { wordAddress });
+      const { addressingModeCode, registerName, additionalWord } = this.extractArgumentParts(argumentList[parameterPos], wordAddress);
       instructionWord += this.machine.getAddressingModeBitCode(addressingModeCode) << 9;
       instructionWord += this.registerNameToBitCode(registerName) << 6;
 
@@ -75,7 +75,7 @@ export class CesarAssembler extends Assembler {
     if (instruction.hasParameter("a1") || instruction.hasParameter("a")) {
       const parameterPos = (instruction.hasParameter("a1") ? instruction.getParameterPos("a1") : instruction.getParameterPos("a"));
       const wordAddress = this.machine.toValidAddress(this.pcValue + (additionalWords.length * 2) + 2);
-      const { addressingModeCode, registerName, additionalWord } = this.extractArgumentParts(argumentList[parameterPos], { wordAddress });
+      const { addressingModeCode, registerName, additionalWord } = this.extractArgumentParts(argumentList[parameterPos], wordAddress);
       instructionWord += this.machine.getAddressingModeBitCode(addressingModeCode) << 3;
       instructionWord += this.registerNameToBitCode(registerName);
 
@@ -102,7 +102,11 @@ export class CesarAssembler extends Assembler {
     return (trimmedArguments === "") ? [] : trimmedArguments.split(Assembler.ARGUMENTS_SEPARATOR);
   }
 
-  private buildFlagInstruction(instruction: Instruction, argumentList: string[]): void {
+  //////////////////////////////////////////////////
+  // Flag instructions
+  //////////////////////////////////////////////////
+
+  protected buildFlagInstruction(instruction: Instruction, argumentList: string[]): void {
     // Split a single argument with concatenated flags into multiple arguments:
     const argumentListSplit = (argumentList.length === 1) ? argumentList[0].split("") : argumentList;
 
@@ -131,7 +135,11 @@ export class CesarAssembler extends Assembler {
     }
   }
 
-  private offsetArgumentToValue(argument: string, instruction: Instruction): number {
+  //////////////////////////////////////////////////
+  // Offset arguments
+  //////////////////////////////////////////////////
+
+  protected offsetArgumentToValue(argument: string, instruction: Instruction): number {
     const isSOB = (instruction.getInstructionCode() === InstructionCode.SOB);
     const nextPCValue = this.pcValue + 2; // TODO: What about off-limits?
 
@@ -161,20 +169,20 @@ export class CesarAssembler extends Assembler {
     }
   }
 
-  protected extractArgumentParts(argument: string, { skipValues, wordAddress }: { skipValues?: boolean, wordAddress?: number }): {
+  //////////////////////////////////////////////////
+  // Mode + Register arguments
+  //////////////////////////////////////////////////
+
+  protected extractArgumentParts(argument: string, wordAddress: number): {
     addressingModeCode: AddressingModeCode, registerName: string, additionalWord: number | null
   } {
-    for (const addressingMode of this.machine.getAddressingModes()) {
-      const matchingGroups = addressingMode.extractMatchingGroups(argument);
-
-      if (matchingGroups) {
-        const { register, offset } = matchingGroups;
-        return {
-          addressingModeCode: addressingMode.getAddressingModeCode(),
-          registerName: register,
-          additionalWord: offset ? (skipValues ? 0 : this.parseAdditionalWord({ register, offset, wordAddress: notNull(wordAddress) })) : null
-        };
-      }
+    const { addressingMode, registerName, offset } = this.extractAddressingMode(argument);
+    if (addressingMode) {
+      return {
+        addressingModeCode: addressingMode.getAddressingModeCode(),
+        registerName,
+        additionalWord: offset ? this.parseAdditionalWord({ registerName, offset, wordAddress }) : null
+      };
     }
 
     // Pseudo-modes
@@ -182,22 +190,43 @@ export class CesarAssembler extends Assembler {
       return {
         addressingModeCode: AddressingModeCode.REGISTER_POST_INC,
         registerName: "R7",
-        additionalWord: skipValues ? 0 : this.argumentToValue(argument.slice(1), { isImmediate: true })
+        additionalWord: this.argumentToValue(argument.slice(1), { isImmediate: true })
       };
     } else { // Direct: a => ((R7)+) a
       return {
         addressingModeCode: AddressingModeCode.INDIRECT_REGISTER_POST_INC,
         registerName: "R7",
-        additionalWord: skipValues ? 0 : this.argumentToValue(argument, { isImmediate: false })
+        additionalWord: this.argumentToValue(argument, { isImmediate: false })
       };
     }
   }
 
-  protected parseAdditionalWord({ register, offset, wordAddress }: { register: string, offset: string, wordAddress: number }): number {
+  protected hasAdditionalWord(argument: string): boolean {
+    const { addressingMode, offset } = this.extractAddressingMode(argument);
+    if (addressingMode) {
+      return Boolean(offset);
+    }
+
+    // Pseudo-modes
+    return true; // True for indexed and immediate
+  }
+
+  protected extractAddressingMode(argument: string): { addressingMode: AddressingMode, registerName: string, offset?: string } | Record<string, never> {
+    for (const addressingMode of this.machine.getAddressingModes()) {
+      const matchingGroups = addressingMode.extractMatchingGroups(argument);
+      if (matchingGroups) {
+        return { addressingMode, registerName: matchingGroups.register.toUpperCase(), offset: matchingGroups.offset };
+      }
+    }
+
+    return {};
+  }
+
+  protected parseAdditionalWord({ registerName, offset, wordAddress }: { registerName: string, offset: string, wordAddress: number }): number {
     let argument = offset;
 
-    if (register.toUpperCase() === "R7") { // Indexed R7 uses relative label offsets
-      argument = this.labelToRelativeValue(offset, { wordAddress });
+    if (registerName === "R7") { // Indexed R7 uses relative label offsets
+      argument = this.labelToRelativeValue(argument, { wordAddress });
     }
 
     return this.argumentToValue(argument, { isImmediate: false, allowLabelOffset: false });
