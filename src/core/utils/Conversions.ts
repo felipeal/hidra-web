@@ -30,12 +30,23 @@ export function uncheckedByteStringToNumber(decOrHex: string, { displayHex }: { 
   return parseInt(decOrHex, displayHex ? 16 : 10) & 0xFF;
 }
 
-export function charCodeToString(charCode: number): string {
-  // Restricted to ASCII to maximize compatibility
-  if (charCode >= 32 && charCode <= 126) {
-    return String.fromCharCode(charCode);
+function isValidAsciiValue(asciiValue: number): boolean {
+  return (asciiValue >= 32 && asciiValue <= 126);
+}
+
+export function asciiValueToString(asciiValue: number): string {
+  if (isValidAsciiValue(asciiValue)) {
+    return String.fromCharCode(asciiValue);
   } else {
     return "";
+  }
+}
+
+export function charToAsciiValue(char: string): number | null {
+  if (char.length === 1 && isValidAsciiValue(char.charCodeAt(0))) {
+    return char.charCodeAt(0);
+  } else {
+    return null;
   }
 }
 

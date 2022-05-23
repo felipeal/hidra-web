@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Machine } from "../core/Machine";
 import { Cesar } from "../core/machines/Cesar";
-import { charCodeToString } from "../core/utils/Conversions";
+import { asciiValueToString } from "../core/utils/Conversions";
 import { range } from "../core/utils/FunctionUtils";
 
 export default function CesarDisplay({ machine }: { machine: Machine }) {
@@ -24,6 +24,6 @@ function CesarDisplayChar({ address, machine }: { address: number, machine: Mach
   }, [machine, address]);
 
   return <div className="display-char monospace-font" style={{ width: `${100 / 36}%` }}>
-    {charCodeToString(value) || " "}
+    {asciiValueToString(value) || " "}
   </div>;
 }

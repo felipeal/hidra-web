@@ -44,7 +44,7 @@ describe("Machine File Utils", () => {
   });
 
   test.skip("buildMachineBasedOnFileName", () => {
-    // TODO
+    // TODO: Test multiple dots, e.g. "FILE.NAME.ned"
   });
 
   test("buildMachineBasedOnIdentifier: should return correct machine", () => {

@@ -3,7 +3,7 @@ import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList } from "react-window";
 import { Assembler } from "../core/Assembler";
 import { Machine } from "../core/Machine";
-import { addressToHex, charCodeToString, uncheckedByteStringToNumber, unsignedByteToString } from "../core/utils/Conversions";
+import { addressToHex, asciiValueToString, uncheckedByteStringToNumber, unsignedByteToString } from "../core/utils/Conversions";
 import { combineUnsubscribeCallbacks } from "../core/utils/EventUtils";
 import { calculateScrollOffset, focusMemoryInput, onFocusSelectAll } from "./utils/FocusHandler";
 import { TableDimensions, toPx } from "./utils/LayoutUtils";
@@ -131,7 +131,7 @@ export function MemoryDataRow({ columnWidths, style, address, machine, assembler
 
       {/* Character cell */}
       {displayChars && <div className="memory-body-cell" style={{ width: toPx(columnWidths[2]) }}>
-        {charCodeToString(uncheckedByteStringToNumber(value, { displayHex }))}
+        {asciiValueToString(uncheckedByteStringToNumber(value, { displayHex }))}
       </div>}
 
       {/* Label cell */}

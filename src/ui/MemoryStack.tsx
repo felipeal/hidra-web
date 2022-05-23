@@ -2,7 +2,7 @@ import React, { RefObject, useEffect, useState } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList } from "react-window";
 import { Volta } from "../core/machines/Volta";
-import { addressToHex, charCodeToString, uncheckedByteStringToNumber, unsignedByteToString } from "../core/utils/Conversions";
+import { addressToHex, asciiValueToString, uncheckedByteStringToNumber, unsignedByteToString } from "../core/utils/Conversions";
 import { combineUnsubscribeCallbacks } from "../core/utils/EventUtils";
 import { calculateScrollOffset, focusMemoryInput, onFocusSelectAll, scrollToRow } from "./utils/FocusHandler";
 import { TableDimensions, toPx } from "./utils/LayoutUtils";
@@ -144,7 +144,7 @@ export function MemoryStackRow({ columnWidths, style, address, machine, displayH
 
       {/* Character cell */}
       {displayChars && <div className="memory-body-cell" style={{ width: toPx(columnWidths[3]) }}>
-        {charCodeToString(uncheckedByteStringToNumber(value, { displayHex }))}
+        {asciiValueToString(uncheckedByteStringToNumber(value, { displayHex }))}
       </div>}
     </div>
   );

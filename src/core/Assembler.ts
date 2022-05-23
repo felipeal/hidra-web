@@ -7,7 +7,7 @@ import { EventCallback, UnsubscribeCallback } from "./utils/EventUtils";
 import { RegExpMatcher } from "./utils/RegExpMatcher";
 import { Byte } from "./Byte";
 import { Machine } from "./Machine";
-import { codeStringToNumber } from "./utils/Conversions";
+import { charToAsciiValue, codeStringToNumber } from "./utils/Conversions";
 
 export class Assembler {
 
@@ -570,7 +570,7 @@ export class Assembler {
 
     if (isImmediate) {
       if (charMatcher.fullMatch(argument)) { // Immediate char
-        return this.charToInteger(charMatcher.cap(1));
+        return this.charToAsciiValue(charMatcher.cap(1));
       } else if (this.isValidNBytesValue(argument, immediateNumBytes)) { // Immediate hex/dec value
         return codeStringToNumber(argument);
       } else if (this.isValidValueFormat(argument)) {
@@ -610,15 +610,12 @@ export class Assembler {
     }
   }
 
-  private charToInteger(char: string): number {
-    const charCode = char.charCodeAt(0);
-
-    // Restricted to ASCII to maximize compatibility
-    if (charCode >= 32 && charCode <= 126 && char.length === 1) {
-      return charCode;
-    } else {
+  protected charToAsciiValue(char: string): number {
+    const asciiValue = charToAsciiValue(char);
+    if (asciiValue === null) {
       throw new AssemblerError(AssemblerErrorCode.INVALID_CHARACTER);
     }
+    return asciiValue;
   }
 
   //////////////////////////////////////////////////

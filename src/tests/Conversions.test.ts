@@ -1,7 +1,7 @@
 import {
-  addressToHex, bitPatternToUnsignedByte, charCodeToString, codeStringToNumber, immediateValuesToNegative, instructionStringToDisplayMode, numbersToHex,
+  addressToHex, bitPatternToUnsignedByte, asciiValueToString, codeStringToNumber, immediateValuesToNegative, instructionStringToDisplayMode, numbersToHex,
   registerValueToString, uncheckedByteStringToNumber, unsignedByteToBitPattern, unsignedByteToSigned, unsignedByteToString, unsignedNumberToHex,
-  unsignedNumberToHexCodeString, unsignedWordToSigned
+  unsignedNumberToHexCodeString, unsignedWordToSigned, charToAsciiValue
 } from "../core/utils/Conversions";
 
 describe("Conversions", () => {
@@ -60,16 +60,30 @@ describe("Conversions", () => {
     expect(uncheckedByteStringToNumber("9".repeat(400), { displayHex: true })).toBe(0); // Hex infinity
   });
 
-  test("charCodeToString: should convert ASCII correctly", () => {
-    expect(charCodeToString(32)).toBe(" "); // First valid ASCII
-    expect(charCodeToString(126)).toBe("~"); // Last valid ASCII
+  test("asciiValueToString: should convert ASCII correctly", () => {
+    expect(asciiValueToString(32)).toBe(" "); // First valid ASCII
+    expect(asciiValueToString(126)).toBe("~"); // Last valid ASCII
   });
 
-  test("charCodeToString: should ignore control characters or invalid ASCII", () => {
-    expect(charCodeToString(0)).toBe("");
-    expect(charCodeToString(31)).toBe("");
-    expect(charCodeToString(127)).toBe("");
-    expect(charCodeToString(255)).toBe("");
+  test("asciiValueToString: should ignore control characters or invalid ASCII", () => {
+    expect(asciiValueToString(0)).toBe("");
+    expect(asciiValueToString(31)).toBe("");
+    expect(asciiValueToString(127)).toBe("");
+    expect(asciiValueToString(255)).toBe("");
+  });
+
+  test("charToAsciiValue: should convert to correct ASCII numbers", () => {
+    expect(charToAsciiValue(" ")).toBe(32); // First valid ASCII
+    expect(charToAsciiValue("~")).toBe(126); // Last valid ASCII
+    expect(charToAsciiValue("A")).toBe(65);
+    expect(charToAsciiValue("a")).toBe(97);
+  });
+
+  test("charToAsciiValue: should ignore control characters or invalid ASCII", () => {
+    expect(charToAsciiValue("")).toBe(null); // Less than one char
+    expect(charToAsciiValue("ABC")).toBe(null); // More than one char
+    expect(charToAsciiValue("\t")).toBe(null); // Tab character
+    expect(charToAsciiValue("€")).toBe(null); // Invalid ASCII
   });
 
   test("unsignedNumberToHex: should pad correctly", () => {

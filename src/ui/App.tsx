@@ -30,6 +30,7 @@ import { ErrorMessage } from "../core/AssemblerError";
 import { rethrowUnless } from "../core/utils/FunctionUtils";
 import { Cesar } from "../core/machines/Cesar";
 import { isInputElementActive } from "./utils/FocusHandler";
+import { charToAsciiValue } from "../core/utils/Conversions";
 
 declare global {
   // Required for CodeMirror persistence between hot reloads
@@ -164,16 +165,12 @@ export default function App() {
    ****************************************************************************/
 
   function keyNameToAsciiValue(key: string): number | null {
-    const charCode = key.charCodeAt(0);
-
     if (key === "Backspace") {
       return 8;
     } else if (key === "Enter") {
       return 13;
-    } else if (key.length === 1 && charCode >= 32 && charCode <= 126) {
-      return charCode;
     } else {
-      return null;
+      return charToAsciiValue(key);
     }
   }
 
