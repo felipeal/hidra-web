@@ -269,13 +269,12 @@ mov LowerAddressLabel(r2)    (-32767(R1))
 mov (HigherAddressLabel(R3)) -32767(R0)
 
 ; MOV: PC indexing + label
-;; FIXME: Does not match Daedalus
-;;;; mov r0 HigherAddressLabel(r7)
-;;;; mov r1 (HigherAddressLabel(r7))
-;;;; mov HigherAddressLabel(r7) r0
-;;;; mov (HigherAddressLabel(r7)) r1
-;;;; mov HigherAddressLabel(r7) (HigherAddressLabel(r7))
-;;;; mov (HigherAddressLabel(r7)) HigherAddressLabel(r7)
+mov r0 HigherAddressLabel(r7)
+mov r1 (HigherAddressLabel(r7))
+mov HigherAddressLabel(r7) r0
+mov (HigherAddressLabel(r7)) r1
+mov HigherAddressLabel(r7) (HigherAddressLabel(r7))
+mov (HigherAddressLabel(r7)) HigherAddressLabel(r7)
 
 ; MOV: pseudo-modes (direct / immediate)
 mov 32769                    #HigherAddressLabel+h100

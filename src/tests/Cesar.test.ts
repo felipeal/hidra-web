@@ -140,8 +140,8 @@ describe("Cesar: Build", () => {
   });
 
   test("ccc/scc: should reject invalid syntax", () => {
-    expectBuildError(["ccc n, f"], AssemblerErrorCode.INVALID_ARGUMENT); // Invalid flag
-    expectBuildError(["ccc n, n"], AssemblerErrorCode.INVALID_ARGUMENT); // Duplicate flag
+    expectBuildError(["ccc n, f"],  AssemblerErrorCode.INVALID_ARGUMENT); // Invalid flag
+    expectBuildError(["ccc n, n"],  AssemblerErrorCode.INVALID_ARGUMENT); // Duplicate flag
     expectBuildError(["ccc n, zv"], AssemblerErrorCode.INVALID_ARGUMENT); // Concatenating when using separators
     expectBuildError(["ccc n,, z"], AssemblerErrorCode.INVALID_ARGUMENT); // Multiple commas
   });
@@ -150,21 +150,20 @@ describe("Cesar: Build", () => {
     const label = ["org 1025", "Label: DW"];
 
     // R0..R6: Absolute label address used (1025)
-    expectBuildSuccess(["jmp Label(r0)", "jmp Label(r0)", ...label], [0x40, 0x18, ...toBytes(1025), 0x40, 0x18, ...toBytes(1025)]);
+    expectBuildSuccess(["jmp Label(r0)", "jmp Label(r0)",     ...label], [0x40, 0x18, ...toBytes(1025), 0x40, 0x18, ...toBytes(1025)]);
     expectBuildSuccess(["jmp (Label(r6))", "jmp (Label(r6))", ...label], [0x40, 0x3E, ...toBytes(1025), 0x40, 0x3E, ...toBytes(1025)]);
 
     // R7: Relative label address used (1021 and 1017)
-    expectBuildSuccess(["jmp Label(r7)", "jmp Label(r7)", ...label], [0x40, 0x1F, ...toBytes(1021), 0x40, 0x1F, ...toBytes(1017)]);
+    expectBuildSuccess(["jmp Label(r7)", "jmp Label(r7)",     ...label], [0x40, 0x1F, ...toBytes(1021), 0x40, 0x1F, ...toBytes(1017)]);
     expectBuildSuccess(["jmp (Label(r7))", "jmp (Label(r7))", ...label], [0x40, 0x3F, ...toBytes(1021), 0x40, 0x3F, ...toBytes(1017)]);
 
     // MOV: mixed scenarios
-    // FIXME: Does not match Daedalus
-    // expectBuildSuccess(["mov Label(r6), Label(r7)", ...label], [0x97, 0x9F, ...toBytes(1025), ...toBytes(1021)]);
-    // expectBuildSuccess(["mov Label(r6), (Label(r7))", ...label], [0x97, 0xBF, ...toBytes(1025), ...toBytes(1021)]);
-    // expectBuildSuccess(["mov Label(r7), Label(r6)", ...label], [0x97, 0xDE, ...toBytes(1023), ...toBytes(1025)]);
-    // expectBuildSuccess(["mov (Label(r7)), Label(r6)", ...label], [0x9F, 0xDE, ...toBytes(1023), ...toBytes(1025)]);
-    // expectBuildSuccess(["mov Label(r7), (Label(r7))", ...label], [0x97, 0xFF, ...toBytes(1023), ...toBytes(1021)]);
-    // expectBuildSuccess(["mov (Label(r7)), Label(r7)", ...label], [0x9F, 0xDF, ...toBytes(1023), ...toBytes(1021)]);
+    expectBuildSuccess(["mov Label(r6), Label(r7)",   ...label], [0x97, 0x9F, ...toBytes(1025), ...toBytes(1019)]);
+    expectBuildSuccess(["mov Label(r6), (Label(r7))", ...label], [0x97, 0xBF, ...toBytes(1025), ...toBytes(1019)]);
+    expectBuildSuccess(["mov Label(r7), Label(r6)",   ...label], [0x97, 0xDE, ...toBytes(1021), ...toBytes(1025)]);
+    expectBuildSuccess(["mov (Label(r7)), Label(r6)", ...label], [0x9F, 0xDE, ...toBytes(1021), ...toBytes(1025)]);
+    expectBuildSuccess(["mov Label(r7), (Label(r7))", ...label], [0x97, 0xFF, ...toBytes(1021), ...toBytes(1019)]);
+    expectBuildSuccess(["mov (Label(r7)), Label(r7)", ...label], [0x9F, 0xDF, ...toBytes(1021), ...toBytes(1019)]);
   });
 
   // TODO: Test offsets with branch and SOB
