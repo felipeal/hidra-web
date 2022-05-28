@@ -1,0 +1,89 @@
+jmp 256
+org 256
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Jumps + Addressing Modes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Test 0
+mov #1024, r0
+dab 40, 0 ; (jmp r0)
+mov r0, Test0
+
+; Test 1
+mov #Skip1, r0
+jmp (R0)+
+hlt
+Skip1:
+mov r0, Test1
+
+; Test 2
+mov #Skip2+2, r0
+jmp -(R0)
+hlt
+Skip2:
+mov r0, Test2
+
+; Test 3
+mov #1, R0
+jmp Skip3(R0)
+Skip3:
+hlt
+mov r0, Test3
+
+; Test 4
+mov #Skip4, R0
+jmp (R0)
+hlt
+Skip4:
+mov r0, Test4
+
+; Test 5
+mov #Skip5, IntermAddr
+mov #IntermAddr, R0
+jmp ((R0)+)
+hlt
+Skip5:
+mov r0, Test5
+
+; Test 6
+mov #Skip6, IntermAddr
+mov #IntermAddr+2, R0
+jmp (-(R0))
+hlt
+Skip6:
+mov r0, Test6
+
+; Test 7
+mov #Skip7, IntermAddrWithOffset
+mov #2, R0
+jmp (IntermAddr(r0))
+hlt
+Skip7:
+mov r0, Test7
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Jumps + R7 Addressing Modes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; TODO
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Data
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+hlt
+
+org 1024
+IntermAddr: dw
+IntermAddrWithOffset: dw
+
+org 10000
+Test0: dw
+Test1: dw
+Test2: dw
+Test3: dw
+Test4: dw
+Test5: dw
+Test6: dw
+Test7: dw

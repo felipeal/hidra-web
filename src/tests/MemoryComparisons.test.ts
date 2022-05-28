@@ -1,4 +1,5 @@
 import fs from "fs";
+import { notNull } from "../core/utils/FunctionUtils";
 
 import { buildAssemblerBasedOnMachine, buildMachineBasedOnFileName } from "../ui/utils/MachineFileUtils";
 
@@ -36,9 +37,10 @@ describe("Memory Comparisons", () => {
     ["neander_instructions.ned", { instructions: 39, accesses: 106, extraAccesses: 2 }],
     ["ahmes_instructions_1.ahd", { instructions: 56, accesses: 153, extraAccesses: 4 }],
     ["ahmes_instructions_2.ahd", { instructions: 67, accesses: 163, extraAccesses: 8 }],
-    ["ramses_instructions.rad", { instructions: 80, accesses: 176, extraAccesses: 0 }],
+    ["ramses_instructions.rad", { instructions: 80, accesses: 176 }],
     ["assembler.rad", { buildOnly: true }],
-    ["cesar_assembler.ced", { buildOnly: true }]
+    ["cesar_assembler.ced", { buildOnly: true }],
+    ["cesar_instructions.ced", { instructions: 30, accesses: 135 }]
   ])("%s: should match Daedalus and original simulators' output", (fileName, { instructions, accesses, extraAccesses, buildOnly }: MemoryComparison) => {
     // Build
     const machine = buildMachineBasedOnFileName(fileName);
@@ -70,8 +72,8 @@ describe("Memory Comparisons", () => {
     for (let i = 0; i < expectedMemoryAfterRunning.length; i++) {
       expect(`MEM[${i}] = ${machine.getMemoryValue(i)}`).toBe(`MEM[${i}] = ${expectedMemoryAfterRunning[i]}`);
     }
-    expect(machine.getInstructionCount()).toBe(instructions);
-    expect(machine.getAccessCount()).toBe(accesses! - extraAccesses!);
+    expect(machine.getInstructionCount()).toBe(notNull(instructions));
+    expect(machine.getAccessCount()).toBe(notNull(accesses) - (extraAccesses ?? 0));
   });
 
 });
