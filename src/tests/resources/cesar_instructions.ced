@@ -5,68 +5,118 @@ org 256
 ; Jumps + Addressing Modes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Test 0
+; Test_JM0
 mov #1024, r0
 dab 40, 0 ; (jmp r0)
-mov r0, Test0
+mov r0, Test_JM0
 
-; Test 1
+; Test_JM1
 mov #Skip1, r0
 jmp (R0)+
 hlt
 Skip1:
-mov r0, Test1
+mov r0, Test_JM1
 
-; Test 2
+; Test_JM2
 mov #Skip2+2, r0
 jmp -(R0)
 hlt
 Skip2:
-mov r0, Test2
+mov r0, Test_JM2
 
-; Test 3
+; Test_JM3
 mov #1, R0
 jmp Skip3(R0)
 Skip3:
 hlt
-mov r0, Test3
+mov r0, Test_JM3
 
-; Test 4
+; Test_JM4
 mov #Skip4, R0
 jmp (R0)
 hlt
 Skip4:
-mov r0, Test4
+mov r0, Test_JM4
 
-; Test 5
+; Test_JM5
 mov #Skip5, IntermAddr
 mov #IntermAddr, R0
 jmp ((R0)+)
 hlt
 Skip5:
-mov r0, Test5
+mov r0, Test_JM5
 
-; Test 6
+; Test_JM6
 mov #Skip6, IntermAddr
 mov #IntermAddr+2, R0
 jmp (-(R0))
 hlt
 Skip6:
-mov r0, Test6
+mov r0, Test_JM6
 
-; Test 7
+; Test_JM7
 mov #Skip7, IntermAddrWithOffset
 mov #2, R0
 jmp (IntermAddr(r0))
 hlt
 Skip7:
-mov r0, Test7
+mov r0, Test_JM7
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Jumps + R7 Addressing Modes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; TODO
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Arithmetic (one operand) + Addressing Modes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Test_A1M0
+ccc NZVC
+mov #hABCD, r0
+ror r0
+mov r0, Test_A1M0
+
+; Test_A1M1
+mov #hBCDA, OperandAddr
+mov #OperandAddr, r0
+ror (r0)+
+mov OperandAddr, Test_A1M1_Val
+mov r0, Test_A1M1_Reg
+
+; Test_A1M2
+ror -(r0)
+mov OperandAddr, Test_A1M2_Val
+mov r0, Test_A1M2_Reg
+
+; Test_A1M3
+mov #hCDAB, OperandAddrWithOffset
+mov #2, r0
+ror OperandAddr(r0)
+mov OperandAddrWithOffset, Test_A1M3
+
+; Test_A1M4
+mov #OperandAddr, r0
+ror (r0)
+mov OperandAddr, Test_A1M4
+
+; Test_A1M5
+mov #OperandAddr, IntermAddr
+mov #IntermAddr, r0
+ror ((r0)+)
+mov OperandAddr, Test_A1M5_Val
+mov r0, Test_A1M5_Reg
+
+; Test_A1M6
+ror (-(r0))
+mov OperandAddr, Test_A1M6_Val
+mov r0, Test_A1M6_Reg
+
+; Test_A1M7
+mov #2, r0
+ror (IntermAddr(r0))
+mov OperandAddr, Test_A1M7
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Data
@@ -77,13 +127,27 @@ hlt
 org 1024
 IntermAddr: dw
 IntermAddrWithOffset: dw
+OperandAddr: dw
+OperandAddrWithOffset: dw
 
 org 10000
-Test0: dw
-Test1: dw
-Test2: dw
-Test3: dw
-Test4: dw
-Test5: dw
-Test6: dw
-Test7: dw
+Test_JM0: dw
+Test_JM1: dw
+Test_JM2: dw
+Test_JM3: dw
+Test_JM4: dw
+Test_JM5: dw
+Test_JM6: dw
+Test_JM7: dw
+Test_A1M0: dw
+Test_A1M1_Val: dw
+Test_A1M1_Reg: dw
+Test_A1M2_Val: dw
+Test_A1M2_Reg: dw
+Test_A1M3: dw
+Test_A1M4: dw
+Test_A1M5_Val: dw
+Test_A1M5_Reg: dw
+Test_A1M6_Val: dw
+Test_A1M6_Reg: dw
+Test_A1M7: dw
