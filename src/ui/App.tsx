@@ -103,7 +103,35 @@ export default function App() {
   const importMemoryInput = useRef<HTMLInputElement | null>(null);
   const exportMemoryAnchor = useRef<HTMLAnchorElement | null>(null);
 
-  async function onFileOpened(event: ChangeEvent<HTMLInputElement>) {
+  function actionOpenFile() {
+    openFileInput.current?.click();
+  }
+
+  function actionSaveFile() {
+    const sourceCode = window.codeMirrorInstance.getValue();
+    const file = new Blob([sourceCode], { type: "plain-text" });
+    if (saveFileAnchor.current) {
+      saveFileAnchor.current.href = URL.createObjectURL(file);
+      saveFileAnchor.current.download = generateFileNameForMachine(machine);
+      saveFileAnchor.current.click();
+    }
+  }
+
+  function actionImportMemory() {
+    importMemoryInput.current?.click();
+  }
+
+  function actionExportMemory() {
+    const memory = exportMemory(machine);
+    const file = new Blob([memory], { type: "application/octet-stream" });
+    if (exportMemoryAnchor.current) {
+      exportMemoryAnchor.current.href = URL.createObjectURL(file);
+      exportMemoryAnchor.current.download = generateFileNameForMachine(machine, { isBinary: true });
+      exportMemoryAnchor.current.click();
+    }
+  }
+
+  async function onFileReceived(event: ChangeEvent<HTMLInputElement>) {
     await loadFile(event.target.files?.[0]);
   }
 
@@ -139,7 +167,7 @@ export default function App() {
     }
   }
 
-  async function onMemoryImported(event: ChangeEvent<HTMLInputElement>) {
+  async function onMemoryReceived(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     await loadBinaryFile(file);
   }
@@ -159,6 +187,36 @@ export default function App() {
   function showError(errorMessage: string) {
     alert(errorMessage);
   }
+
+  /****************************************************************************
+   * Keyboard shortcuts
+   ****************************************************************************/
+
+  function handleShortcutKeyEvent(event: KeyboardEvent) {
+    const shortcut = extractShortcut(event);
+
+    if (shortcut === "ctrl+s") {
+      actionSaveFile();
+      event.preventDefault();
+    } else if (shortcut === "ctrl+o") {
+      actionOpenFile();
+      event.preventDefault();
+    }
+  }
+
+  function extractShortcut(event: KeyboardEvent) {
+    return (
+      ((event.ctrlKey || event.metaKey) ? "ctrl+" : "") + // Maps Cmd to Ctrl
+      (event.altKey ? "alt+" : "") +
+      (event.shiftKey ? "shift+" : "") +
+      event.key.toLowerCase()
+    );
+  }
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleShortcutKeyEvent);
+    return () => document.removeEventListener("keydown", handleShortcutKeyEvent);
+  });
 
   /****************************************************************************
    * Cesar keyboard handling
@@ -266,31 +324,11 @@ export default function App() {
       }}>
         <span style={{ padding: "8px" }}>Hidra</span>
         <Menu title="Arquivo">
-          <SubMenuItem title="Abrir" callback={() => {
-            openFileInput.current?.click();
-          }}/>
-          <SubMenuItem title="Salvar" callback={() => {
-            const sourceCode = window.codeMirrorInstance.getValue();
-            const file = new Blob([sourceCode], { type: "plain-text" });
-            if (saveFileAnchor!.current) {
-              saveFileAnchor.current.href = URL.createObjectURL(file);
-              saveFileAnchor.current.download = generateFileNameForMachine(machine);
-              saveFileAnchor.current.click();
-            }
-          }}/>
+          <SubMenuItem title="Abrir" callback={actionOpenFile}/>
+          <SubMenuItem title="Salvar" callback={actionSaveFile}/>
           <SubMenuSeparator/>
-          <SubMenuItem title="Importar memória" callback={() => {
-            importMemoryInput.current?.click();
-          }}/>
-          <SubMenuItem title="Exportar memória" callback={() => {
-            const memory = exportMemory(machine);
-            const file = new Blob([memory], { type: "application/octet-stream" });
-            if (exportMemoryAnchor!.current) {
-              exportMemoryAnchor.current.href = URL.createObjectURL(file);
-              exportMemoryAnchor.current.download = generateFileNameForMachine(machine, { isBinary: true });
-              exportMemoryAnchor.current.click();
-            }
-          }}/>
+          <SubMenuItem title="Importar memória" callback={actionImportMemory}/>
+          <SubMenuItem title="Exportar memória" callback={actionExportMemory}/>
         </Menu>
         <Menu title="Opções">
           <SubMenuCheckBox title="Exibir valores hexadecimais" checked={displayHex} setChecked={(checked) => {
@@ -519,9 +557,9 @@ export default function App() {
           }}>Inicializando...</div>
 
           {/* File loaders (not visible) */}
-          <input type="file" ref={openFileInput} style={{ display: "none" }} data-testid="open-file-input" onChange={onFileOpened} />
+          <input type="file" ref={openFileInput} style={{ display: "none" }} data-testid="open-file-input" onChange={onFileReceived} />
           <a ref={saveFileAnchor} style={{ display: "none" }} data-testid="save-file-anchor" />
-          <input type="file" ref={importMemoryInput} style={{ display: "none" }} data-testid="import-memory-input" onChange={onMemoryImported} />
+          <input type="file" ref={importMemoryInput} style={{ display: "none" }} data-testid="import-memory-input" onChange={onMemoryReceived} />
           <a ref={exportMemoryAnchor} style={{ display: "none" }} data-testid="export-memory-anchor"/>
 
         </div>
