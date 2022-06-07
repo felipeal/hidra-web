@@ -19,8 +19,8 @@ function patternToMatcher(pattern: string): RegExpMatcher {
   return new RegExpMatcher(patternWithGroups, "i");
 }
 
-function bits(value: number, lsbIndex: number, length: number): number {
-  return (value >> lsbIndex) & ((1 << length) - 1);
+function bits(value: number, lsbIndex: number, numBits: number): number {
+  return (value >> lsbIndex) & ((1 << numBits) - 1);
 }
 
 function word(value: number): number {
@@ -175,29 +175,33 @@ export class Cesar extends Machine {
   ): InstructionArguments {
     const instructionArguments: InstructionArguments = {};
 
-    if (instruction?.hasParameter("f")) {
+    if (!instruction) {
+      return {};
+    }
+
+    if (instruction.hasParameter("f")) {
       instructionArguments["f"] = { value: bits(fetchedValue, 0, 4) };
     }
 
-    if (instruction?.hasParameter("o")) {
+    if (instruction.hasParameter("o")) {
       instructionArguments["o"] = { value: bits(fetchedValue, 0, 8) };
     }
 
-    if (instruction?.hasParameter("r")) {
+    if (instruction.hasParameter("r")) {
       const lsbIndex = (instruction.getNumBytes() === 1) ? 0 : 8;
       instructionArguments["r"] = {
         registerName: this.extractRegisterName(bits(fetchedValue, lsbIndex, 3))
       };
     }
 
-    if (instruction?.hasParameter("a0")) {
+    if (instruction.hasParameter("a0")) {
       instructionArguments["a0"] = {
         registerName: this.extractRegisterName(bits(fetchedValue, 6, 3)),
         mode: this.extractAddressingModeCode(bits(fetchedValue, 9, 3))
       };
     }
 
-    if (instruction?.hasParameter("a1") || instruction?.hasParameter("a")) {
+    if (instruction.hasParameter("a1") || instruction.hasParameter("a")) {
       const parameterName = instruction.hasParameter("a1") ? "a1" : "a";
       instructionArguments[parameterName] = {
         registerName: this.extractRegisterName(bits(fetchedValue, 0, 3)),
@@ -288,6 +292,7 @@ export class Cesar extends Machine {
       case InstructionCode.BLT: return n !== v;
       case InstructionCode.BGT: return (n === v) && !z;
       case InstructionCode.BLE: return (n !== v) || z;
+
       case InstructionCode.BHI: return !c && !z;
       case InstructionCode.BLS: return c || z;
 
@@ -501,12 +506,14 @@ export class Cesar extends Machine {
     }
   }
 
+  // Increments accessCount
   private memoryReadNextWord(): number {
     const mostSignificantByte = this.memoryReadNext();
     const leastSignificantByte = this.memoryReadNext();
     return (mostSignificantByte << 8) | leastSignificantByte;
   }
 
+  // Increments accessCount
   private memoryReadWord(address: number): number {
     if (address >= Cesar.SINGLE_BYTE_ACCESS_AREA) {
       return this.memoryRead(address);
@@ -515,12 +522,21 @@ export class Cesar extends Machine {
     }
   }
 
+  // Increments accessCount
   private memoryWriteWord(address: number, value: number): void {
     if (address >= Cesar.SINGLE_BYTE_ACCESS_AREA) {
       this.memoryWrite(address, value & 0xFF);
     } else {
       this.memoryWrite(address, (value >> 8) & 0xFF);
       this.memoryWrite(address + 1, value & 0xFF);
+    }
+  }
+
+  private getMemoryWord(address: number): number {
+    if (address >= Cesar.SINGLE_BYTE_ACCESS_AREA) {
+      return this.getMemoryValue(address);
+    } else {
+      return (this.getMemoryValue(address) << 8) | this.getMemoryValue(address + 1);
     }
   }
 
@@ -533,6 +549,95 @@ export class Cesar extends Machine {
     const value = this.memoryReadWord(this.getRegisterValue("R6"));
     this.addValueToRegister("R6", 2);
     return value;
+  }
+
+  //////////////////////////////////////////////////
+  // Disassembler (instruction strings)
+  //////////////////////////////////////////////////
+
+  // TODO: Rename argumentsSize to extraBytes
+  public generateInstructionString(address: number): { memoryString: string, argumentsSize: number } {
+    const argumentsList: string[] = [];
+    let numBytes = 1;
+
+    // Fetch instruction
+    let fetchedValue = this.getMemoryValue(address);
+    const instruction = this.getInstructionFromValue(fetchedValue);
+    if (instruction?.getNumBytes() === 2 || instruction?.getNumBytes() === 0) {
+      fetchedValue = (fetchedValue << 8) + this.getMemoryValue(address + 1); // Fetch full word
+      numBytes += 1;
+    }
+
+    if (instruction === null || instruction.getInstructionCode() === InstructionCode.NOP) {
+      return { memoryString: "", argumentsSize: numBytes - 1 };
+    }
+
+    // Decode instruction
+    const instructionArguments = this.decodeCesarInstruction(fetchedValue, instruction);
+
+    // Add flag argument
+    if (instructionArguments.f) {
+      argumentsList.push(this.generateFlagArgumentString(instructionArguments.f.value));
+    }
+
+    // Add register argument
+    if (instructionArguments.r) {
+      argumentsList.push(instructionArguments.r.registerName.toUpperCase());
+    }
+
+    // Add offset argument
+    if (instructionArguments.o) {
+      argumentsList.push(unsignedByteToSigned(instructionArguments.o.value).toString());
+    }
+
+    // Add register-mode arguments
+    const registerModeArguments = [instructionArguments.a, instructionArguments.a0, instructionArguments.a1].filter(a => a) as RegisterModeArgument[];
+    for (const registerModeArgument of registerModeArguments) {
+      const { argumentString, extraBytes } = this.generateRegisterModeArgumentString(registerModeArgument, address + numBytes);
+      argumentsList.push(argumentString);
+      numBytes += extraBytes;
+    }
+
+    return {
+      memoryString: `${instruction.getMnemonic().toUpperCase()} ${argumentsList.join(", ")}`.trim(),
+      argumentsSize: numBytes - 1
+    };
+  }
+
+  private generateRegisterModeArgumentString({ mode, registerName }: RegisterModeArgument, nextArgumentAddress: number): {
+    argumentString: string, extraBytes: number
+  } {
+    // Immediate pseudo-mode
+    if (registerName === "R7" && mode === REGISTER_POST_INC) {
+      return { argumentString: "#" + this.getMemoryWord(nextArgumentAddress).toString(), extraBytes: 2 };
+    }
+
+    // Direct pseudo-mode
+    if (registerName === "R7" && mode === INDIRECT_REGISTER_POST_INC) {
+      return { argumentString: this.getMemoryWord(nextArgumentAddress).toString(), extraBytes: 2 };
+    }
+
+    // Offset mode
+    if (isOneOf(mode, [REGISTER_INDEXED, INDIRECT_REGISTER_INDEXED])) {
+      return {
+        argumentString: this.getAddressingModePattern(mode)
+          .replace("o", this.getMemoryWord(nextArgumentAddress).toString())
+          .replace("r", registerName.toUpperCase()),
+        extraBytes: 2
+      };
+    }
+
+    // Non-offset mode
+    return { argumentString: this.getAddressingModePattern(mode).replace("r", registerName.toUpperCase()), extraBytes: 0 };
+  }
+
+  private generateFlagArgumentString(flagBits: number): string {
+    return (
+      (flagBits & 0b1000 ? "N" : "") +
+      (flagBits & 0b0100 ? "Z" : "") +
+      (flagBits & 0b0010 ? "V" : "") +
+      (flagBits & 0b0001 ? "C" : "")
+    );
   }
 
 }

@@ -1,7 +1,9 @@
 /* eslint-disable no-multi-spaces */
 
 import { } from "./utils/CustomExtends";
-import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectRunState } from "./utils/MachineTestFunctions";
+import {
+  makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings, makeFunction_expectRunState
+} from "./utils/MachineTestFunctions";
 import { Cesar } from "../core/machines/Cesar";
 import { CesarAssembler } from "../core/CesarAssembler";
 import { AssemblerErrorCode } from "../core/AssemblerError";
@@ -13,6 +15,7 @@ const assembler = new CesarAssembler(machine);
 const expectBuildSuccess = makeFunction_expectBuildSuccess(assembler, machine);
 const expectBuildError = makeFunction_expectBuildError(assembler);
 const expectRunState = makeFunction_expectRunState(assembler, machine);
+const expectInstructionStrings = makeFunction_expectInstructionStrings(assembler, machine);
 
 function toBytes(word: number): number[] {
   return [(word & 0xFF00) >> 8, word & 0xFF];
@@ -338,7 +341,7 @@ describe("Cesar: Run", () => {
 
   test("flow control: should reach expected state after running", () => {
     // JMP
-    expectRunState(["jmp R0"],    [], { r_R7: 2     });
+    expectRunState(["jmp R0"],    [], { r_R7: 2     }); // FIXME: Should not be allowed
     expectRunState(["jmp 32769"], [], { r_R7: 32769 });
 
     // SOB
@@ -463,6 +466,160 @@ describe("Cesar: Run", () => {
     expectRunState(["or #hF00F, #hF0F0"],   [], { m_4: 0xF0, m_5: 0xFF, ...flags("N")  });
     expectRunState(["scc VC", "or #0, #0"], [], { m_4: 0,    m_5: 0,    ...flags("ZC") }); // Clears V, preserves C = 1
     expectRunState(["scc V", "or #0, #0"],  [], { m_4: 0,    m_5: 0,    ...flags("Z")  }); // Clears V, preserves C = 0
+  });
+
+});
+
+describe("Cesar: Disassembler", () => {
+
+  test("nop: should be an empty string", () => {
+    expectInstructionStrings(["nop", "hlt"], ["", "HLT"]);
+  });
+
+  test("condition codes: should include correct flags", () => {
+    expectInstructionStrings(["ccc", "ccc N", "ccc ZC", "ccc NZV", "ccc NZVC"], ["CCC", "CCC N", "CCC ZC", "CCC NZV", "CCC NZVC"]);
+    expectInstructionStrings(["scc", "scc N", "scc ZC", "scc NZV", "scc NZVC"], ["SCC", "SCC N", "SCC ZC", "SCC NZV", "SCC NZVC"]);
+  });
+
+  test("conditional branching: should include offset", () => {
+    expectInstructionStrings([ "br 127",  "br -128"], [ "BR 127", "",  "BR -128", ""]);
+    expectInstructionStrings(["bne 127", "bne -128"], ["BNE 127", "", "BNE -128", ""]);
+    expectInstructionStrings(["beq 127", "beq -128"], ["BEQ 127", "", "BEQ -128", ""]);
+    expectInstructionStrings(["bpl 127", "bpl -128"], ["BPL 127", "", "BPL -128", ""]);
+    expectInstructionStrings(["bmi 127", "bmi -128"], ["BMI 127", "", "BMI -128", ""]);
+    expectInstructionStrings(["bvc 127", "bvc -128"], ["BVC 127", "", "BVC -128", ""]);
+    expectInstructionStrings(["bvs 127", "bvs -128"], ["BVS 127", "", "BVS -128", ""]);
+    expectInstructionStrings(["bcc 127", "bcc -128"], ["BCC 127", "", "BCC -128", ""]);
+    expectInstructionStrings(["bcs 127", "bcs -128"], ["BCS 127", "", "BCS -128", ""]);
+    expectInstructionStrings(["bge 127", "bge -128"], ["BGE 127", "", "BGE -128", ""]);
+    expectInstructionStrings(["blt 127", "blt -128"], ["BLT 127", "", "BLT -128", ""]);
+    expectInstructionStrings(["bgt 127", "bgt -128"], ["BGT 127", "", "BGT -128", ""]);
+    expectInstructionStrings(["ble 127", "ble -128"], ["BLE 127", "", "BLE -128", ""]);
+    expectInstructionStrings(["bhi 127", "bhi -128"], ["BHI 127", "", "BHI -128", ""]);
+    expectInstructionStrings(["bls 127", "bls -128"], ["BLS 127", "", "BLS -128", ""]);
+  });
+
+  test("flow control: should include correct arguments in one string", () => {
+    expectInstructionStrings(["jmp (r0)", "jmp (r4)+", "jmp (-(r7))"], ["JMP (R0)", "", "JMP (R4)+", "", "JMP (-(R7))", ""]);
+    expectInstructionStrings(["sob r0 -128", "sob r4 0", "sob r7 127"], ["SOB R0, -128", "", "SOB R4, 0", "", "SOB R7, 127", ""]);
+    expectInstructionStrings(["jsr r0 (r7)", "jsr r4 (r4)+", "jsr r7 (-(r0))"], ["JSR R0, (R7)", "", "JSR R4, (R4)+", "", "JSR R7, (-(R0))", ""]);
+    expectInstructionStrings(["rts r0", "rts r4", "rts r7"], ["RTS R0", "RTS R4", "RTS R7"]);
+  });
+
+  test("arithmetic (one operand): should include correct arguments in one string", () => {
+    expectInstructionStrings(["clr r0", "clr (r4)+", "clr (-(r7))"], ["CLR R0", "", "CLR (R4)+", "", "CLR (-(R7))", ""]);
+    expectInstructionStrings(["not r0", "not (r4)+", "not (-(r7))"], ["NOT R0", "", "NOT (R4)+", "", "NOT (-(R7))", ""]);
+    expectInstructionStrings(["inc r0", "inc (r4)+", "inc (-(r7))"], ["INC R0", "", "INC (R4)+", "", "INC (-(R7))", ""]);
+    expectInstructionStrings(["dec r0", "dec (r4)+", "dec (-(r7))"], ["DEC R0", "", "DEC (R4)+", "", "DEC (-(R7))", ""]);
+    expectInstructionStrings(["neg r0", "neg (r4)+", "neg (-(r7))"], ["NEG R0", "", "NEG (R4)+", "", "NEG (-(R7))", ""]);
+    expectInstructionStrings(["tst r0", "tst (r4)+", "tst (-(r7))"], ["TST R0", "", "TST (R4)+", "", "TST (-(R7))", ""]);
+    expectInstructionStrings(["ror r0", "ror (r4)+", "ror (-(r7))"], ["ROR R0", "", "ROR (R4)+", "", "ROR (-(R7))", ""]);
+    expectInstructionStrings(["rol r0", "rol (r4)+", "rol (-(r7))"], ["ROL R0", "", "ROL (R4)+", "", "ROL (-(R7))", ""]);
+    expectInstructionStrings(["asr r0", "asr (r4)+", "asr (-(r7))"], ["ASR R0", "", "ASR (R4)+", "", "ASR (-(R7))", ""]);
+    expectInstructionStrings(["asl r0", "asl (r4)+", "asl (-(r7))"], ["ASL R0", "", "ASL (R4)+", "", "ASL (-(R7))", ""]);
+    expectInstructionStrings(["adc r0", "adc (r4)+", "adc (-(r7))"], ["ADC R0", "", "ADC (R4)+", "", "ADC (-(R7))", ""]);
+    expectInstructionStrings(["sbc r0", "sbc (r4)+", "sbc (-(r7))"], ["SBC R0", "", "SBC (R4)+", "", "SBC (-(R7))", ""]);
+  });
+
+  test("arithmetic (two operands): should include correct arguments in one string", () => {
+    expectInstructionStrings(["mov r0 (-(r7))", "mov (r4)+ (r4)+", "mov (-(r7)) r0"], ["MOV R0, (-(R7))", "", "MOV (R4)+, (R4)+", "", "MOV (-(R7)), R0", ""]);
+    expectInstructionStrings(["add r0 (-(r7))", "add (r4)+ (r4)+", "add (-(r7)) r0"], ["ADD R0, (-(R7))", "", "ADD (R4)+, (R4)+", "", "ADD (-(R7)), R0", ""]);
+    expectInstructionStrings(["sub r0 (-(r7))", "sub (r4)+ (r4)+", "sub (-(r7)) r0"], ["SUB R0, (-(R7))", "", "SUB (R4)+, (R4)+", "", "SUB (-(R7)), R0", ""]);
+    expectInstructionStrings(["cmp r0 (-(r7))", "cmp (r4)+ (r4)+", "cmp (-(r7)) r0"], ["CMP R0, (-(R7))", "", "CMP (R4)+, (R4)+", "", "CMP (-(R7)), R0", ""]);
+    expectInstructionStrings(["and r0 (-(r7))", "and (r4)+ (r4)+", "and (-(r7)) r0"], ["AND R0, (-(R7))", "", "AND (R4)+, (R4)+", "", "AND (-(R7)), R0", ""]);
+    expectInstructionStrings([ "or r0 (-(r7))",  "or (r4)+ (r4)+",  "or (-(r7)) r0"], [ "OR R0, (-(R7))", "",  "OR (R4)+, (R4)+", "",  "OR (-(R7)), R0", ""]);
+  });
+
+  test("addressing modes: should interpret corretly all non-offset modes", () => {
+    // JMP
+    expectInstructionStrings(
+      ["dab 64, 0", "jmp (r1)", "jmp (r2)+", "jmp -(r3)", "jmp ((r4)+)", "jmp (-(r5))"],
+      ["JMP R0", "", "JMP (R1)", "", "JMP (R2)+", "", "JMP -(R3)", "", "JMP ((R4)+)", "", "JMP (-(R5))", ""]
+    );
+
+    // JSR
+    expectInstructionStrings(
+      ["dab 103, 0", "jsr r7 (r1)", "jsr r7 (r2)+", "jsr r7 -(r3)", "jsr r7 ((r4)+)", "jsr r7 (-(r5))"],
+      ["JSR R7, R0", "", "JSR R7, (R1)", "", "JSR R7, (R2)+", "", "JSR R7, -(R3)", "", "JSR R7, ((R4)+)", "", "JSR R7, (-(R5))", ""]
+    );
+
+    // Arithmetic (one operand)
+    expectInstructionStrings(
+      ["clr r1", "clr (r2)", "clr (r3)+", "clr -(r4)", "clr ((r5)+)", "clr (-(r6))"],
+      ["CLR R1", "", "CLR (R2)", "", "CLR (R3)+", "", "CLR -(R4)", "", "CLR ((R5)+)", "", "CLR (-(R6))", ""]
+    );
+
+    // Arithmetic (two operands)
+    expectInstructionStrings(
+      ["mov r0 (-(r5))", "mov (r1) ((r4)+)", "mov (r2)+ -(r3)", "mov -(r3) (r2)+", "mov ((r4)+) (r1)", "mov (-(r5)) r0"],
+      ["MOV R0, (-(R5))", "", "MOV (R1), ((R4)+)", "", "MOV (R2)+, -(R3)", "", "MOV -(R3), (R2)+", "", "MOV ((R4)+), (R1)", "", "MOV (-(R5)), R0", ""]
+    );
+  });
+
+  test("addressing modes: should interpret correctly all offset modes", () => {
+    // JMP
+    expectInstructionStrings(
+      ["jmp 32767(r0)", "jmp -1(r1)", "jmp (32767(r2))", "jmp (-1(r3))"],
+      ["JMP 32767(R0)", "", "", "", "JMP 65535(R1)", "", "", "", "JMP (32767(R2))", "", "", "", "JMP (65535(R3))", "", "", ""]
+    );
+
+    // JSR
+    expectInstructionStrings(
+      ["jsr r7 32767(r0)", "jsr r7 -1(r1)", "jsr r7 (32767(r2))", "jsr r7 (-1(r3))"],
+      ["JSR R7, 32767(R0)", "", "", "", "JSR R7, 65535(R1)", "", "", "", "JSR R7, (32767(R2))", "", "", "", "JSR R7, (65535(R3))", "", "", ""]
+    );
+
+    // Arithmetic (one operand)
+    expectInstructionStrings(
+      ["clr 32767(r0)", "clr -1(r1)", "clr (32767(r2))", "clr (-1(r3))"],
+      ["CLR 32767(R0)", "", "", "", "CLR 65535(R1)", "", "", "", "CLR (32767(R2))", "", "", "", "CLR (65535(R3))", "", "", ""]
+    );
+
+    // Arithmetic (two operands)
+    expectInstructionStrings([
+      "mov r0 -1(r1)", "mov r0 (-1(r1))", // Offset on 2nd argument
+      "mov -1(r2) r3", "mov (-1(r2)) r3", // Offset on 1st argument
+      "mov -1(r4) (32767(r5))", "mov (32767(r4)) -1(r5)" // Offset on both arguments
+    ], [
+      "MOV R0, 65535(R1)", "", "", "", "MOV R0, (65535(R1))", "", "", "",
+      "MOV 65535(R2), R3", "", "", "", "MOV (65535(R2)), R3", "", "", "",
+      "MOV 65535(R4), (32767(R5))", "", "", "", "", "", "MOV (32767(R4)), 65535(R5)", "", "", "", "", ""
+    ]);
+  });
+
+  test("addressing modes: should properly handle R7 addressing modes", () => {
+    // JMP
+    expectInstructionStrings(
+      ["jmp #60000", "jmp 60001", "jmp 60002(r7)", "jmp (60003(r7))"],
+      ["JMP #60000", "", "", "", "JMP 60001", "", "", "", "JMP 60002(R7)", "", "", "", "JMP (60003(R7))", "", "", ""]
+    );
+
+    // JSR
+    expectInstructionStrings(
+      ["jsr r0 #60000", "jsr r0 60001", "jsr r0 60002(r7)", "jsr r0 (60003(r7))"],
+      ["JSR R0, #60000", "", "", "", "JSR R0, 60001", "", "", "", "JSR R0, 60002(R7)", "", "", "", "JSR R0, (60003(R7))", "", "", ""]
+    );
+
+    // Arithmetic (one operand)
+    expectInstructionStrings(
+      ["clr #60000", "clr 60001", "clr 60002(r7)", "clr (60003(r7))"],
+      ["CLR #60000", "", "", "", "CLR 60001", "", "", "", "CLR 60002(R7)", "", "", "", "CLR (60003(R7))", "", "", ""]
+    );
+
+    // Arithmetic (two operands)
+    expectInstructionStrings([
+      "mov #60000 r0", "mov r0 #60001", "mov #60002 #60003", // Immediate on 1st, 2nd and both arguments
+      "mov 60004 r0", "mov r0 60005", "mov 60006 60007",  // Direct on 1st, 2nd and both arguments
+      "mov 60008(r7) r0", "mov r0 60009(r7)", "mov 60010(r7) 60011(r7)", // Indexed by R7 (direct) on 1st, 2nd and both arguments
+      "mov (60012(r7)) r0", "mov r0 (60013(r7))", "mov (60014(r7)) (60015(r7))", // Indexed by R7 (indirect) on 1st, 2nd and both arguments
+      "mov #60016 60017(r7)", "mov (60018(r7)) 60019" // Mixed R7 modes
+    ], [
+      "MOV #60000, R0", "", "", "", "MOV R0, #60001", "", "", "", "MOV #60002, #60003", "", "", "", "", "",
+      "MOV 60004, R0", "", "", "", "MOV R0, 60005", "", "", "", "MOV 60006, 60007", "", "", "", "", "",
+      "MOV 60008(R7), R0", "", "", "", "MOV R0, 60009(R7)", "", "", "", "MOV 60010(R7), 60011(R7)", "", "", "", "", "",
+      "MOV (60012(R7)), R0", "", "", "", "MOV R0, (60013(R7))", "", "", "", "MOV (60014(R7)), (60015(R7))", "", "", "", "", "",
+      "MOV #60016, 60017(R7)", "", "", "", "", "", "MOV (60018(R7)), 60019", "", "", "", "", ""
+    ]);
   });
 
 });

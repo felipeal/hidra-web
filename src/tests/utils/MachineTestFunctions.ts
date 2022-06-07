@@ -62,6 +62,8 @@ export function makeFunction_expectInstructionStrings(assembler: Assembler, mach
     const source = instructionLines.join("\n");
     expect(assembler.build(source)).toDeepEqual([], source); // Expect no errors
     machine.updateInstructionStrings();
+    expect(machine.getInstructionCount()).toEqual(0);
+    expect(machine.getAccessCount()).toEqual(0);
 
     const actualInstructionStrings = range(expectedInstructionStrings.length).map((address) => machine.getInstructionString(address));
     expect(actualInstructionStrings).toDeepEqual(expectedInstructionStrings, source);

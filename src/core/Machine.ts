@@ -365,7 +365,7 @@ export abstract class Machine extends MachineState {
   }
 
   //////////////////////////////////////////////////
-  // Instruction strings
+  // Disassembler (instruction strings)
   //////////////////////////////////////////////////
 
   public updateInstructionStrings(): void {
@@ -399,7 +399,7 @@ export abstract class Machine extends MachineState {
 
     // Fetch and decode instruction
     const fetchedValue = this.getMemoryValue(address);
-    const instruction = this.getInstructionFromValue(this.getMemoryValue(address));
+    const instruction = this.getInstructionFromValue(fetchedValue);
     const addressingModeCode = this.extractAddressingModeCode(fetchedValue);
     const registerName = this.extractRegisterName(fetchedValue);
 
