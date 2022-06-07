@@ -40,7 +40,7 @@ describe("Memory Comparisons", () => {
     ["ramses_instructions.rad", { instructions: 80, accesses: 176 }],
     ["assembler.rad", { buildOnly: true }],
     ["cesar_assembler.ced", { buildOnly: true }],
-    ["cesar_instructions.ced", { instructions: 60, accesses: 338 }]
+    ["cesar_instructions.ced", { instructions: 59, accesses: 338 }]
   ])("%s: should match Daedalus and original simulators' output", (fileName, { instructions, accesses, extraAccesses, buildOnly }: MemoryComparison) => {
     // Build
     const machine = buildMachineBasedOnFileName(fileName);

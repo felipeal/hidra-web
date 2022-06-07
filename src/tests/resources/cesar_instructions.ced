@@ -7,7 +7,7 @@ org 256
 
 ; Test_JM0
 mov #1024, r0
-dab 40, 0 ; (jmp r0)
+dab 64, 0 ; (jmp r0)
 mov r0, Test_JM0
 
 ; Test_JM1
