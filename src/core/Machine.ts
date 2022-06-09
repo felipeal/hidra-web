@@ -444,6 +444,15 @@ export abstract class Machine extends MachineState {
   // High-level accessors
   //////////////////////////////////////////////////
 
+  public clearAfterBuild(): void {
+    this.clearRegisters();
+    this.resetFlags();
+    this.clearCounters();
+    this.clearInstructionStrings();
+
+    this.setRunning(false);
+  }
+
   public getDefaultDataStartingAddress(): number {
     return Math.min(this.getMemorySize() / 2, 1024);
   }

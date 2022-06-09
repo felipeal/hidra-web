@@ -58,7 +58,7 @@ export abstract class MachineState {
   }
 
   //////////////////////////////////////////////////
-  // Accessors
+  // Characteristics
   //////////////////////////////////////////////////
 
   public getName(): string {
@@ -69,6 +69,18 @@ export abstract class MachineState {
     return this.identifier;
   }
 
+  public isLittleEndian(): boolean {
+    return this.littleEndian;
+  }
+
+  public getImmediateNumBytes(): number {
+    return this.immediateNumBytes;
+  }
+
+  //////////////////////////////////////////////////
+  // Running state
+  //////////////////////////////////////////////////
+
   public isRunning(): boolean {
     return this.running;
   }
@@ -77,6 +89,10 @@ export abstract class MachineState {
     this.running = running;
     this.publishEvent("RUNNING", running);
   }
+
+  //////////////////////////////////////////////////
+  // Memory
+  //////////////////////////////////////////////////
 
   public getMemory(): ReadonlyArray<Byte> {
     return this.memory;
@@ -107,11 +123,20 @@ export abstract class MachineState {
   }
 
   public setMemoryValues(values: number[]): void {
-    assert(values.length === this.memorySize, `Invalid array size for setMemoryValues: ${values.length}`);
+    assert((values.length === this.memorySize), `Invalid array size for setMemoryValues: ${values.length}`);
     for (const address of range(this.memorySize)) {
       this.setMemoryValue(address, values[address]);
     }
   }
+
+  // Returns a valid address, removing excess bits
+  public toValidAddress(value: number): number {
+    return (value & this.memoryMask);
+  }
+
+  //////////////////////////////////////////////////
+  // Disassembler (instruction strings)
+  //////////////////////////////////////////////////
 
   public getInstructionString(address: number): string {
     return this.instructionStrings[this.toValidAddress(address)];
@@ -128,6 +153,10 @@ export abstract class MachineState {
       this.setInstructionString(address, "");
     }
   }
+
+  //////////////////////////////////////////////////
+  // Flags
+  //////////////////////////////////////////////////
 
   public getFlags(): ReadonlyArray<Flag> {
     return this.flags;
@@ -152,7 +181,7 @@ export abstract class MachineState {
     assert(flag, `Invalid flag name: ${flagName}`);
 
     flag.setValue(value);
-    this.publishEvent(`FLAG.${flag.getName()}`, value);
+    this.publishEvent(`FLAG.${flagName}`, value);
   }
 
   protected setFlagValueByFlagCode(flagCode: FlagCode, value: boolean): void {
@@ -161,20 +190,22 @@ export abstract class MachineState {
       return; // Flag type not available, safe to skip
     }
 
-    flag.setValue(value);
-    this.publishEvent(`FLAG.${flag.getName()}`, value);
+    this.setFlagValue(flag.getName(), value);
   }
 
-  protected clearFlags(): void {
+  protected resetFlags(): void {
     for (const flag of this.flags) {
-      flag.resetValue();
-      this.publishEvent(`FLAG.${flag.getName()}`, flag.getValue());
+      this.setFlagValue(flag.getName(), flag.getDefaultValue());
     }
   }
 
   public hasFlag(flagCode: FlagCode): boolean {
     return this.flags.some(flag => flag.getFlagCode() === flagCode);
   }
+
+  //////////////////////////////////////////////////
+  // Registers
+  //////////////////////////////////////////////////
 
   public getRegisters(): ReadonlyArray<Register> {
     return this.registers;
@@ -188,10 +219,6 @@ export abstract class MachineState {
     }
 
     return register.getBitCode();
-  }
-
-  public hasRegister(registerName: string): boolean {
-    return this.registers.some(register => register.getName().toLowerCase() === registerName.toLowerCase());
   }
 
   public getRegisterInfo(registerName: string): RegisterInfo {
@@ -224,10 +251,17 @@ export abstract class MachineState {
 
   protected clearRegisters(): void {
     for (const register of this.registers) {
-      register.setValue(0);
-      this.publishEvent(`REG.${register.getName()}`, 0);
+      this.setRegisterValue(register.getName(), 0);
     }
   }
+
+  public hasRegister(registerName: string): boolean {
+    return this.registers.some(register => register.getName().toLowerCase() === registerName.toLowerCase());
+  }
+
+  //////////////////////////////////////////////////
+  // PC
+  //////////////////////////////////////////////////
 
   public getPCName(): string {
     return this.pcName;
@@ -238,13 +272,16 @@ export abstract class MachineState {
   }
 
   public setPCValue(value: number): void {
-    this.pc.setValue(value);
-    this.publishEvent(`REG.${this.pc.getName()}`, this.pc.getValue());
+    this.setRegisterValue(this.pc.getName(), value);
   }
 
   protected incrementPCValue(units = 1): void {
     this.setPCValue(this.pc.getValue() + units);
   }
+
+  //////////////////////////////////////////////////
+  // Instructions / Addressing Modes
+  //////////////////////////////////////////////////
 
   public getInstructions(): ReadonlyArray<Instruction> {
     return this.instructions;
@@ -282,20 +319,20 @@ export abstract class MachineState {
     return addressingMode.getAssemblyPattern();
   }
 
-  public isLittleEndian(): boolean {
-    return this.littleEndian;
-  }
-
-  public getImmediateNumBytes(): number {
-    return this.immediateNumBytes;
-  }
+  //////////////////////////////////////////////////
+  // Counters
+  //////////////////////////////////////////////////
 
   public getInstructionCount(): number {
     return this.instructionCount;
   }
 
   protected incrementInstructionCount(): void {
-    this.instructionCount++;
+    this.setInstructionCount(this.instructionCount + 1);
+  }
+
+  private setInstructionCount(value: number): void {
+    this.instructionCount = value;
     this.publishEvent("INS.COUNT", this.instructionCount);
   }
 
@@ -304,29 +341,17 @@ export abstract class MachineState {
   }
 
   protected incrementAccessCount(): void {
-    this.accessCount++;
+    this.setAccessCount(this.accessCount + 1);
+  }
+
+  private setAccessCount(value: number): void {
+    this.accessCount = value;
     this.publishEvent("ACC.COUNT", this.accessCount);
   }
 
   public clearCounters(): void {
-    this.instructionCount = 0;
-    this.accessCount = 0;
-    this.publishEvent("INS.COUNT", this.instructionCount);
-    this.publishEvent("ACC.COUNT", this.accessCount);
-  }
-
-  public clearAfterBuild(): void {
-    this.clearRegisters();
-    this.clearFlags();
-    this.clearCounters();
-    this.clearInstructionStrings();
-
-    this.setRunning(false);
-  }
-
-  // Returns a valid address, removing excess bits
-  public toValidAddress(value: number): number {
-    return (value & this.memoryMask);
+    this.setInstructionCount(0);
+    this.setAccessCount(0);
   }
 
   //////////////////////////////////////////////////

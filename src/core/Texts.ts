@@ -4,7 +4,7 @@ import { AssemblerErrorCode, ErrorMessage } from "./AssemblerError";
 import { AddressingModeCode } from "./AddressingMode";
 import { Machine } from "./Machine";
 import { FlagCode } from "./Flag";
-import { assert, assertUnreachable, multiline } from "./utils/FunctionUtils";
+import { assert, assertUnreachable, multiline, notNull } from "./utils/FunctionUtils";
 import { Volta } from "./machines/Volta";
 import { Cesar } from "./machines/Cesar";
 
@@ -102,7 +102,7 @@ export class Texts {
       case "jc a": return ["Jump if Carry", "Se a flag C (carry) estiver ativada, desvia a execução para o endereço 'a'."];
       case "jnc a": return ["Jump if Not Carry", "Se a flag C (carry) estiver desativada, desvia a execução para o endereço 'a'."];
 
-      case "jb a": return ["Jump if Borrow", (machine!.hasFlag(FlagCode.BORROW) ?
+      case "jb a": return ["Jump if Borrow", (notNull(machine).hasFlag(FlagCode.BORROW) ?
         "Se a flag B estiver ativada (borrow), desvia a execução para o endereço 'a'." :
         "Se a flag C estiver desativada (borrow), desvia a execução para o endereço 'a'.")
       ];

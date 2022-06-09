@@ -32,8 +32,8 @@ export class Flag {
     this.value = value;
   }
 
-  public resetValue(): void {
-    this.value = this.defaultValue;
+  public getDefaultValue(): boolean {
+    return this.defaultValue;
   }
 
 }
