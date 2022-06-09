@@ -1,5 +1,6 @@
 import { Assembler } from "../../core/Assembler";
 import { CesarAssembler } from "../../core/CesarAssembler";
+import { FileError, FileErrorCode } from "../../core/FileError";
 import { Machine } from "../../core/Machine";
 import { Ahmes } from "../../core/machines/Ahmes";
 import { Cesar } from "../../core/machines/Cesar";
@@ -13,8 +14,6 @@ import { Reg } from "../../core/machines/Reg";
 import { Volta } from "../../core/machines/Volta";
 import { assertUnreachable } from "../../core/utils/FunctionUtils";
 import { buildMachine } from "./MachineUtils";
-
-export class FileError extends Error {}
 
 const IDENTIFIER_LENGTH = 3;
 
@@ -95,24 +94,24 @@ export async function importMemory(file: File): Promise<Machine> {
   const fileContents = await file.arrayBuffer();
   const bytes = new Uint8Array(fileContents);
   if (bytes.length === 0) {
-    throw new FileError("Binary file is empty.");
+    throw new FileError(FileErrorCode.EMPTY_BINARY_FILE);
   }
 
   const identifier = new TextDecoder().decode(bytes.slice(1, 1 + IDENTIFIER_LENGTH));
   if (bytes[0] !== IDENTIFIER_LENGTH || identifier.length < IDENTIFIER_LENGTH) {
-    throw new FileError("Invalid binary file.");
+    throw new FileError(FileErrorCode.INVALID_BINARY_FILE);
   }
 
   const newMachine = buildMachineBasedOnIdentifier(identifier);
   if (!newMachine) {
-    throw new FileError(`Unknown identifier: ${identifier}`);
+    throw new FileError(FileErrorCode.UNKNOWN_IDENTIFIER);
   }
 
   const memoryArea = Array.from(bytes.slice(1 + identifier.length));
   const expectedMemoryAreaLength = hasZeroPaddedExports(newMachine) ? (newMachine.getMemorySize() * 2) : newMachine.getMemorySize();
 
   if (memoryArea.length !== expectedMemoryAreaLength) {
-    throw new FileError("Invalid binary size.");
+    throw new FileError(FileErrorCode.INVALID_BINARY_SIZE);
   }
 
   const memory = hasZeroPaddedExports(newMachine) ? removeZeroPadding(memoryArea) : memoryArea;

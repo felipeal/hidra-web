@@ -1,12 +1,13 @@
 /* eslint-disable max-len */
 
-import { AssemblerErrorCode, ErrorMessage } from "./AssemblerError";
 import { AddressingModeCode } from "./AddressingMode";
-import { Machine } from "./Machine";
+import { AssemblerErrorCode, BuildError } from "./AssemblerError";
+import { FileErrorCode } from "./FileError";
 import { FlagCode } from "./Flag";
-import { assert, assertUnreachable, multiline, notNull } from "./utils/FunctionUtils";
-import { Volta } from "./machines/Volta";
+import { Machine } from "./Machine";
 import { Cesar } from "./machines/Cesar";
+import { Volta } from "./machines/Volta";
+import { assert, assertUnreachable, multiline, notNull } from "./utils/FunctionUtils";
 
 interface AddressingModeDescription { name: string, description: string, examples: string }
 interface DirectiveDescription { name: string, description: string, examples: string }
@@ -496,11 +497,11 @@ export class Texts {
     return example;
   }
 
-  public static buildErrorMessageText(errorMessage: ErrorMessage): string {
-    return `Linha ${errorMessage.lineNumber}: ${Texts.getErrorCodeMessage(errorMessage.errorCode)}`;
+  public static generateBuildErrorMessage(buildError: BuildError): string {
+    return `Linha ${buildError.lineNumber}: ${Texts.getAssemblerErrorCodeMessage(buildError.errorCode)}`;
   }
 
-  private static getErrorCodeMessage(errorCode: AssemblerErrorCode): string {
+  private static getAssemblerErrorCodeMessage(errorCode: AssemblerErrorCode): string {
     switch (errorCode) {
       case AssemblerErrorCode.TOO_FEW_ARGUMENTS: return "Número de argumentos menor do que o esperado.";
       case AssemblerErrorCode.TOO_MANY_ARGUMENTS: return "Número de argumentos maior do que o esperado.";
@@ -518,6 +519,15 @@ export class Texts {
       case AssemblerErrorCode.LABEL_NOT_ALLOWED: return "Uso de labels não permitido para este mnemônico.";
       case AssemblerErrorCode.MEMORY_OVERLAP: return "Sobreposição de memória.";
       case AssemblerErrorCode.MEMORY_LIMIT_EXCEEDED: return "Limite de memória excedido.";
+    }
+  }
+
+  public static getFileErrorCodeMessage(errorCode: FileErrorCode): string {
+    switch (errorCode) {
+      case FileErrorCode.EMPTY_BINARY_FILE: return "Arquivo binário está vazio.";
+      case FileErrorCode.INVALID_BINARY_FILE: return "Arquivo binário inválido.";
+      case FileErrorCode.UNKNOWN_IDENTIFIER: return "Identificador no cabeçalho do arquivo não foi reconhecido.";
+      case FileErrorCode.INVALID_BINARY_SIZE: return "Arquivo binário tem tamanho inválido.";
     }
   }
 

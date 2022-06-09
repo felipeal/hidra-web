@@ -9,6 +9,7 @@ import { Ramses } from "../core/machines/Ramses";
 import { Volta } from "../core/machines/Volta";
 import { buildMachine, getMachineNames } from "../ui/utils/MachineUtils";
 import { expectDistinctStrings } from "./utils/StringTestFunctions";
+import { FileErrorCode } from "../core/FileError";
 
 describe("Texts", () => {
 
@@ -58,9 +59,16 @@ describe("Texts", () => {
     expect(Texts.getAddressingModeDescription(AddressingModeCode.IMMEDIATE, new Volta()).examples).toContain("PSH #1");
   });
 
-  test("error codes: should have distinct descriptions", () => {
+  test("assembler error codes: should have distinct descriptions", () => {
     const errorCodes = Object.keys(AssemblerErrorCode) as AssemblerErrorCode[];
-    const errorMessages = errorCodes.map(c => Texts["getErrorCodeMessage"](c));
+    const errorMessages = errorCodes.map(c => Texts["getAssemblerErrorCodeMessage"](c));
+
+    expectDistinctStrings(errorMessages);
+  });
+
+  test("file error codes: should have distinct descriptions", () => {
+    const errorCodes = Object.keys(FileErrorCode) as FileErrorCode[];
+    const errorMessages = errorCodes.map(c => Texts.getFileErrorCodeMessage(c));
 
     expectDistinctStrings(errorMessages);
   });

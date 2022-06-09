@@ -1,36 +1,35 @@
+import Tippy from "@tippyjs/react";
+import codemirror from "codemirror";
 import React, { ChangeEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import useScrollbarSize from "react-scrollbar-size";
-import codemirror from "codemirror";
-import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import "tippy.js/themes/light-border.css";
 
-import CodeEditor, { hasBreakpointAtLine } from "./CodeEditor";
-import { MemoryInstructions, MemoryInstructionsForMeasurements } from "./MemoryInstructions";
-import { MemoryData, MemoryDataForMeasurements } from "./MemoryData";
-import { MemoryStack, MemoryStackForMeasurements } from "./MemoryStack";
-import FlagWidget from "./FlagWidget";
-import RegisterWidget from "./RegisterWidget";
-import Information from "./Information";
 import CesarDisplay from "./CesarDisplay";
+import CodeEditor, { hasBreakpointAtLine } from "./CodeEditor";
+import FlagWidget from "./FlagWidget";
+import Information from "./Information";
+import { MemoryData, MemoryDataForMeasurements } from "./MemoryData";
+import { MemoryInstructions, MemoryInstructionsForMeasurements } from "./MemoryInstructions";
+import { MemoryStack, MemoryStackForMeasurements } from "./MemoryStack";
 import { Menu, SubMenuCheckBox, SubMenuItem, SubMenuSeparator } from "./Menus";
+import RegisterWidget from "./RegisterWidget";
 
-import { buildMachine, getMachineNames, resetPCAndSP } from "./utils/MachineUtils";
 import { calculateTableDimensions as measureTableDimensions, TableDimensions, toPx } from "./utils/LayoutUtils";
-import {
-  FileError, buildAssemblerBasedOnMachine, buildMachineBasedOnFileName, exportMemory, generateFileNameForMachine, importMemory
-} from "./utils/MachineFileUtils";
+import { buildAssemblerBasedOnMachine, buildMachineBasedOnFileName, exportMemory, generateFileNameForMachine, importMemory } from "./utils/MachineFileUtils";
+import { buildMachine, getMachineNames, resetPCAndSP } from "./utils/MachineUtils";
 
+import { Assembler } from "../core/Assembler";
+import { BuildError } from "../core/AssemblerError";
+import { FileError } from "../core/FileError";
 import { Machine } from "../core/Machine";
+import { Cesar } from "../core/machines/Cesar";
 import { Neander } from "../core/machines/Neander";
 import { Volta } from "../core/machines/Volta";
-import { Assembler } from "../core/Assembler";
 import { Texts } from "../core/Texts";
-import { ErrorMessage } from "../core/AssemblerError";
-import { rethrowUnless } from "../core/utils/FunctionUtils";
-import { Cesar } from "../core/machines/Cesar";
-import { isInputElementActive } from "./utils/FocusHandler";
 import { charToAsciiValue } from "../core/utils/Conversions";
+import { rethrowUnless } from "../core/utils/FunctionUtils";
+import { isInputElementActive } from "./utils/FocusHandler";
 
 declare global {
   // Required for CodeMirror persistence between hot reloads
@@ -74,7 +73,7 @@ function initialState(): [Machine, Assembler] {
 
 export default function App() {
   const [[machine, assembler], setState] = useState(initialState());
-  const [errorMessages, setErrorMessages] = useState([] as ErrorMessage[]);
+  const [buildErrors, setBuildErrors] = useState([] as BuildError[]);
   const [isRunning, setRunning] = useState(machine.isRunning());
 
   // Display toggles
@@ -179,7 +178,7 @@ export default function App() {
         setState([newMachine, buildAssemblerBasedOnMachine(newMachine)]);
       } catch (error: unknown) {
         rethrowUnless(error instanceof FileError, error);
-        showError(error.message);
+        showError(Texts.getFileErrorCodeMessage(error.errorCode));
       }
     }
   }
@@ -364,14 +363,14 @@ export default function App() {
           </div>
 
           {/* Error messages */}
-          {(errorMessages.length > 0) && <div className="error-messages-area monospace-font" style={{
+          {(buildErrors.length > 0) && <div className="error-messages-area monospace-font" style={{
             flex: 0.125, marginTop: "16px", overflow: "auto", padding: "4px"
           }}>
-            {errorMessages.map((errorMessage, index) => {
+            {buildErrors.map((buildError, index) => {
               return <span className="error-message" key={index} onClick={() => {
-                codeMirrorInstance.setSelection({ line: errorMessage.lineNumber - 1, ch: Infinity }, { line: errorMessage.lineNumber - 1, ch: 0 });
+                codeMirrorInstance.setSelection({ line: buildError.lineNumber - 1, ch: Infinity }, { line: buildError.lineNumber - 1, ch: 0 });
                 codeMirrorInstance.focus();
-              }}>{Texts.buildErrorMessageText(errorMessage)}<br /></span>;
+              }}>{Texts.generateBuildErrorMessage(buildError)}<br /></span>;
             })}
           </div>}
 
@@ -393,7 +392,7 @@ export default function App() {
 
               showBusy();
               setTimeout(() => {
-                setErrorMessages([]);
+                setBuildErrors([]);
                 setState([newMachine, buildAssemblerBasedOnMachine(newMachine)]);
               });
             }
@@ -479,9 +478,9 @@ export default function App() {
           <button className="hide-if-busy build-button" data-testid="build-button" onClick={() => {
             const sourceCode = window.codeMirrorInstance.getValue();
             machine.setRunning(false);
-            const errorMessages = assembler.build(sourceCode);
-            setErrorMessages(errorMessages);
-            if (errorMessages.length === 0) {
+            const buildErrors = assembler.build(sourceCode);
+            setBuildErrors(buildErrors);
+            if (buildErrors.length === 0) {
               machine.updateInstructionStrings();
             }
           }}>Montar</button>

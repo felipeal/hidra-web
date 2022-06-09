@@ -8,7 +8,7 @@ import { assert, assertUnreachable, range } from "../../core/utils/FunctionUtils
 export function makeFunction_expectBuildSuccess(assembler: Assembler, machine: Machine) {
   return (lines: string | string[], expectedMemory: number[]) => {
     const source = Array.isArray(lines) ? lines.join("\n") : lines;
-    expect(assembler.build(source).map(Texts.buildErrorMessageText)).toDeepEqual([], source);
+    expect(assembler.build(source).map(Texts.generateBuildErrorMessage)).toDeepEqual([], source);
     const actualMemory = Object.keys(expectedMemory).map((pos) => machine.getMemoryValue(Number(pos)));
     expect(actualMemory).toDeepEqual(expectedMemory, source);
 
@@ -22,7 +22,9 @@ export function makeFunction_expectBuildSuccess(assembler: Assembler, machine: M
 export function makeFunction_expectBuildError(assembler: Assembler) {
   return (lines: string | string[], errorCode: AssemblerErrorCode, lineNumber = 1) => {
     const source = Array.isArray(lines) ? lines.join("\n") : lines;
-    expect(assembler.build(source).map(Texts.buildErrorMessageText)).toDeepEqual([{ lineNumber, errorCode }].map(Texts.buildErrorMessageText), source);
+    const actualErrorMessages = assembler.build(source).map(Texts.generateBuildErrorMessage);
+    const expectedErrorMessages = [{ lineNumber, errorCode }].map(Texts.generateBuildErrorMessage);
+    expect(actualErrorMessages).toDeepEqual(expectedErrorMessages, source);
   };
 }
 

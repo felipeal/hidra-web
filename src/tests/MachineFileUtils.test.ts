@@ -2,13 +2,14 @@ import { } from "./utils/jsdomSetup";
 
 import { } from "./utils/CustomExtends";
 import { Neander } from "../core/machines/Neander";
-import { buildMachineBasedOnIdentifier, exportMemory, FileError, generateFileNameForMachine, getMachineFileExtension, importMemory }
+import { buildMachineBasedOnIdentifier, exportMemory, generateFileNameForMachine, getMachineFileExtension, importMemory }
   from "../ui/utils/MachineFileUtils";
 import { buildMachine, getMachineNames } from "../ui/utils/MachineUtils";
 import { expectDistinctStrings } from "./utils/StringTestFunctions";
 import { Machine } from "../core/Machine";
 import { Ahmes } from "../core/machines/Ahmes";
 import { Ramses } from "../core/machines/Ramses";
+import { FileError, FileErrorCode } from "../core/FileError";
 
 function valueToUint8(value: number | string): number {
   return (typeof value === "string") ? value.charCodeAt(0) : value;
@@ -24,6 +25,15 @@ async function importMemoryBytes(firstValues: Array<number | string>, size?: num
   const fileBuffer = new Uint8Array(valuesToBytes(firstValues, size));
   File.prototype.arrayBuffer = jest.fn().mockResolvedValueOnce(fileBuffer);
   return importMemory(new File([fileBuffer], "file.mem"));
+}
+
+async function expectFileErrorCode(testFunction: () => Promise<unknown>, errorCode: FileErrorCode) {
+  try {
+    await testFunction();
+  } catch (error) {
+    expect(error).toBeInstanceOf(FileError);
+    expect((error as FileError).errorCode).toBe(errorCode);
+  }
 }
 
 describe("Machine File Utils", () => {
@@ -55,23 +65,23 @@ describe("Machine File Utils", () => {
   });
 
   test("importMemory: should reject empty files", async () => {
-    await expect(async () => importMemoryBytes([])).rejects.toThrowError(FileError);
+    await expectFileErrorCode(async () => importMemoryBytes([]), FileErrorCode.EMPTY_BINARY_FILE);
   });
 
   test("importMemory: should reject files with incorrect/incomplete identifiers", async () => {
-    await expect(async () => importMemoryBytes([3])).rejects.toThrowError(FileError);
-    await expect(async () => importMemoryBytes([3, "N"])).rejects.toThrowError(FileError);
-    await expect(async () => importMemoryBytes([3, "N", "D"])).rejects.toThrowError(FileError);
-    await expect(async () => importMemoryBytes([2, "N", "D", "R"])).rejects.toThrowError(FileError);
+    await expectFileErrorCode(async () => importMemoryBytes([3]), FileErrorCode.INVALID_BINARY_FILE);
+    await expectFileErrorCode(async () => importMemoryBytes([3, "N"]), FileErrorCode.INVALID_BINARY_FILE);
+    await expectFileErrorCode(() => importMemoryBytes([3, "N", "D"]), FileErrorCode.INVALID_BINARY_FILE);
+    await expectFileErrorCode(async () => importMemoryBytes([2, "N", "D", "R"]), FileErrorCode.INVALID_BINARY_FILE);
   });
 
   test("importMemory: should reject files with an unrecognized identifier", async () => {
-    await expect(async () => importMemoryBytes([3, "A", "B", "C"])).rejects.toThrowError(FileError);
+    await expectFileErrorCode(async () => importMemoryBytes([3, "A", "B", "C"]), FileErrorCode.UNKNOWN_IDENTIFIER);
   });
 
   test("importMemory: should reject files with invalid size", async () => {
-    await expect(async () => importMemoryBytes([3, "N", "D", "R"], 515)).rejects.toThrowError(FileError);
-    await expect(async () => importMemoryBytes([3, "N", "D", "R"], 517)).rejects.toThrowError(FileError);
+    await expectFileErrorCode(async () => importMemoryBytes([3, "N", "D", "R"], 515), FileErrorCode.INVALID_BINARY_SIZE);
+    await expectFileErrorCode(async () => importMemoryBytes([3, "N", "D", "R"], 517), FileErrorCode.INVALID_BINARY_SIZE);
   });
 
   test("importMemory: should accept valid files", async () => {

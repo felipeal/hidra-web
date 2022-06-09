@@ -1,4 +1,4 @@
-import { AssemblerError, AssemblerErrorCode, ErrorMessage } from "./AssemblerError";
+import { AssemblerError, AssemblerErrorCode, BuildError } from "./AssemblerError";
 import { Register } from "./Register";
 import { Instruction } from "./Instruction";
 import { AddressingModeCode } from "./AddressingMode";
@@ -50,12 +50,12 @@ export class Assembler {
   // Assembler
   //////////////////////////////////////////////////
 
-  // Returns an array of error messages on failure
-  public build(sourceCode: string): ErrorMessage[] {
+  // Returns an array of errors on failure
+  public build(sourceCode: string): BuildError[] {
     this.buildSuccessful = false;
     this.firstErrorLine = -1;
 
-    const errorMessages: ErrorMessage[] = [];
+    const buildErrors: BuildError[] = [];
 
     const labelMatcher = new RegExpMatcher(/^(\w+):/); // Also captures invalid labels to inform errors
     const firstTokenMatcher = new RegExpMatcher(/^(\S+)\s*/);
@@ -133,12 +133,12 @@ export class Assembler {
         if (this.firstErrorLine === -1) {
           this.firstErrorLine = lineIndex;
         }
-        errorMessages.push({ lineNumber: lineIndex + 1, errorCode: error.errorCode });
+        buildErrors.push({ lineNumber: lineIndex + 1, errorCode: error.errorCode });
       }
     }
 
     if (this.firstErrorLine >= 0) {
-      return errorMessages; // Error(s) found, abort compilation
+      return buildErrors; // Error(s) found, abort compilation
     }
 
     //////////////////////////////////////////////////
@@ -168,12 +168,12 @@ export class Assembler {
         if (this.firstErrorLine === -1) {
           this.firstErrorLine = lineIndex;
         }
-        errorMessages.push({ lineNumber: lineIndex + 1, errorCode: error.errorCode });
+        buildErrors.push({ lineNumber: lineIndex + 1, errorCode: error.errorCode });
       }
     }
 
     if (this.firstErrorLine >= 0) {
-      return errorMessages; // Error(s) found, abort compilation
+      return buildErrors; // Error(s) found, abort compilation
     }
 
     this.buildSuccessful = true;

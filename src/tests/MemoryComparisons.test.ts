@@ -47,12 +47,12 @@ describe("Memory Comparisons", () => {
     const machine = buildMachineBasedOnFileName(fileName);
     const assembler = buildAssemblerBasedOnMachine(machine);
     const sourceCode = readTextFile(`${fileName}`);
-    const errorMessages = assembler.build(sourceCode);
+    const buildErrors = assembler.build(sourceCode);
 
     // Test build results
     const [expectedMemoryBeforeRunning, expectedIdentifier] = readMachineBinary(fileName.replace(/\..*/, ".build.mem"), machine);
     expect(machine.getIdentifier()).toStrictEqual(expectedIdentifier);
-    expect(errorMessages).toStrictEqual([]);
+    expect(buildErrors).toStrictEqual([]);
     expect(assembler.getBuildSuccessful()).toBe(true);
     for (let i = 0; i < expectedMemoryBeforeRunning.length; i++) {
       expect(`MEM[${i}] = ${machine.getMemoryValue(i)}`).toBe(`MEM[${i}] = ${expectedMemoryBeforeRunning[i]}`);
