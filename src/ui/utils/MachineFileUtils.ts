@@ -108,13 +108,14 @@ export async function importMemory(file: File): Promise<Machine> {
     throw new FileError(`Unknown identifier: ${identifier}`);
   }
 
-  // FIXME: No padding for Cesar
-  // TODO: What about Pericles on Hidra C++?
-  const memory = bytes.slice(1 + identifier.length).filter((_value, index) => (index % 2) === 0);
-  if (bytes.length !== (1 + newMachine.getIdentifier().length) + (newMachine.getMemorySize() * 2)) {
+  const memoryArea = Array.from(bytes.slice(1 + identifier.length));
+  const expectedMemoryAreaLength = hasZeroPaddedExports(newMachine) ? (newMachine.getMemorySize() * 2) : newMachine.getMemorySize();
+
+  if (memoryArea.length !== expectedMemoryAreaLength) {
     throw new FileError("Invalid binary size.");
   }
 
+  const memory = hasZeroPaddedExports(newMachine) ? removeZeroPadding(memoryArea) : memoryArea;
   newMachine.setMemoryValues(Array.from(memory));
   newMachine.updateInstructionStrings();
   return newMachine;
@@ -127,8 +128,20 @@ export function exportMemory(machine: Machine): Uint8Array {
   ];
 
   for (const byte of machine.getMemory()) {
-    binary.push(byte.getValue(), 0);
+    binary.push(byte.getValue());
+    if (hasZeroPaddedExports(machine)) {
+      binary.push(0);
+    }
   }
 
   return new Uint8Array(binary);
+}
+
+// Machines with 256 bytes import/export memory using 512 bytes (extra bytes are zero)
+export function hasZeroPaddedExports(machine: Machine): boolean {
+  return machine.getMemorySize() === 256;
+}
+
+export function removeZeroPadding(bytes: number[]): number[] {
+  return bytes.filter((_value, index) => (index % 2) === 0);
 }

@@ -1,7 +1,8 @@
 import fs from "fs";
+import { Machine } from "../core/Machine";
 import { notNull } from "../core/utils/FunctionUtils";
 
-import { buildAssemblerBasedOnMachine, buildMachineBasedOnFileName } from "../ui/utils/MachineFileUtils";
+import { buildAssemblerBasedOnMachine, buildMachineBasedOnFileName, hasZeroPaddedExports, removeZeroPadding } from "../ui/utils/MachineFileUtils";
 
 const resourcesPath = "src/tests/resources";
 
@@ -13,15 +14,15 @@ function readTextFile(filePath: string) {
   return fs.readFileSync(`${resourcesPath}/${filePath}`, "utf-8");
 }
 
-function readMachineBinary(filePath: string) {
+function readMachineBinary(filePath: string, machine: Machine) {
   const binary = readBinaryFile(filePath);
   const identifier = binary.slice(1, 1 + binary[0]).toString();
-  let bytes = Array.from(binary.slice(1 + identifier.length));
-  if (bytes.length < 65536) {
-    bytes = bytes.filter((_value, index) => (index % 2) === 0); // Skip every two bytes for 8-bit machines
+  let memoryArea = Array.from(binary.slice(1 + identifier.length));
+  if (hasZeroPaddedExports(machine)) {
+    memoryArea = removeZeroPadding(memoryArea);
   }
-  expect(bytes.length).toBeGreaterThanOrEqual(256);
-  return [bytes, identifier];
+  expect(memoryArea.length).toBeGreaterThanOrEqual(256);
+  return [memoryArea, identifier];
 }
 
 type MemoryComparison = { buildOnly?: boolean, instructions?: number; accesses?: number; extraAccesses?: number; }
@@ -48,8 +49,8 @@ describe("Memory Comparisons", () => {
     const sourceCode = readTextFile(`${fileName}`);
     const errorMessages = assembler.build(sourceCode);
 
-    // Test build
-    const [expectedMemoryBeforeRunning, expectedIdentifier] = readMachineBinary(fileName.replace(/\..*/, ".build.mem"));
+    // Test build results
+    const [expectedMemoryBeforeRunning, expectedIdentifier] = readMachineBinary(fileName.replace(/\..*/, ".build.mem"), machine);
     expect(machine.getIdentifier()).toStrictEqual(expectedIdentifier);
     expect(errorMessages).toStrictEqual([]);
     expect(assembler.getBuildSuccessful()).toBe(true);
@@ -67,8 +68,8 @@ describe("Memory Comparisons", () => {
       machine.step();
     }
 
-    // Test execute
-    const [expectedMemoryAfterRunning] = readMachineBinary(fileName.replace(/\..*/, ".run.mem"));
+    // Test execute results
+    const [expectedMemoryAfterRunning] = readMachineBinary(fileName.replace(/\..*/, ".run.mem"), machine);
     for (let i = 0; i < expectedMemoryAfterRunning.length; i++) {
       expect(`MEM[${i}] = ${machine.getMemoryValue(i)}`).toBe(`MEM[${i}] = ${expectedMemoryAfterRunning[i]}`);
     }
