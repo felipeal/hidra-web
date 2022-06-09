@@ -333,15 +333,11 @@ export default function App() {
         <Menu title="Opções">
           <SubMenuCheckBox title="Exibir valores hexadecimais" checked={displayHex} setChecked={(checked) => {
             setDisplayHex(checked);
-            if (checked) {
-              setDisplayNegative(false);
-            }
+            setDisplayNegative(false);
           }}/>
           <SubMenuCheckBox title="Interpretar dados negativos" checked={displayNegative} setChecked={(checked) => {
             setDisplayNegative(checked);
-            if (checked) {
-              setDisplayHex(false);
-            }
+            setDisplayHex(false);
           }}/>
           <SubMenuCheckBox title="Exibir coluna de caracteres" checked={displayChars} setChecked={setDisplayChars}/>
           <SubMenuSeparator/>
