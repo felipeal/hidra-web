@@ -252,7 +252,7 @@ export class Assembler {
 
       this.setPCValue(codeStringToNumber(argumentsList[0]));
     } else {
-      const { argumentsList, isAllocate } = this.normalizeDirectiveArguments(argumentsString);
+      const argumentsList = this.normalizeDirectiveArguments(argumentsString, mnemonic);
 
       const bytesPerArgument = (mnemonic === "db" || mnemonic === "dab") ? 1 : 2;
       const isDefineArray = (mnemonic === "dab" || mnemonic === "daw");
@@ -269,16 +269,7 @@ export class Assembler {
         throw new AssemblerError(AssemblerErrorCode.TOO_FEW_ARGUMENTS);
       }
 
-      // Memory allocation
-      if (isAllocate) {
-        if (mnemonic !== "dab" && mnemonic !== "daw") {
-          throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
-        } else if (reserveOnly) {
-          this.reserveAssemblerMemory(Number(argumentsList[0]) * bytesPerArgument, sourceLine);
-        } else { // Skip already reserved bytes
-          this.incrementPCValue(Number(argumentsList[0]) * bytesPerArgument);
-        }
-      } else if (reserveOnly) {
+      if (reserveOnly) {
         this.reserveAssemblerMemory(argumentsList.length * bytesPerArgument, sourceLine); // Increments PC
       } else {
         // Process each argument
@@ -478,9 +469,7 @@ export class Assembler {
     return (trimmedArguments === "") ? [] : trimmedArguments.split(Assembler.ARGUMENTS_SEPARATOR);
   }
 
-  // TODO: Instead of isAllocate special handling, return an array of zeroes
-
-  protected normalizeDirectiveArguments(argumentsString: string): { argumentsList: string[], isAllocate: boolean } {
+  protected normalizeDirectiveArguments(argumentsString: string, directive: string): string[] {
     let finalArgumentsList: string[] = [];
 
     // Regular expressions
@@ -495,7 +484,10 @@ export class Assembler {
     //////////////////////////////////////////////////
 
     if (allocateMatcher.fullMatch(argumentsString)) {
-      return { argumentsList: [allocateMatcher.cap(1)], isAllocate: true };
+      if (directive !== "dab" && directive !== "daw") {
+        throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
+      }
+      return new Array(Number(allocateMatcher.cap(1))).fill("0"); // Normalize as a list of zeroes
     }
 
     //////////////////////////////////////////////////
@@ -521,7 +513,7 @@ export class Assembler {
       }
     }
 
-    return { argumentsList: finalArgumentsList, isAllocate: false };
+    return finalArgumentsList;
   }
 
   protected validateSeparator(separator: string): void {
