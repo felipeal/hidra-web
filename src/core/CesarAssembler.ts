@@ -7,8 +7,8 @@ import { Assembler } from "./Assembler";
 
 export class CesarAssembler extends Assembler {
 
-  protected calculateNumBytes(instruction: Instruction, args: string): number {
-    const argumentList = this.splitInstructionArguments(args);
+  protected calculateNumBytes(instruction: Instruction, argumentsString: string): number {
+    const argumentsList = this.splitInstructionArguments(argumentsString);
 
     // Fixed number of bytes
     if (instruction.getNumBytes() !== 0) {
@@ -16,31 +16,31 @@ export class CesarAssembler extends Assembler {
 
     // Variable number of bytes and 1 argument
     } else if (instruction.hasParameter("a")) {
-      const hasAdditionalWord = this.hasAdditionalWord(this.extractArgument(argumentList, instruction, "a"));
+      const hasAdditionalWord = this.hasAdditionalWord(this.extractArgument(argumentsList, instruction, "a"));
       return 2 + (hasAdditionalWord ? 2 : 0);
 
     // Variable number of bytes and 2 arguments
     } else if (instruction.hasParameter("a0") && instruction.hasParameter("a1")) {
-      const hasAdditionalWordForArg0 = this.hasAdditionalWord(this.extractArgument(argumentList, instruction, "a0"));
-      const hasAdditionalWordForArg1 = this.hasAdditionalWord(this.extractArgument(argumentList, instruction, "a1"));
+      const hasAdditionalWordForArg0 = this.hasAdditionalWord(this.extractArgument(argumentsList, instruction, "a0"));
+      const hasAdditionalWordForArg1 = this.hasAdditionalWord(this.extractArgument(argumentsList, instruction, "a1"));
       return 2 + (hasAdditionalWordForArg0 ? 2 : 0) + (hasAdditionalWordForArg1 ? 2 : 0);
     }
 
     assertUnreachable("Invalid argument pattern for instruction with variable number of bytes: " + instruction.getAssemblyFormat());
   }
 
-  protected buildInstruction(instruction: Instruction, args: string): void {
-    const argumentList = this.splitInstructionArguments(args);
+  protected buildInstruction(instruction: Instruction, argumentsString: string): void {
+    const argumentsList = this.splitInstructionArguments(argumentsString);
 
     // Handle flags (early-return)
     if (instruction.hasParameter("f")) {
-      return this.buildFlagInstruction(instruction, argumentList);
+      return this.buildFlagInstruction(instruction, argumentsList);
     }
 
     // Check if number of arguments is correct
-    if (argumentList.length < instruction.getNumberOfParameters()) {
+    if (argumentsList.length < instruction.getNumberOfParameters()) {
       throw new AssemblerError(AssemblerErrorCode.TOO_FEW_ARGUMENTS);
-    } else if (argumentList.length > instruction.getNumberOfParameters()) {
+    } else if (argumentsList.length > instruction.getNumberOfParameters()) {
       throw new AssemblerError(AssemblerErrorCode.TOO_MANY_ARGUMENTS);
     }
 
@@ -50,19 +50,19 @@ export class CesarAssembler extends Assembler {
 
     // Add plain register parameter bits [.... .rrr .... ....]
     if (instruction.hasParameter("r")) {
-      instructionWord += this.registerNameToBitCode(argumentList[instruction.getParameterPos("r")]) << 8;
+      instructionWord += this.registerNameToBitCode(argumentsList[instruction.getParameterPos("r")]) << 8;
     }
 
     // Add offset instruction byte [.... .... oooo oooo]
     if (instruction.hasParameter("o")) {
-      instructionWord += this.offsetArgumentToValue(argumentList[instruction.getParameterPos("o")], instruction) & 0xFF;
+      instructionWord += this.offsetArgumentToValue(argumentsList[instruction.getParameterPos("o")], instruction) & 0xFF;
     }
 
     // Add 1st mode + register slot bits [.... mmmr rr.. ....]
     if (instruction.hasParameter("a0")) {
       const parameterPos = instruction.getParameterPos("a0");
       const wordAddress = this.machine.toValidAddress(this.pcValue + (additionalWords.length * 2) + 2);
-      const { addressingModeCode, registerName, additionalWord } = this.extractArgumentParts(argumentList[parameterPos], wordAddress);
+      const { addressingModeCode, registerName, additionalWord } = this.extractArgumentParts(argumentsList[parameterPos], wordAddress);
       instructionWord += this.machine.getAddressingModeBitCode(addressingModeCode) << 9;
       instructionWord += this.registerNameToBitCode(registerName) << 6;
 
@@ -75,7 +75,7 @@ export class CesarAssembler extends Assembler {
     if (instruction.hasParameter("a1") || instruction.hasParameter("a")) {
       const parameterPos = (instruction.hasParameter("a1") ? instruction.getParameterPos("a1") : instruction.getParameterPos("a"));
       const wordAddress = this.machine.toValidAddress(this.pcValue + (additionalWords.length * 2) + 2);
-      const { addressingModeCode, registerName, additionalWord } = this.extractArgumentParts(argumentList[parameterPos], wordAddress);
+      const { addressingModeCode, registerName, additionalWord } = this.extractArgumentParts(argumentsList[parameterPos], wordAddress);
       instructionWord += this.machine.getAddressingModeBitCode(addressingModeCode) << 3;
       instructionWord += this.registerNameToBitCode(registerName);
 
@@ -97,8 +97,8 @@ export class CesarAssembler extends Assembler {
     }
   }
 
-  protected splitInstructionArguments(args: string): string[] {
-    const trimmedArguments = args.trim();
+  protected splitInstructionArguments(argumentsString: string): string[] {
+    const trimmedArguments = argumentsString.trim();
     return (trimmedArguments === "") ? [] : trimmedArguments.split(Assembler.ARGUMENTS_SEPARATOR);
   }
 
@@ -106,12 +106,12 @@ export class CesarAssembler extends Assembler {
   // Flag instructions
   //////////////////////////////////////////////////
 
-  protected buildFlagInstruction(instruction: Instruction, argumentList: string[]): void {
+  protected buildFlagInstruction(instruction: Instruction, argumentsList: string[]): void {
     // Split a single argument with concatenated flags into multiple arguments:
-    const argumentListSplit = (argumentList.length === 1) ? argumentList[0].split("") : argumentList;
+    const argumentsListSplit = (argumentsList.length === 1) ? argumentsList[0].split("") : argumentsList;
 
     let n, z, v, c;
-    let remainingArguments = argumentListSplit;
+    let remainingArguments = argumentsListSplit;
 
     [n, remainingArguments] = this.extractFlag(remainingArguments, "N");
     [z, remainingArguments] = this.extractFlag(remainingArguments, "Z");
@@ -126,12 +126,12 @@ export class CesarAssembler extends Assembler {
     this.setAssemblerMemoryNext(instruction.getByteValue() + (n << 3) + (z << 2) + (v << 1) + c);
   }
 
-  protected extractFlag(argumentList: string[], flagName: string): [ flagBit: 1 | 0, listWithoutFlag: string[] ] {
-    const flagIndex = argumentList.includes(flagName) ? argumentList.indexOf(flagName) : argumentList.indexOf(flagName.toLowerCase());
+  protected extractFlag(argumentsList: string[], flagName: string): [ flagBit: 1 | 0, listWithoutFlag: string[] ] {
+    const flagIndex = argumentsList.includes(flagName) ? argumentsList.indexOf(flagName) : argumentsList.indexOf(flagName.toLowerCase());
     if (flagIndex > -1) {
-      return [1, removeItem(argumentList, flagIndex)];
+      return [1, removeItem(argumentsList, flagIndex)];
     } else {
-      return [0, argumentList];
+      return [0, argumentsList];
     }
   }
 

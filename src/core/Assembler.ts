@@ -115,14 +115,14 @@ export class Assembler {
 
         if (firstTokenMatcher.match(sourceLines[lineIndex])) {
           const mnemonic = firstTokenMatcher.cap(1).toLowerCase();
-          const args = sourceLines[lineIndex].slice(firstTokenMatcher.cap(0).length); // Everything after mnemonic
+          const argumentsString = sourceLines[lineIndex].slice(firstTokenMatcher.cap(0).length); // Everything after mnemonic
 
           const instruction = this.machine.getInstructionFromMnemonic(mnemonic);
           if (instruction !== null) {
-            const numBytes = this.calculateNumBytes(instruction, args);
+            const numBytes = this.calculateNumBytes(instruction, argumentsString);
             this.reserveAssemblerMemory(numBytes, lineIndex);
           } else if (Assembler.DIRECTIVES.includes(mnemonic)) {
-            this.obeyDirective(mnemonic, args, true, lineIndex);
+            this.obeyDirective(mnemonic, argumentsString, true, lineIndex);
           } else {
             throw new AssemblerError(AssemblerErrorCode.INVALID_MNEMONIC);
           }
@@ -154,13 +154,13 @@ export class Assembler {
           this.sourceLineCorrespondingAddress[lineIndex] = this.getPCValue();
 
           const mnemonic = firstTokenMatcher.cap(1).toLowerCase();
-          const args = sourceLines[lineIndex].slice(firstTokenMatcher.cap(0).length); // Everything after mnemonic
+          const argumentsString = sourceLines[lineIndex].slice(firstTokenMatcher.cap(0).length); // Everything after mnemonic
 
           const instruction: Instruction | null = this.machine.getInstructionFromMnemonic(mnemonic);
           if (instruction !== null) {
-            this.buildInstruction(instruction, args);
+            this.buildInstruction(instruction, argumentsString);
           } else {
-            this.obeyDirective(mnemonic, args, false, lineIndex);
+            this.obeyDirective(mnemonic, argumentsString, false, lineIndex);
           }
         }
       } catch (error: unknown) {
@@ -185,15 +185,15 @@ export class Assembler {
     return [];
   }
 
-  protected calculateNumBytes(instruction: Instruction, args: string): number {
+  protected calculateNumBytes(instruction: Instruction, argumentsString: string): number {
     // Fixed number of bytes
     if (instruction.getNumBytes() > 0) {
       return instruction.getNumBytes();
 
     // Variable number of bytes and 1 argument
     } else if (instruction.hasParameter("a")) {
-      const argumentList = this.splitInstructionArguments(args);
-      const argument = this.extractArgument(argumentList, instruction, "a");
+      const argumentsList = this.splitInstructionArguments(argumentsString);
+      const argument = this.extractArgument(argumentsList, instruction, "a");
       const { addressingModeCode } = this.extractArgumentAddressingModeCode(argument);
       return this.machine.calculateInstructionNumBytes(instruction, addressingModeCode);
     }
@@ -203,8 +203,8 @@ export class Assembler {
 
   // TODO: Check if other places could break because of the array access
   // Extracts argument that corresponds to a given parameter. Throws AssemblerError if missing.
-  protected extractArgument(argumentList: string[], instruction: Instruction, parameter: string): string {
-    const argument = argumentList[instruction.getParameterPos(parameter)];
+  protected extractArgument(argumentsList: string[], instruction: Instruction, parameter: string): string {
+    const argument = argumentsList[instruction.getParameterPos(parameter)];
     if (!argument) {
       throw new AssemblerError(AssemblerErrorCode.TOO_FEW_ARGUMENTS);
     }
@@ -235,37 +235,37 @@ export class Assembler {
     return result;
   }
 
-  protected obeyDirective(mnemonic: string, args: string, reserveOnly: boolean, sourceLine: number): void {
+  protected obeyDirective(mnemonic: string, argumentsString: string, reserveOnly: boolean, sourceLine: number): void {
     assert(Assembler.DIRECTIVES.includes(mnemonic), `Unexpected argument for obeyDirective: ${mnemonic}`);
 
     if (mnemonic === "org") {
-      const argumentList = this.splitOrgArguments(args);
-      const numberOfArguments = argumentList.length;
+      const argumentsList = this.splitOrgArguments(argumentsString);
+      const numberOfArguments = argumentsList.length;
 
       if (numberOfArguments < 1) {
         throw new AssemblerError(AssemblerErrorCode.TOO_FEW_ARGUMENTS);
       } else if (numberOfArguments > 1) {
         throw new AssemblerError(AssemblerErrorCode.TOO_MANY_ARGUMENTS);
-      } else if (!this.isValidOrg(argumentList[0])) {
+      } else if (!this.isValidOrg(argumentsList[0])) {
         throw new AssemblerError(AssemblerErrorCode.INVALID_ADDRESS);
       }
 
-      this.setPCValue(codeStringToNumber(argumentList[0]));
+      this.setPCValue(codeStringToNumber(argumentsList[0]));
     } else {
-      const { argumentList, isAllocate } = this.normalizeDirectiveArguments(args);
+      const { argumentsList, isAllocate } = this.normalizeDirectiveArguments(argumentsString);
 
       const bytesPerArgument = (mnemonic === "db" || mnemonic === "dab") ? 1 : 2;
       const isDefineArray = (mnemonic === "dab" || mnemonic === "daw");
       const allowLabels = (mnemonic === "db" || mnemonic === "dw"); // Daedalus only allows labels for DB/DW
 
-      if (!isDefineArray && argumentList.length === 0) {
-        argumentList.push("0"); // Default to argument 0 in case of DB and DW
+      if (!isDefineArray && argumentsList.length === 0) {
+        argumentsList.push("0"); // Default to argument 0 in case of DB and DW
       }
 
       // Validate number of arguments
-      if (!isDefineArray && argumentList.length > 1) {
+      if (!isDefineArray && argumentsList.length > 1) {
         throw new AssemblerError(AssemblerErrorCode.TOO_MANY_ARGUMENTS); // TODO: Error specific to strings too?
-      } else if (isDefineArray && argumentList.length < 1) {
+      } else if (isDefineArray && argumentsList.length < 1) {
         throw new AssemblerError(AssemblerErrorCode.TOO_FEW_ARGUMENTS);
       }
 
@@ -274,15 +274,15 @@ export class Assembler {
         if (mnemonic !== "dab" && mnemonic !== "daw") {
           throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
         } else if (reserveOnly) {
-          this.reserveAssemblerMemory(Number(argumentList[0]) * bytesPerArgument, sourceLine);
+          this.reserveAssemblerMemory(Number(argumentsList[0]) * bytesPerArgument, sourceLine);
         } else { // Skip already reserved bytes
-          this.incrementPCValue(Number(argumentList[0]) * bytesPerArgument);
+          this.incrementPCValue(Number(argumentsList[0]) * bytesPerArgument);
         }
       } else if (reserveOnly) {
-        this.reserveAssemblerMemory(argumentList.length * bytesPerArgument, sourceLine); // Increments PC
+        this.reserveAssemblerMemory(argumentsList.length * bytesPerArgument, sourceLine); // Increments PC
       } else {
         // Process each argument
-        for (const argument of argumentList) {
+        for (const argument of argumentsList) {
           const value = this.argumentToValue(argument, { isImmediate: true, defineNumBytes: bytesPerArgument, allowLabels });
 
           // Write value
@@ -296,29 +296,29 @@ export class Assembler {
     }
   }
 
-  protected buildInstruction(instruction: Instruction, args: string): void {
-    const argumentList = this.splitInstructionArguments(args);
+  protected buildInstruction(instruction: Instruction, argumentsString: string): void {
+    const argumentsList = this.splitInstructionArguments(argumentsString);
 
     let isImmediate = false;
     let registerBitCode = 0b00000000;
     let addressingModeBitCode = 0b00000000;
 
     // Check if number of arguments is correct
-    if (argumentList.length < instruction.getNumberOfParameters()) {
+    if (argumentsList.length < instruction.getNumberOfParameters()) {
       throw new AssemblerError(AssemblerErrorCode.TOO_FEW_ARGUMENTS);
-    } else if (argumentList.length > instruction.getNumberOfParameters()) {
+    } else if (argumentsList.length > instruction.getNumberOfParameters()) {
       throw new AssemblerError(AssemblerErrorCode.TOO_MANY_ARGUMENTS);
     }
 
-    // If argumentList contains a register
+    // If argumentsList contains a register
     if (instruction.hasParameter("r")) {
-      registerBitCode = this.registerNameToBitCode(argumentList[instruction.getParameterPos("r")]);
+      registerBitCode = this.registerNameToBitCode(argumentsList[instruction.getParameterPos("r")]);
     }
 
-    // If argumentList contains an address/value
+    // If argumentsList contains an address/value
     if (instruction.hasParameter("a")) {
-      const { argument: extractedArgument, addressingModeCode } = this.extractArgumentAddressingModeCode(argumentList[instruction.getParameterPos("a")]);
-      argumentList[instruction.getParameterPos("a")] = extractedArgument;
+      const { argument: extractedArgument, addressingModeCode } = this.extractArgumentAddressingModeCode(argumentsList[instruction.getParameterPos("a")]);
+      argumentsList[instruction.getParameterPos("a")] = extractedArgument;
       addressingModeBitCode = this.machine.getAddressingModeBitCode(addressingModeCode);
       isImmediate = (addressingModeCode === AddressingModeCode.IMMEDIATE);
     }
@@ -328,18 +328,18 @@ export class Assembler {
 
     // Write second byte (if 1-byte address/immediate value)
     if (instruction.getNumBytes() === 2 || isImmediate) {
-      const value = this.argumentToValue(argumentList[instruction.getParameterPos("a")], { isImmediate });
+      const value = this.argumentToValue(argumentsList[instruction.getParameterPos("a")], { isImmediate });
       this.setAssemblerMemoryNext(value);
 
     // Write second and third bytes (if 2-byte addresses)
     } else if (instruction.hasParameter("a")) {
-      const address = this.argumentToValue(argumentList[instruction.getParameterPos("a")], { isImmediate });
+      const address = this.argumentToValue(argumentsList[instruction.getParameterPos("a")], { isImmediate });
       this.setAssemblerMemoryNextWord(address);
 
     // If instruction has two addresses (REG_IF), write both addresses
     } else if (instruction.hasParameter("a0") && instruction.hasParameter("a1")) {
-      this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instruction.getParameterPos("a0")], { isImmediate }));
-      this.setAssemblerMemoryNext(this.argumentToValue(argumentList[instruction.getParameterPos("a1")], { isImmediate }));
+      this.setAssemblerMemoryNext(this.argumentToValue(argumentsList[instruction.getParameterPos("a0")], { isImmediate }));
+      this.setAssemblerMemoryNext(this.argumentToValue(argumentsList[instruction.getParameterPos("a1")], { isImmediate }));
     }
   }
 
@@ -468,62 +468,60 @@ export class Assembler {
   }
 
   // Does not allow commas by default, since it conflicts with addressing modes for 8-bit machines
-  protected splitInstructionArguments(args: string): string[] {
-    const trimmedArguments = args.trim();
+  protected splitInstructionArguments(argumentsString: string): string[] {
+    const trimmedArguments = argumentsString.trim();
     return (trimmedArguments === "") ? [] : trimmedArguments.split(Assembler.WHITESPACE);
   }
 
-  protected splitOrgArguments(args: string): string[] {
-    const trimmedArguments = args.trim();
+  protected splitOrgArguments(argumentsString: string): string[] {
+    const trimmedArguments = argumentsString.trim();
     return (trimmedArguments === "") ? [] : trimmedArguments.split(Assembler.ARGUMENTS_SEPARATOR);
   }
 
-  // TODO: Change args to argumentsString, argumentList to argumentsList, finalArgumentList to finalArgumentsList
-
   // TODO: Instead of isAllocate special handling, return an array of zeroes
 
-  protected normalizeDirectiveArguments(args: string): { argumentList: string[], isAllocate: boolean } {
-    let finalArgumentList: string[] = [];
+  protected normalizeDirectiveArguments(argumentsString: string): { argumentsList: string[], isAllocate: boolean } {
+    let finalArgumentsList: string[] = [];
 
     // Regular expressions
     const allocateMatcher = new RegExpMatcher(/\[(\d+)\]/); // Digits between brackets
     const valueMatcher = new RegExpMatcher(Assembler.VALUE_PATTERN); // (1=value)(2=separator)
     const stringMatcher = new RegExpMatcher(Assembler.STRING_PATTERN); // '(1=string)'(3=separator)
 
-    args = args.trim(); // Trim whitespace
+    argumentsString = argumentsString.trim(); // Trim whitespace
 
     //////////////////////////////////////////////////
     // Byte/Word allocation
     //////////////////////////////////////////////////
 
-    if (allocateMatcher.fullMatch(args)) {
-      return { argumentList: [allocateMatcher.cap(1)], isAllocate: true };
+    if (allocateMatcher.fullMatch(argumentsString)) {
+      return { argumentsList: [allocateMatcher.cap(1)], isAllocate: true };
     }
 
     //////////////////////////////////////////////////
     // String/Value arguments
     //////////////////////////////////////////////////
 
-    while (args.length > 0) {
-      if (valueMatcher.match(args)) {
+    while (argumentsString.length > 0) {
+      if (valueMatcher.match(argumentsString)) {
         this.validateSeparator(valueMatcher.cap(2));
-        finalArgumentList.push(valueMatcher.cap(1));
-        args = args.slice(valueMatcher.cap(0).length);
-      } else if (stringMatcher.match(args)) {
+        finalArgumentsList.push(valueMatcher.cap(1));
+        argumentsString = argumentsString.slice(valueMatcher.cap(0).length);
+      } else if (stringMatcher.match(argumentsString)) {
         this.validateSeparator(stringMatcher.cap(3));
         const stringContent = stringMatcher.cap(1);
         const parsedStringContent = stringContent.replaceAll("'''", "'"); // Replace escaped single quotes
         const charList = parsedStringContent.split("").map(c => `'${c}'`);
-        finalArgumentList = finalArgumentList.concat(charList);
-        args = args.slice(stringMatcher.cap(0).length);
-      } else if (args.startsWith("'")) {
+        finalArgumentsList = finalArgumentsList.concat(charList);
+        argumentsString = argumentsString.slice(stringMatcher.cap(0).length);
+      } else if (argumentsString.startsWith("'")) {
         throw new AssemblerError(AssemblerErrorCode.INVALID_STRING);
       } else {
         throw new AssemblerError(AssemblerErrorCode.INVALID_ARGUMENT);
       }
     }
 
-    return { argumentList: finalArgumentList, isAllocate: false };
+    return { argumentsList: finalArgumentsList, isAllocate: false };
   }
 
   protected validateSeparator(separator: string): void {
