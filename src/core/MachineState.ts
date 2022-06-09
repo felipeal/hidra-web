@@ -123,7 +123,7 @@ export abstract class MachineState {
     this.publishEvent(`INS.STR.${validAddress}`, str);
   }
 
-  public clearInstructionStrings(): void {
+  protected clearInstructionStrings(): void {
     for (const address of range(this.instructionStrings.length)) {
       this.setInstructionString(address, "");
     }
@@ -155,7 +155,7 @@ export abstract class MachineState {
     this.publishEvent(`FLAG.${flag.getName()}`, value);
   }
 
-  public setFlagValueByFlagCode(flagCode: FlagCode, value: boolean): void {
+  protected setFlagValueByFlagCode(flagCode: FlagCode, value: boolean): void {
     const flag = this.flags.find(flag => flag.getFlagCode() === flagCode);
     if (!flag) {
       return; // Flag type not available, safe to skip
@@ -165,7 +165,7 @@ export abstract class MachineState {
     this.publishEvent(`FLAG.${flag.getName()}`, value);
   }
 
-  public clearFlags(): void {
+  protected clearFlags(): void {
     for (const flag of this.flags) {
       flag.resetValue();
       this.publishEvent(`FLAG.${flag.getName()}`, flag.getValue());
@@ -222,7 +222,7 @@ export abstract class MachineState {
     this.publishEvent(`REG.${registerName}`, register.getValue());
   }
 
-  public clearRegisters(): void {
+  protected clearRegisters(): void {
     for (const register of this.registers) {
       register.setValue(0);
       this.publishEvent(`REG.${register.getName()}`, 0);
@@ -242,7 +242,7 @@ export abstract class MachineState {
     this.publishEvent(`REG.${this.pc.getName()}`, this.pc.getValue());
   }
 
-  public incrementPCValue(units = 1): void {
+  protected incrementPCValue(units = 1): void {
     this.setPCValue(this.pc.getValue() + units);
   }
 
@@ -250,7 +250,7 @@ export abstract class MachineState {
     return this.instructions;
   }
 
-  public getInstructionFromValue(value: number): Instruction | null {
+  protected getInstructionFromValue(value: number): Instruction | null {
     return this.instructions.find(instruction => instruction.matchByte(value)) || null;
   }
 
@@ -294,7 +294,7 @@ export abstract class MachineState {
     return this.instructionCount;
   }
 
-  public incrementInstructionCount(): void {
+  protected incrementInstructionCount(): void {
     this.instructionCount++;
     this.publishEvent("INS.COUNT", this.instructionCount);
   }
@@ -303,7 +303,7 @@ export abstract class MachineState {
     return this.accessCount;
   }
 
-  public incrementAccessCount(): void {
+  protected incrementAccessCount(): void {
     this.accessCount++;
     this.publishEvent("ACC.COUNT", this.accessCount);
   }

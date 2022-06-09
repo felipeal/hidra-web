@@ -17,13 +17,13 @@ export abstract class Machine extends MachineState {
     this.executeInstruction(instruction, addressingModeCode, registerName, immediateAddress);
   }
 
-  public fetchInstruction(): { fetchedValue: number, instruction: Instruction | null } {
+  protected fetchInstruction(): { fetchedValue: number, instruction: Instruction | null } {
     const fetchedValue = this.memoryReadNext(); // Read first byte
     const instruction = this.getInstructionFromValue(fetchedValue);
     return { fetchedValue, instruction };
   }
 
-  public decodeInstruction(
+  protected decodeInstruction(
     fetchedValue: number, instruction: Instruction | null
   ): { addressingModeCode: AddressingModeCode, registerName: string, immediateAddress: number } {
     const addressingModeCode = this.extractAddressingModeCode(fetchedValue);
@@ -46,7 +46,7 @@ export abstract class Machine extends MachineState {
     return instruction.getNumBytes();
   }
 
-  public executeInstruction(instruction: Instruction | null, addressingModeCode: AddressingModeCode, registerName: string, immediateAddress: number): void {
+  protected executeInstruction(instruction: Instruction | null, addressingModeCode: AddressingModeCode, registerName: string, immediateAddress: number): void {
     let value1: number, value2: number, result: number;
     const instructionCode = (instruction) ? instruction.getInstructionCode() : InstructionCode.NOP;
     const isImmediate = (addressingModeCode === AddressingModeCode.IMMEDIATE); // Used to invalidate immediate jumps
@@ -259,14 +259,14 @@ export abstract class Machine extends MachineState {
     this.incrementInstructionCount();
   }
 
-  public extractAddressingModeCode(fetchedValue: number): AddressingModeCode {
+  protected extractAddressingModeCode(fetchedValue: number): AddressingModeCode {
     const bitPattern = unsignedByteToBitPattern(fetchedValue);
     const addressingMode = this.getAddressingModes().find(m => m.matchesBitPattern(bitPattern));
     assert(addressingMode, `Addressing mode not found for fetched value: ${fetchedValue}`);
     return addressingMode.getAddressingModeCode();
   }
 
-  public extractRegisterName(fetchedValue: number): string {
+  protected extractRegisterName(fetchedValue: number): string {
     for (const register of this.getRegisters()) {
       if (register.matchByte(fetchedValue)) {
         return register.getName();
@@ -276,16 +276,16 @@ export abstract class Machine extends MachineState {
     return ""; // Undefined register
   }
 
-  public setOverflow(state: boolean): void {
+  protected setOverflow(state: boolean): void {
     this.setFlagValueByFlagCode(FlagCode.OVERFLOW, state);
   }
 
-  public setCarry(state: boolean | number): void {
+  protected setCarry(state: boolean | number): void {
     this.setFlagValueByFlagCode(FlagCode.CARRY, Boolean(state));
   }
 
   // Note: Some machines use carry as not borrow
-  public setBorrowOrCarry(borrowState: boolean | number): void {
+  protected setBorrowOrCarry(borrowState: boolean | number): void {
     if (this.hasFlag(FlagCode.BORROW)) {
       this.setFlagValueByFlagCode(FlagCode.BORROW, Boolean(borrowState));
     } else {
@@ -294,7 +294,7 @@ export abstract class Machine extends MachineState {
   }
 
   // Updates N and Z
-  public updateFlags(value: number): void {
+  protected updateFlags(value: number): void {
     this.setFlagValue("N", toSigned(value) < 0);
     this.setFlagValue("Z", value === 0);
   }
@@ -304,26 +304,26 @@ export abstract class Machine extends MachineState {
   //////////////////////////////////////////////////
 
   // Increments accessCount
-  public memoryRead(address: number): number {
+  protected memoryRead(address: number): number {
     this.incrementAccessCount();
     return this.getMemoryValue(address);
   }
 
   // Increments accessCount
-  public memoryWrite(address: number, value: number): void {
+  protected memoryWrite(address: number, value: number): void {
     this.incrementAccessCount();
     this.setMemoryValue(address, value);
   }
 
   // Returns value pointed to by PC, then increments PC. Increments accessCount.
-  public memoryReadNext(): number {
+  protected memoryReadNext(): number {
     const value = this.memoryRead(this.getPCValue());
     this.incrementPCValue();
     return value;
   }
 
   // Increments accessCount
-  public memoryReadOperandAddress(immediateAddress: number, addressingModeCode: AddressingModeCode): number {
+  protected memoryReadOperandAddress(immediateAddress: number, addressingModeCode: AddressingModeCode): number {
     switch (addressingModeCode) {
       case AddressingModeCode.DIRECT:
         return this.memoryRead(immediateAddress);
@@ -346,17 +346,17 @@ export abstract class Machine extends MachineState {
   }
 
   // Increments accessCount
-  public memoryReadOperandValue(immediateAddress: number, addressingModeCode: AddressingModeCode): number {
+  protected memoryReadOperandValue(immediateAddress: number, addressingModeCode: AddressingModeCode): number {
     return this.memoryRead(this.memoryReadOperandAddress(immediateAddress, addressingModeCode)); // Return 1-byte value
   }
 
   // Increments accessCount
-  public memoryReadJumpAddress(immediateAddress: number, addressingModeCode: AddressingModeCode): number {
+  protected memoryReadJumpAddress(immediateAddress: number, addressingModeCode: AddressingModeCode): number {
     return this.memoryReadOperandAddress(immediateAddress, addressingModeCode);
   }
 
   // Increments accessCount
-  public memoryReadTwoByteAddress(address: number): number {
+  protected memoryReadTwoByteAddress(address: number): number {
     if (this.isLittleEndian()) {
       return this.toValidAddress(this.memoryRead(address) + (this.memoryRead(address + 1) << 8));
     } else {
@@ -393,7 +393,7 @@ export abstract class Machine extends MachineState {
     }
   }
 
-  public generateInstructionString(address: number): { memoryString: string, argumentsSize: number } {
+  protected generateInstructionString(address: number): { memoryString: string, argumentsSize: number } {
     let memoryString = "";
     let argumentsSize = 0;
 
@@ -425,7 +425,7 @@ export abstract class Machine extends MachineState {
     return { memoryString, argumentsSize };
   }
 
-  public generateArgumentsString(
+  protected generateArgumentsString(
     address: number, instruction: Instruction, addressingModeCode: AddressingModeCode
   ): { argument: string, argumentsSize: number } {
     let argument = String(this.getMemoryValue(address + 1));
@@ -491,7 +491,7 @@ export abstract class Machine extends MachineState {
     return { intermediateAddress, intermediateAddressByte2, finalOperandAddress };
   }
 
-  public getMemoryTwoByteAddress(address: number): number {
+  protected getMemoryTwoByteAddress(address: number): number {
     if (this.isLittleEndian()) {
       return this.toValidAddress(this.getMemoryValue(address) + (this.getMemoryValue(address + 1) << 8));
     } else {
@@ -499,12 +499,12 @@ export abstract class Machine extends MachineState {
     }
   }
 
-  public addValueToRegister(registerName: string, value: number): number {
+  protected addValueToRegister(registerName: string, value: number): number {
     this.setRegisterValue(registerName, this.getRegisterValue(registerName) + value);
     return this.getRegisterValue(registerName);
   }
 
-  public subtractValueFromRegister(registerName: string, value: number): number {
+  protected subtractValueFromRegister(registerName: string, value: number): number {
     this.setRegisterValue(registerName, this.getRegisterValue(registerName) - value);
     return this.getRegisterValue(registerName);
   }
