@@ -2,16 +2,7 @@ import { Assembler } from "../../core/Assembler";
 import { CesarAssembler } from "../../core/CesarAssembler";
 import { FileError, FileErrorCode } from "../../core/FileError";
 import { Machine } from "../../core/Machine";
-import { Ahmes } from "../../core/machines/Ahmes";
 import { Cesar } from "../../core/machines/Cesar";
-import { Cromag } from "../../core/machines/Cromag";
-import { Neander } from "../../core/machines/Neander";
-import { Pericles } from "../../core/machines/Pericles";
-import { Pitagoras } from "../../core/machines/Pitagoras";
-import { Queops } from "../../core/machines/Queops";
-import { Ramses } from "../../core/machines/Ramses";
-import { Reg } from "../../core/machines/Reg";
-import { Volta } from "../../core/machines/Volta";
 import { assert } from "../../core/utils/FunctionUtils";
 import { buildMachine, getMachineNames } from "./MachineUtils";
 
@@ -40,20 +31,14 @@ export function buildMachineBasedOnFileName(fileName: string, fallbackMachineNam
 }
 
 export function buildMachineBasedOnIdentifier(identifier: string): Machine | null {
-  // TODO: Static identifiers?
-  switch (identifier) {
-    case (new Neander().getIdentifier()): return new Neander();
-    case (new Ahmes().getIdentifier()): return new Ahmes();
-    case (new Ramses().getIdentifier()): return new Ramses();
-    case (new Cromag().getIdentifier()): return new Cromag();
-    case (new Queops().getIdentifier()): return new Queops();
-    case (new Pitagoras().getIdentifier()): return new Pitagoras();
-    case (new Pericles().getIdentifier()): return new Pericles();
-    case (new Reg().getIdentifier()): return new Reg();
-    case (new Volta().getIdentifier()): return new Volta();
-    case (new Cesar().getIdentifier()): return new Cesar();
-    default: return null;
+  for (const machineName of getMachineNames()) {
+    const machine = buildMachine(machineName);
+    if (machine.getIdentifier() === identifier) {
+      return machine;
+    }
   }
+
+  return null;
 }
 
 export function buildAssemblerBasedOnMachine(machine: Machine): Assembler {
