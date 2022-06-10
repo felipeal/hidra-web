@@ -12,6 +12,7 @@ export class Pericles extends Machine {
     super({
       name: "Pericles",
       identifier: "PRC",
+      fileExtension: "prd",
       memorySize: 4096,
       flags: [
         new Flag(FlagCode.NEGATIVE, "N"),

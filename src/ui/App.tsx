@@ -136,7 +136,7 @@ export default function App() {
 
   async function loadFile(file: File | null | undefined) {
     // Detect binary files
-    if (file?.name.endsWith(".mem")) {
+    if (file?.name.toLowerCase().endsWith(".mem")) {
       await loadBinaryFile(file);
       return;
     }

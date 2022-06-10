@@ -11,6 +11,7 @@ export class Reg extends Machine {
     super({
       name: "REG",
       identifier: "REG",
+      fileExtension: "red",
       memorySize: 256,
       flags: [
       ],

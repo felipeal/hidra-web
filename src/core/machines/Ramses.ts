@@ -10,6 +10,7 @@ export class Ramses extends Machine {
     super({
       name: "Ramses",
       identifier: "RMS",
+      fileExtension: "rad",
       memorySize: 256,
       flags: [
         new Flag(FlagCode.NEGATIVE, "N"),

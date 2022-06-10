@@ -15,6 +15,7 @@ export class Volta extends Machine {
     super({
       name: "Volta",
       identifier: "VLT", // Note: Not confirmed
+      fileExtension: "vod",
       memorySize: 256,
       flags: [
       ],

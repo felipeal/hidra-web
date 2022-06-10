@@ -10,6 +10,7 @@ export class Pitagoras extends Machine {
     super({
       name: "Pitagoras",
       identifier: "PTG", // Note: Not confirmed
+      fileExtension: "ptd", // Unavailable: .pid, .pit
       memorySize: 256,
       flags: [
         new Flag(FlagCode.NEGATIVE, "N"),

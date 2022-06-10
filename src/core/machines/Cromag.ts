@@ -10,6 +10,7 @@ export class Cromag extends Machine {
     super({
       name: "Cromag",
       identifier: "CRM", // Note: Not confirmed
+      fileExtension: "cro", // Unavailable: .crd, .cmd
       memorySize: 256,
       flags: [
         new Flag(FlagCode.NEGATIVE, "N"),

@@ -10,6 +10,7 @@ export class Queops extends Machine {
     super({
       name: "Queops",
       identifier: "QPS",
+      fileExtension: "qpd",
       memorySize: 256,
       flags: [
         new Flag(FlagCode.NEGATIVE, "N"),

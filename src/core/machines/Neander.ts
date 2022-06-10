@@ -10,6 +10,7 @@ export class Neander extends Machine {
     super({
       name: "Neander",
       identifier: "NDR",
+      fileExtension: "ned",
       memorySize: 256,
       flags: [
         new Flag(FlagCode.NEGATIVE, "N"),

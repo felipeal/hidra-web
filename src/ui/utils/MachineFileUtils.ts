@@ -12,57 +12,31 @@ import { Queops } from "../../core/machines/Queops";
 import { Ramses } from "../../core/machines/Ramses";
 import { Reg } from "../../core/machines/Reg";
 import { Volta } from "../../core/machines/Volta";
-import { assertUnreachable } from "../../core/utils/FunctionUtils";
-import { buildMachine } from "./MachineUtils";
+import { assert } from "../../core/utils/FunctionUtils";
+import { buildMachine, getMachineNames } from "./MachineUtils";
 
 const IDENTIFIER_LENGTH = 3;
 
 export function generateFileNameForMachine(machine: Machine, { isBinary = false } = {}): string {
   const localDate = new Date().toLocaleString("sv"); // 2000-12-31 00:00:00
   const sanitizedLocalDate = localDate.replace(" ", "_").replaceAll(":", "-"); // 2000-12-31_00-00-00
-  const extension = isBinary ? "mem" : getMachineFileExtension(machine);
+  const extension = isBinary ? "mem" : machine.getFileExtension();
   const fileName = `${machine.getName()}_${sanitizedLocalDate}.${extension}`;
   return fileName;
 }
 
-export function getMachineFileExtension(machine: Machine): string {
-  switch (machine.getName()) {
-    case "Neander": return "ned";
-    case "Ahmes": return "ahd";
-    case "Ramses": return "rad";
-    case "Cromag": return "cro"; // .crd .cmd N/A
-    case "Queops": return "qpd";
-    case "Pitagoras": return "ptd";
-    case "Pericles": return "prd"; // .pid .pit N/A
-    case "REG": return "red";
-    case "Volta": return "vod";
-    case "Cesar": return "ced";
-    default: assertUnreachable(`No file extension for machine: ${machine.getName()}`);
-  }
-}
-
-// TODO: Map machine to extensions only once
 export function buildMachineBasedOnFileName(fileName: string, fallbackMachineName?: string): Machine {
-  const fileExtension = fileName.replace(/.*\./, "");
+  const fileExtension = fileName.split(".").slice(1).pop() ?? "";
 
-  switch (fileExtension) {
-    case "ned": return new Neander();
-    case "ahd": return new Ahmes();
-    case "rad": return new Ramses();
-    case "cro": return new Cromag();
-    case "qpd": return new Queops();
-    case "ptd": return new Pitagoras();
-    case "prd": return new Pericles();
-    case "red": return new Reg();
-    case "vod": return new Volta();
-    case "ced": return new Cesar();
+  for (const machineName of getMachineNames()) {
+    const machine = buildMachine(machineName);
+    if (machine.getFileExtension() === fileExtension.toLowerCase()) {
+      return machine;
+    }
   }
 
-  if (fallbackMachineName) {
-    return buildMachine(fallbackMachineName);
-  } else {
-    assertUnreachable(`No machine found for extension: ${fileExtension}`);
-  }
+  assert(fallbackMachineName, `No fallback provided and no machine found for extension: ${fileExtension}`);
+  return buildMachine(fallbackMachineName);
 }
 
 export function buildMachineBasedOnIdentifier(identifier: string): Machine | null {

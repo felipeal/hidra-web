@@ -10,6 +10,7 @@ import { bitPatternToUnsignedByte } from "./utils/Conversions";
 interface MachineSettings {
   name: string,
   identifier: string,
+  fileExtension: string,
   memorySize: number,
   flags: Flag[],
   registers: Register[],
@@ -27,6 +28,7 @@ export abstract class MachineState {
   // Machine setttings (always assigned in constructor)
   private name!: string;
   private identifier!: string;
+  private fileExtension!: string;
   private memorySize!: number;
   private flags!: Flag[];
   private registers!: Register[];
@@ -67,6 +69,10 @@ export abstract class MachineState {
 
   public getIdentifier(): string {
     return this.identifier;
+  }
+
+  public getFileExtension(): string {
+    return this.fileExtension;
   }
 
   public isLittleEndian(): boolean {

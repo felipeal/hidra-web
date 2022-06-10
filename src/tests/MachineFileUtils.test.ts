@@ -1,14 +1,14 @@
 import { } from "./utils/jsdomSetup";
 
 import { } from "./utils/CustomExtends";
-import { Neander } from "../core/machines/Neander";
-import { buildMachineBasedOnIdentifier, exportMemory, generateFileNameForMachine, getMachineFileExtension, importMemory }
+import { buildMachineBasedOnFileName, buildMachineBasedOnIdentifier, exportMemory, generateFileNameForMachine, importMemory }
   from "../ui/utils/MachineFileUtils";
 import { buildMachine, getMachineNames } from "../ui/utils/MachineUtils";
-import { expectDistinctStrings } from "./utils/StringTestFunctions";
 import { Machine } from "../core/Machine";
+import { Neander } from "../core/machines/Neander";
 import { Ahmes } from "../core/machines/Ahmes";
 import { Ramses } from "../core/machines/Ramses";
+import { Cesar } from "../core/machines/Cesar";
 import { FileError, FileErrorCode } from "../core/FileError";
 
 function valueToUint8(value: number | string): number {
@@ -48,13 +48,24 @@ describe("Machine File Utils", () => {
     expect(generateFileNameForMachine(new Neander(), { isBinary: true })).toMatch(fileNameRegEx);
   });
 
-  test("getMachineFileExtension: should have distinct extensions for each machines", () => {
-    const extensions = getMachineNames().map((name) => getMachineFileExtension(buildMachine(name)));
-    expectDistinctStrings(extensions);
+  test("buildMachineBasedOnFileName: should map extensions correctly", () => {
+    expect(buildMachineBasedOnFileName("test.ned")).toBeInstanceOf(Neander);
+    expect(buildMachineBasedOnFileName("test.ahd")).toBeInstanceOf(Ahmes);
+    expect(buildMachineBasedOnFileName("test.rad")).toBeInstanceOf(Ramses);
+    expect(buildMachineBasedOnFileName("test.ced")).toBeInstanceOf(Cesar);
   });
 
-  test.skip("buildMachineBasedOnFileName", () => {
-    // TODO: Test multiple dots, e.g. "FILE.NAME.ned"
+  test("buildMachineBasedOnFileName: should correctly extract extension", () => {
+    expect(buildMachineBasedOnFileName("test.CeD")).toBeInstanceOf(Cesar); // Case insensitive
+    expect(buildMachineBasedOnFileName("test.1.ced")).toBeInstanceOf(Cesar); // Multiple dots
+    expect(buildMachineBasedOnFileName("test.ned.ced")).toBeInstanceOf(Cesar); // Multiple extensions
+    expect(buildMachineBasedOnFileName("test.ned2", "Ramses")).toBeInstanceOf(Ramses); // Invalid extension
+    expect(buildMachineBasedOnFileName("ced", "Ramses")).toBeInstanceOf(Ramses); // Not an extension
+  });
+
+  test("buildMachineBasedOnFileName: should use fallback for unknown extensions", () => {
+    expect(buildMachineBasedOnFileName("test.ced", "Neander")).toBeInstanceOf(Cesar); // Known
+    expect(buildMachineBasedOnFileName("test.xyz", "Neander")).toBeInstanceOf(Neander); // Unknown
   });
 
   test("buildMachineBasedOnIdentifier: should return correct machine", () => {

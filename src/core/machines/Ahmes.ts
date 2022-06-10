@@ -10,6 +10,7 @@ export class Ahmes extends Machine {
     super({
       name: "Ahmes",
       identifier: "AHM",
+      fileExtension: "ahd",
       memorySize: 256,
       flags: [
         new Flag(FlagCode.NEGATIVE, "N"),

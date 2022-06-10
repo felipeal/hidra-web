@@ -60,6 +60,7 @@ export class Cesar extends Machine {
     super({
       name: "Cesar",
       identifier: "C16",
+      fileExtension: "ced",
       memorySize: 65536,
       flags: [
         new Flag(FlagCode.NEGATIVE, "N"),
