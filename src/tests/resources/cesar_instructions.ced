@@ -118,6 +118,8 @@ mov #2, r0
 ror (IntermAddr(r0))
 mov OperandAddr, Test_A1M7
 
+; TODO: Test arithmetic instructions + flags
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Data
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

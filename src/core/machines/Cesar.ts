@@ -439,12 +439,6 @@ export class Cesar extends Machine {
   // Read / Write
   //////////////////////////////////////////////////
 
-  // TODO: Should all reads/writes be 1 byte on memory IO area?
-  // TODO: Should inc/dec modes add 1 on memory IO area?
-  // TODO: Should offsets be signed on memory IO area?
-  // TODO: What about stack push/pop?
-  // TODO: Carefully review and test overflow/carry flags
-
   private handlePreDecrement({ registerName, mode }: RegisterModeArgument): void {
     if (isOneOf(mode, [REGISTER_PRE_DEC, INDIRECT_REGISTER_PRE_DEC])) {
       this.subtractValueFromRegister(registerName, 2);
@@ -473,11 +467,11 @@ export class Cesar extends Machine {
       operand = addressOnly ? undefined : this.getRegisterValue(registerName);
     } else if (isOneOf(mode, [REGISTER_POST_INC, REGISTER_PRE_DEC, REGISTER_INDEXED, INDIRECT_REGISTER])) {
       operandAddress = word(this.getRegisterValue(registerName) + offset);
-      operand = addressOnly ? undefined : this.memoryReadWord(operandAddress);
+      operand = addressOnly ? undefined : this.memoryReadWordOrByte(operandAddress);
     } else if (isOneOf(mode, [INDIRECT_REGISTER_POST_INC, INDIRECT_REGISTER_PRE_DEC, INDIRECT_REGISTER_INDEXED])) {
       const intermediaryAddress = word(this.getRegisterValue(registerName) + offset);
-      operandAddress = this.memoryReadWord(intermediaryAddress);
-      operand = addressOnly ? undefined : this.memoryReadWord(operandAddress);
+      operandAddress = this.memoryReadTwoByteAddress(intermediaryAddress);
+      operand = addressOnly ? undefined : this.memoryReadWordOrByte(operandAddress);
     } else {
       assertUnreachable(`Unrecognized mode: ${mode}`);
     }
@@ -491,7 +485,7 @@ export class Cesar extends Machine {
     if (mode === REGISTER) {
       this.setRegisterValue(registerName, result);
     } else {
-      this.memoryWriteWord(notNull(writeAddress), result);
+      this.memoryWriteWordOrByte(notNull(writeAddress), result);
     }
   }
 
@@ -515,25 +509,24 @@ export class Cesar extends Machine {
   }
 
   // Increments accessCount
-  private memoryReadWord(address: number): number {
+  private memoryReadWordOrByte(address: number): number {
     if (address >= Cesar.SINGLE_BYTE_ACCESS_AREA) {
       return this.memoryRead(address);
     } else {
-      return (this.memoryRead(address) << 8) | this.memoryRead(address + 1);
+      return this.memoryReadWord(address);
     }
   }
 
   // Increments accessCount
-  private memoryWriteWord(address: number, value: number): void {
+  private memoryWriteWordOrByte(address: number, value: number): void {
     if (address >= Cesar.SINGLE_BYTE_ACCESS_AREA) {
-      this.memoryWrite(address, value & 0xFF);
+      this.memoryWrite(address, value);
     } else {
-      this.memoryWrite(address, (value >> 8) & 0xFF);
-      this.memoryWrite(address + 1, value & 0xFF);
+      this.memoryWriteWord(address, value);
     }
   }
 
-  private getMemoryWord(address: number): number {
+  private getMemoryWordOrByte(address: number): number {
     if (address >= Cesar.SINGLE_BYTE_ACCESS_AREA) {
       return this.getMemoryValue(address);
     } else {
@@ -610,7 +603,7 @@ export class Cesar extends Machine {
   } {
     // Immediate pseudo-mode
     if (registerName === "R7" && mode === REGISTER_POST_INC) {
-      return { argumentString: "#" + this.getMemoryWord(nextArgumentAddress).toString(), extraBytes: 2 };
+      return { argumentString: "#" + this.getMemoryWordOrByte(nextArgumentAddress).toString(), extraBytes: 2 };
     }
 
     // Direct pseudo-mode

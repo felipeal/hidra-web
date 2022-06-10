@@ -177,7 +177,11 @@ describe("Cesar: Build", () => {
 
   // TODO: Disallow mode 0 for jumps
 
-  // TODO: Test "Zero: DB Zero" -> ponteiro de 8 bits -- applies to Pericles
+  // TODO: Test "Zero: DB Zero" -> "ponteiro de 8 bits" -- applies to Pericles
+
+  // TODO: Test I/O on memory area (should only affect operands)
+
+  // TODO: Test keyboard bits
 
   test("endianness: should be big endian", () => {
     expectBuildSuccess("dw h1020", [0x10, 0x20]);

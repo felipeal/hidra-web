@@ -356,12 +356,23 @@ export abstract class Machine extends MachineState {
   }
 
   // Increments accessCount
-  protected memoryReadTwoByteAddress(address: number): number {
+  protected memoryReadWord(address: number): number {
     if (this.isLittleEndian()) {
-      return this.toValidAddress(this.memoryRead(address) + (this.memoryRead(address + 1) << 8));
+      return this.memoryRead(address) + (this.memoryRead(address + 1) << 8);
     } else {
-      return this.toValidAddress((this.memoryRead(address) << 8) + this.memoryRead(address + 1)); // TODO: Untested
+      return (this.memoryRead(address) << 8) + this.memoryRead(address + 1);
     }
+  }
+
+  // Increments accessCount
+  protected memoryReadTwoByteAddress(address: number): number {
+    return this.toValidAddress(this.memoryReadWord(address));
+  }
+
+  // Increments accessCount
+  protected memoryWriteWord(address: number, value: number): void {
+    this.memoryWrite(address, (value >> 8) & 0xFF);
+    this.memoryWrite(address + 1, value & 0xFF);
   }
 
   //////////////////////////////////////////////////
@@ -500,12 +511,16 @@ export abstract class Machine extends MachineState {
     return { intermediateAddress, intermediateAddressByte2, finalOperandAddress };
   }
 
-  protected getMemoryTwoByteAddress(address: number): number {
+  protected getMemoryWord(address: number): number {
     if (this.isLittleEndian()) {
-      return this.toValidAddress(this.getMemoryValue(address) + (this.getMemoryValue(address + 1) << 8));
+      return this.getMemoryValue(address) + (this.getMemoryValue(address + 1) << 8);
     } else {
-      return this.toValidAddress((this.getMemoryValue(address) << 8) + this.getMemoryValue(address + 1)); // TODO: Untested
+      return (this.getMemoryValue(address) << 8) + this.getMemoryValue(address + 1);
     }
+  }
+
+  protected getMemoryTwoByteAddress(address: number): number {
+    return this.toValidAddress(this.getMemoryWord(address));
   }
 
   protected addValueToRegister(registerName: string, value: number): number {
