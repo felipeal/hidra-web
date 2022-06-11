@@ -135,10 +135,13 @@ describe("App: Machine Area", () => {
   });
 
   test("build button: should show errors if source code is invalid", () => {
-    setSourceCode(["nopx", "org 256"]);
+    setSourceCode(["nopx", "", "", "org 256"]);
     userEvent.click(screen.getByText("Montar"));
     expect(screen.getByText(/linha 1: mnemônico inválido/i)).toBeInTheDocument();
-    expect(screen.getByText(/linha 2: endereço inválido/i)).toBeInTheDocument();
+    expect(screen.getByText(/linha 4: endereço inválido/i)).toBeInTheDocument();
+
+    userEvent.click(screen.getByText(/linha 4: endereço inválido/i));
+    expect(window.codeMirrorInstance.getCursor().line + 1).toBe(4);
   });
 
   /****************************************************************************
