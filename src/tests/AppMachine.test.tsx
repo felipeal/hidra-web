@@ -194,4 +194,26 @@ describe("App: Machine Area", () => {
     expect(within(display).getByText("$")).toBeInTheDocument();
   });
 
+  test("keyboard: should send characters to Cesar", () => {
+    selectMachine("Cesar");
+
+    function expectAsciiValue(typedText: string, asciiValue: number) {
+      buildSource("mov 65499 4"); // Instruction will copy typed key to visible memory area
+
+      userEvent.click(screen.getByText("Rodar"));
+      userEvent.type(screen.getByText("Display"), typedText);
+      runPendingTimers();
+
+      userEvent.click(screen.getByText("Zerar PC"));
+      userEvent.click(screen.getByText("Passo")); // Call copy instruction
+
+      expect(within(screen.getByTestId("data-table")).getByDisplayValue(String(asciiValue))).toBeInTheDocument();
+    }
+
+    expectAsciiValue("a", 97);
+    expectAsciiValue("A", 65);
+    expectAsciiValue("{Enter}", 13);
+    expectAsciiValue("{Backspace}", 8);
+  });
+
 });

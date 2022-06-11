@@ -77,6 +77,7 @@ describe("Texts", () => {
     expect(() => Texts.getDirectiveDescription("invalid", new Neander())).toThrow();
     expect(() => Texts.getInstructionDescription("invalid", new Neander())).toThrow();
     expect(() => Texts["getVoltaInstructionDescription"]("invalid")).toThrow();
+    expect(() => Texts["getCesarInstructionDescription"]("invalid")).toThrow();
   });
 
 });
