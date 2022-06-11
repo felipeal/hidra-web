@@ -1,6 +1,6 @@
 import { } from "./jsdomSetup";
 
-import { act, screen, within } from "@testing-library/react";
+import { act, createEvent, fireEvent, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import CodeMirror from "codemirror";
 
@@ -67,4 +67,18 @@ export function runPendingTimers() {
   act(() => {
     jest.runOnlyPendingTimers();
   });
+}
+
+export function mockDropEvent(dropTarget: HTMLElement, file: File) {
+  const fileDropEvent = createEvent.drop(dropTarget);
+  Object.defineProperty(fileDropEvent, "dataTransfer", {
+    value: {
+      items: [{
+        kind: "file",
+        getAsFile: () => file
+      }]
+    }
+  });
+
+  fireEvent(dropTarget, fileDropEvent);
 }

@@ -11,6 +11,7 @@ import {
 } from "../ui/utils/MachineFileUtils";
 import { buildMachine, getMachineNames } from "../ui/utils/MachineUtils";
 import { } from "./utils/CustomExtends";
+import { mockBinaryFile } from "./utils/MockFile";
 
 function valueToUint8(value: number | string): number {
   return (typeof value === "string") ? value.charCodeAt(0) : value;
@@ -24,8 +25,7 @@ function valuesToBytes(firstValues: Array<number | string>, size?: number) {
 
 async function importMemoryBytes(firstValues: Array<number | string>, size?: number): Promise<Machine> {
   const fileBuffer = new Uint8Array(valuesToBytes(firstValues, size));
-  File.prototype.arrayBuffer = jest.fn().mockResolvedValueOnce(fileBuffer);
-  return importMemory(new File([fileBuffer], "file.mem"));
+  return importMemory(mockBinaryFile("file.mem", fileBuffer));
 }
 
 async function expectFileErrorCode(testFunction: () => Promise<unknown>, errorCode: FileErrorCode) {

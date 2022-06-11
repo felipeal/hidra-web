@@ -1,21 +1,28 @@
 import { } from "./utils/jsdomSetup";
 
-import React from "react";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import React from "react";
 import App from "../ui/App";
-import { getSelectedMachine, runPendingTimers, setSourceCode } from "./utils/AppTestFunctions";
+import { getSelectedMachine, mockDropEvent, runPendingTimers, setSourceCode } from "./utils/AppTestFunctions";
+import { mockBinaryFile, mockTextFile } from "./utils/MockFile";
 
-async function openFile(fileName: string, arrayBuffer: Uint8Array, inputTestId = "open-file-input") {
-  File.prototype.arrayBuffer = jest.fn().mockResolvedValueOnce(arrayBuffer);
-
+async function uploadFile(file: File, inputTestId: string) {
   await act(async () => {
-    userEvent.upload(screen.getByTestId(inputTestId), new File([arrayBuffer], fileName));
+    userEvent.upload(screen.getByTestId(inputTestId), file);
   });
 }
 
+async function openFileFromBytes(fileName: string, arrayBuffer: Uint8Array) {
+  await uploadFile(mockBinaryFile(fileName, arrayBuffer), "open-file-input");
+}
+
+async function openFileFromString(fileName: string, utf8Text: string) {
+  await uploadFile(mockTextFile(fileName, utf8Text), "open-file-input");
+}
+
 async function importMemory(fileName: string, arrayBuffer: Uint8Array) {
-  return openFile(fileName, arrayBuffer, "import-memory-input");
+  await uploadFile(mockBinaryFile(fileName, arrayBuffer), "import-memory-input");
 }
 
 function buildRamsesMemoryFile(): Uint8Array {
@@ -48,9 +55,8 @@ describe("File Actions", () => {
     expect(screen.getByTestId("open-file-input").click).toHaveBeenCalled();
 
     const expectedSource = "add 128\n; áéíóú";
-    const utf8EncodedSource = new TextEncoder().encode(expectedSource);
 
-    await openFile("file.rad", utf8EncodedSource);
+    await openFileFromString("file.rad", expectedSource);
 
     expect(getSelectedMachine()).toBe("Ramses");
     expect(codeMirrorInstance.getValue()).toBe(expectedSource);
@@ -60,7 +66,7 @@ describe("File Actions", () => {
     const expectedSource = "áéíóú";
     const windows1252EncodedSource = new Uint8Array([0xE1, 0xE9, 0xED, 0xF3, 0xFA]);
 
-    await openFile("file.ahd", windows1252EncodedSource);
+    await openFileFromBytes("file.ahd", windows1252EncodedSource);
 
     expect(codeMirrorInstance.getValue()).toBe(expectedSource);
   });
@@ -70,19 +76,19 @@ describe("File Actions", () => {
 
     // User cancels
     jest.spyOn(global, "confirm").mockReturnValueOnce(false);
-    await openFile("file.rad", new Uint8Array([]));
+    await openFileFromString("file.rad", "replaced");
     expect(global.confirm).toHaveBeenCalled();
     expect(codeMirrorInstance.getValue()).toBe("unsaved source code");
 
     // User confirms
     jest.spyOn(global, "confirm").mockReturnValueOnce(true);
-    await openFile("file.rad", new Uint8Array([]));
+    await openFileFromString("file.rad", "replaced");
     expect(global.confirm).toHaveBeenCalled();
-    expect(codeMirrorInstance.getValue()).toBe("");
+    expect(codeMirrorInstance.getValue()).toBe("replaced");
   });
 
   test("open: should accept memory files", async () => {
-    await openFile("file.mem", buildRamsesMemoryFile());
+    await openFileFromBytes("file.mem", buildRamsesMemoryFile());
 
     expect(getSelectedMachine()).toBe("Ramses");
     expect(screen.getByText("LDR A 128")).toBeInTheDocument();
@@ -178,12 +184,28 @@ describe("File Actions", () => {
    * Drag-and-drop files
    ****************************************************************************/
 
-  test.skip("drop source file: should load file", () => {
-    // TODO
+  test("drop source file: should load file", async () => {
+    // Mock source file
+    const fileBuffer = new Uint8Array([65, 66, 67]); // ABC
+    File.prototype.arrayBuffer = jest.fn().mockResolvedValueOnce(fileBuffer);
+    const file = new File([fileBuffer], "file.ned");
+
+    mockDropEvent(screen.getByTestId("file-drop-target"), file);
+    await act(async () => undefined); // Wait for file read
+
+    expect(codeMirrorInstance.getValue()).toBe("ABC");
   });
 
-  test.skip("drop memory file: should load file", () => {
-    // TODO
+  test("drop memory file: should load file", async () => {
+    // Mock binary file
+    const fileBuffer = buildRamsesMemoryFile();
+    File.prototype.arrayBuffer = jest.fn().mockResolvedValueOnce(fileBuffer);
+    const file = new File([fileBuffer], "file.mem");
+
+    mockDropEvent(screen.getByTestId("file-drop-target"), file);
+    await act(async () => undefined); // Wait for file read
+
+    expect(screen.getByText("LDR A 128")).toBeInTheDocument();
   });
 
 });

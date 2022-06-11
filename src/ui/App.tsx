@@ -304,7 +304,7 @@ export default function App() {
    ****************************************************************************/
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column" }} onDrop={async (event) => {
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column" }} data-testid="file-drop-target" onDrop={async (event) => {
       event.preventDefault(); // Prevent file from being opened
 
       // Use DataTransferItemList interface to access the file
