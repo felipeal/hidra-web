@@ -1,10 +1,13 @@
 import { } from "./utils/jsdomSetup";
 
-import React from "react";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import React from "react";
+import { range } from "../core/utils/FunctionUtils";
 import App from "../ui/App";
-import { buildSource, changePCRow, getInputByLabel, getPCArrowAddress, runPendingTimers, selectMachine, setSourceCode } from "./utils/AppTestFunctions";
+import {
+  buildSource, changePCRow, clickLineNumber, getInputByLabel, getPCArrowAddress, runPendingTimers, selectMachine, setSourceCode
+} from "./utils/AppTestFunctions";
 
 describe("App: Machine Area", () => {
 
@@ -156,6 +159,22 @@ describe("App: Machine Area", () => {
     // Addressing mode
     userEvent.hover(screen.getByText("#a"));
     expect(screen.getByText("Imediato")).toBeInTheDocument();
+  });
+
+  /****************************************************************************
+   * Breakpoints
+   ****************************************************************************/
+
+  test("breakpoints: should stop execution", () => {
+    buildSource(["nop", "nop", "nop", "nop"]);
+
+    clickLineNumber(3);
+
+    userEvent.click(screen.getByText("Rodar"));
+    for (const _ of range(10)) {
+      runPendingTimers();
+    }
+    expect(getPCArrowAddress()).toBe("2");
   });
 
   /****************************************************************************

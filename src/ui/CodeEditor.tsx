@@ -6,17 +6,11 @@ import { defineCodeMirrorMode } from "./utils/SyntaxHighlighter";
 import { scrollToPCSourceLine } from "./utils/FocusHandler";
 
 function makeBreakpointMarker() {
-  const marker = document.createElement("div");
-  marker.className = "breakpoint-marker";
-  marker.innerHTML = "●";
-  return marker;
+  return Object.assign(document.createElement("div"), { className: "breakpoint-marker", innerHTML: "●" }) as HTMLDivElement;
 }
 
 function makePCMarker() {
-  const marker = document.createElement("div");
-  marker.className = "pc-sp-arrow";
-  marker.innerHTML = "→";
-  return marker;
+  return Object.assign(document.createElement("div"), { className: "pc-sp-arrow", innerHTML: "→" }) as HTMLDivElement;
 }
 
 function toggleBreakpoint(codeMirror: Editor, lineNumber: number) {

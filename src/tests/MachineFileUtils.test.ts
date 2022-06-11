@@ -1,15 +1,16 @@
 import { } from "./utils/jsdomSetup";
 
-import { } from "./utils/CustomExtends";
-import { buildMachineBasedOnFileName, buildMachineBasedOnIdentifier, exportMemory, generateFileNameForMachine, importMemory }
-  from "../ui/utils/MachineFileUtils";
-import { buildMachine, getMachineNames } from "../ui/utils/MachineUtils";
-import { Machine } from "../core/Machine";
-import { Neander } from "../core/machines/Neander";
-import { Ahmes } from "../core/machines/Ahmes";
-import { Ramses } from "../core/machines/Ramses";
-import { Cesar } from "../core/machines/Cesar";
 import { FileError, FileErrorCode } from "../core/FileError";
+import { Machine } from "../core/Machine";
+import { Ahmes } from "../core/machines/Ahmes";
+import { Cesar } from "../core/machines/Cesar";
+import { Neander } from "../core/machines/Neander";
+import { Ramses } from "../core/machines/Ramses";
+import {
+  buildMachineBasedOnFileName, buildMachineBasedOnIdentifier, exportMemory, generateFileNameForMachine, importMemory
+} from "../ui/utils/MachineFileUtils";
+import { buildMachine, getMachineNames } from "../ui/utils/MachineUtils";
+import { } from "./utils/CustomExtends";
 
 function valueToUint8(value: number | string): number {
   return (typeof value === "string") ? value.charCodeAt(0) : value;

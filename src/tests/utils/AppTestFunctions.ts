@@ -2,6 +2,7 @@ import { } from "./jsdomSetup";
 
 import { act, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import CodeMirror from "codemirror";
 
 const COLUMN_INDEXES = {
   PC_SP: 0,
@@ -56,6 +57,10 @@ function changePCSPRow(address: number, tableTestId: string) {
   const cellToBeClicked = rowToBeClicked.childNodes[COLUMN_INDEXES.PC_SP] as HTMLElement;
 
   userEvent.click(cellToBeClicked);
+}
+
+export function clickLineNumber(lineNumber: number) {
+  CodeMirror.signal(window.codeMirrorInstance, "gutterClick", window.codeMirrorInstance, lineNumber - 1);
 }
 
 export function runPendingTimers() {

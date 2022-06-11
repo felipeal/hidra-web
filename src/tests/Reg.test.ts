@@ -1,10 +1,11 @@
-import { } from "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
-import { Reg } from "../core/machines/Reg";
-import { makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings, makeFunction_expectRunState }
-  from "./utils/MachineTestFunctions";
 import { AssemblerErrorCode } from "../core/AssemblerError";
+import { Reg } from "../core/machines/Reg";
 import { range } from "../core/utils/FunctionUtils";
+import { } from "./utils/CustomExtends";
+import {
+  makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings, makeFunction_expectRunState
+} from "./utils/MachineTestFunctions";
 
 const machine = new Reg();
 const assembler = new Assembler(machine);
