@@ -147,6 +147,34 @@ describe("File Actions", () => {
   });
 
   /****************************************************************************
+   * Keyboard shortcuts
+   ****************************************************************************/
+
+  test("open shortcut: should show open dialog", async () => {
+    jest.spyOn(screen.getByTestId("open-file-input"), "click");
+    userEvent.keyboard("{Control>}o{/Control}"); // Control + lowercase
+    userEvent.keyboard("{Control>}O{/Control}"); // Control + uppercase
+    userEvent.keyboard("{Meta>}o{/Meta}"); // Command + lowercase
+    userEvent.keyboard("{Meta>}O{/Meta}"); // Command + uppercase
+    expect(screen.getByTestId("open-file-input").click).toHaveBeenCalledTimes(4);
+  });
+
+  test("save shortcut: should show save dialog", async () => {
+    jest.spyOn(screen.getByTestId("save-file-anchor"), "click");
+    userEvent.keyboard("{Control>}s{/Control}"); // Control + lowercase
+    userEvent.keyboard("{Control>}S{/Control}"); // Control + uppercase
+    userEvent.keyboard("{Meta>}s{/Meta}"); // Command + lowercase
+    userEvent.keyboard("{Meta>}S{/Meta}"); // Command + uppercase
+    expect(screen.getByTestId("save-file-anchor").click).toHaveBeenCalledTimes(4);
+  });
+
+  test("open shortcut: should show open dialog", async () => {
+    jest.spyOn(screen.getByTestId("open-file-input"), "click");
+    userEvent.keyboard("{Control>}o{/Control}");
+    expect(screen.getByTestId("open-file-input").click).toHaveBeenCalled();
+  });
+
+  /****************************************************************************
    * Drag-and-drop files
    ****************************************************************************/
 
