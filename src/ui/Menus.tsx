@@ -37,5 +37,5 @@ export function SubMenuCheckBox({ title, checked, setChecked }: { title: string,
 }
 
 export function SubMenuSeparator() {
-  return <div className="menu-separator"/>;
+  return <div className="navbar-submenu-separator"/>;
 }

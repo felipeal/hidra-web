@@ -1,8 +1,84 @@
 @import 'codemirror/lib/codemirror.css';
 @import 'codemirror/theme/material.css';
 
+/******************************************************************************
+/* Colors
+/******************************************************************************/
+
+:root {
+  /* Base colors */
+  --color-text: black;
+  --color-text-secondary: black;
+  --color-background: white;
+
+  /* Borders */
+  --color-area-border: #889;
+  --color-sub-area-border: #444;
+  --color-inner-border: #ddd;
+
+  /* Menu */
+  --color-navbar: rgb(143, 90, 168);
+  --color-navbar-text: white;
+  --color-navbar-item: #ecf;
+  --color-navbar-item-hover: #fdf;
+  --color-navbar-submenu-item: white;
+  --color-navbar-submenu-item-hover: #ecf;
+  --color-navbar-submenu-checkbox-unchecked: white;
+  --color-navbar-submenu-checkbox-checked: hsl(280, 50%, 75%);
+  --color-navbar-submenu-checkbox-border: #868;
+  --color-navbar-submenu-separator: #bbb;
+
+  /* Code */
+  --color-breakpoint-marker: #d00;
+  --color-pc-sp-arrow: #444;
+  --color-current-instruction: rgb(240, 224, 255);
+
+  /* Syntax highlight */
+  --color-code-instruction: purple;
+  --color-code-directive: blue;
+  --color-code-string: darkred;
+  --color-code-comment: green;
+
+  /* Error messages */
+  --color-error-message: #a00;
+  --color-error-message-hover: #e00;
+
+  /* Machine select */
+  --color-machine-select: #eee;
+
+  /* Flags */
+  --color-flag-unchecked: white;
+  --color-flag-checked: #9e9;
+  --color-flag-border: #666;
+
+  /* Machine buttons */
+  --color-machine-button: #eee;
+  --color-machine-button-hover: #ddd;
+  --color-machine-button-active: #aaa;
+  --color-machine-button-disabled-text: #aaa;
+  --color-machine-button-text: #222;
+  --color-build-button: hsl(270, 43%, 67%);
+  --color-build-button-hover: hsl(270, 38%, 60%);
+  --color-build-button-active: hsl(270, 28%, 54%);
+  --color-build-button-text: white;
+
+  /* Memory tables */
+  --color-memory-cell-border: #ddd;
+  --color-memory-header: #eee;
+  --color-memory-address: gray;
+}
+
+/******************************************************************************
+/* General
+/******************************************************************************/
+
 body {
   margin: 0;
+}
+
+body, input {
+  color: var(--color-text);
+  background-color: var(--color-background);
 }
 
 /******************************************************************************
@@ -37,8 +113,8 @@ select, fieldset, button, table, .memory-table, input, .pc-sp-arrow {
 }
 
 .navbar {
-  background-color: rgb(143, 90, 168);
-  color: white;
+  background-color: var(--color-navbar);
+  color: var(--color-navbar-text);
 }
 
 /* Menu item */
@@ -47,10 +123,10 @@ select, fieldset, button, table, .memory-table, input, .pc-sp-arrow {
   padding: 8px;
   cursor: pointer;
   background-color: unset;
-  color: #ecf;
+  color: var(--color-navbar-item);
 }
 .navbar-item:hover {
-  color: #fdf
+  color: var(--color-navbar-item-hover);
 }
 
 /* Submenu item */
@@ -60,10 +136,10 @@ select, fieldset, button, table, .memory-table, input, .pc-sp-arrow {
   padding: 8px;
   cursor: pointer;
   text-align: left;
-  background-color: white;
+  background-color: var(--color-navbar-submenu-item);
 }
 .navbar-submenu-item:hover {
-  background-color: #ecf;
+  background-color: var(--color-navbar-submenu-item-hover);
 }
 
 /* Submenu checkbox */
@@ -76,26 +152,26 @@ select, fieldset, button, table, .memory-table, input, .pc-sp-arrow {
   cursor: pointer;
 }
 .navbar-submenu-checkbox:hover {
-  background-color: #ecf;
+  background-color: var(--color-navbar-submenu-item-hover);
 }
 .navbar-submenu-checkbox input {
   width: 1.25em;
   height: 1.25em;
   margin-right: 4px;
-  border: 2px solid #868;
+  border: 2px solid var(--color-navbar-submenu-checkbox-border);
   border-radius: 3px;
   appearance: none;
-  background-color: white;
+  background-color: var(--color-navbar-submenu-checkbox-unchecked);
 }
 .navbar-submenu-checkbox input:checked {
-  background-color:  hsl(280, 50%, 75%);
+  background-color:  var(--color-navbar-submenu-checkbox-checked);
 }
 
-/* Men separator */
-.menu-separator {
+/* Menu separator */
+.navbar-submenu-separator {
   width: calc(100%-8px);
   margin: 4px;
-  border-top: 1px solid #bbb;
+  border-top: 1px solid var(--color-navbar-submenu-separator)
 }
 
 .tippy-box {
@@ -108,7 +184,7 @@ select, fieldset, button, table, .memory-table, input, .pc-sp-arrow {
 
 /* Code editor area */
 .code-editor {
-  border: 1px solid #889;
+  border: 1px solid var(--color-area-border);
 }
 .react-codemirror2, .CodeMirror {
   height: 100%;
@@ -127,7 +203,7 @@ select, fieldset, button, table, .memory-table, input, .pc-sp-arrow {
   margin-left: 3px;
 }
 .breakpoint-marker {
-  color: #d00;
+  color: var(--color-breakpoint-marker);
 }
 .current-instruction-gutter {
   width: .5em;
@@ -136,42 +212,42 @@ select, fieldset, button, table, .memory-table, input, .pc-sp-arrow {
 
 /* PC/SP arrow (also used in tables) */
 .pc-sp-arrow {
-  color: #444;
+  color: var(--color-pc-sp-arrow);
 }
 
 /* Line state */
 .current-instruction-line, .current-instruction-line input:not(:focus) {
-  background-color: rgb(240, 224, 255);
+  background-color: var(--color-current-instruction);
 }
 
 /* Code highlighter */
 .cm-hidra-instruction {
   font-weight: bold;
-  color: purple;
+  color: var(--color-code-instruction);
 }
 .cm-hidra-directive {
   font-weight: bold;
-  color: blue;
+  color: var(--color-code-directive);
 }
 .cm-hidra-string {
   font-style: italic;
-  color: darkred;
+  color: var(--color-code-string);
 }
 .cm-hidra-comment {
   font-style: italic;
-  color: green;
+  color: var(--color-code-comment);
 }
 
 /* Error messages area */
 .error-messages-area {
-  border: 1px solid #889;
+  border: 1px solid var(--color-area-border);
 }
 .error-message {
-  color: #a00;
+  color: var(--color-error-message);
   cursor: pointer;
 }
 .error-message:hover {
-  color: #e00;
+  color: var(--color-error-message-hover);
 }
 
 /******************************************************************************
@@ -180,7 +256,8 @@ select, fieldset, button, table, .memory-table, input, .pc-sp-arrow {
 
 /* Select (machine select) */
 select {
-  background-color: #eee;
+  color: var(--color-text-secondary);
+  background-color: var(--color-machine-select);
   border: none;
   border-radius: 4px;
   padding: 8px;
@@ -188,7 +265,8 @@ select {
 
 /* Area grouping */
 fieldset {
-  border: 1px solid #999;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-area-border);
   margin-top: 6px;
   margin-left: unset;
   margin-right: unset;
@@ -203,18 +281,18 @@ fieldset legend {
   width: 1.25em;
   height: 1.25em;
   transform: translate(0, -0.125em);
-  background-color: white;
-  border: 1px solid #666;
+  background-color: var(--color-flag-unchecked);
+  border: 1px solid var(--color-flag-border);
   border-radius: 50%;
   appearance: none;
 }
 .machine-flag:checked {
-  background-color: #9e9;
+  background-color: var(--color-flag-checked);
 }
 
 /* Registers */
 .machine-register-display {
-  border: 1px solid #444;
+  border: 1px solid var(--color-sub-area-border);
   border-radius: 3px;
 }
 
@@ -228,29 +306,29 @@ fieldset legend {
 }
 
 .machine-button {
-  background-color: #eee;
-  color: #222;
+  background-color: var(--color-machine-button);
+  color: var(--color-machine-button-text);
 }
 .machine-button:hover:not([disabled]) {
-  background-color: #ddd;
+  background-color: var(--color-machine-button-hover);
 }
 .machine-button:active:not([disabled]) {
-  background-color: #aaa;
+  background-color: var(--color-machine-button-active);
 }
 .machine-button:disabled {
   cursor: auto;
-  color: #aaa;
+  color: var(--color-machine-button-disabled-text);
 }
 
 .build-button {
-  background-color: hsl(270, 43%, 67%);
-  color: white;
+  background-color: var(--color-build-button);
+  color: var(--color-build-button-text);
 }
 .build-button:hover {
-  background-color: hsl(270, 38%, 60%);
+  background-color: var(--color-build-button-hover);
 }
 .build-button:active {
-  background-color: hsl(270, 28%, 54%);
+  background-color: var(--color-build-button-active);
 }
 
 /* Hints */
@@ -259,11 +337,11 @@ fieldset legend {
   margin-top: 0.35rem;
 }
 
-/* Display */
+/* Character display */
 .display {
   margin: 6px 2px;
   border-radius: 3px;
-  border: 1px solid #444;
+  border: 1px solid var(--color-sub-area-border);
 }
 .display-char {
   font-size: 16px;
@@ -273,7 +351,7 @@ fieldset legend {
   white-space: pre;
 }
 .display-char + .display-char {
-  border-left: 1px solid #ddd;
+  border-left: 1px solid var(--color-inner-border);
 }
 
 /******************************************************************************
@@ -281,12 +359,13 @@ fieldset legend {
 /******************************************************************************/
 
 .memory-table {
-  border: 1px solid #889;
+  border: 1px solid var(--color-area-border);
   border-collapse: collapse;
   box-sizing: border-box;
   display: table;
 }
 .memory-header-row, .memory-body-row {
+  color: var(--color-text-secondary);
   box-sizing: border-box;
   display: table-row;
 }
@@ -298,20 +377,21 @@ fieldset legend {
 
 /* Inner borders */
 .memory-body-cell + .memory-body-cell {
-  border-left: 1px solid #ddd;
+  border-left: 1px solid var(--color-memory-cell-border);
 }
 .memory-body-row + .memory-body-row {
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--color-memory-cell-border);
 }
 
 /* Header */
 .memory-header-row {
-  background-color: #eee;
+  background-color: var(--color-memory-header);
 }
 .memory-header-cell {
   padding: 4px;
   font-weight: unset;
-  background-color: #eee;
+  color: var(--color-text-secondary);
+  background-color: var(--color-memory-header);
   padding-left: 4px;
   padding-right: 12px;
   text-align: left;
@@ -320,6 +400,7 @@ fieldset legend {
 }
 
 .memory-body-cell input {
+  color: var(--color-text-secondary);
   border: none;
 }
 
@@ -328,7 +409,7 @@ fieldset legend {
 }
 
 .memory-address {
-  color: gray;
+  color: var(--color-memory-address);
 }
 
 .memory-value {
