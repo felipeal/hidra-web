@@ -12,6 +12,9 @@ document.createRange = () => {
   return range;
 };
 
+// Fix window.focus not implemented errors
+window.focus = jest.fn();
+
 // TextEncoder/TextDecoder support
 global.TextEncoder = TextEncoder; // eslint-disable-line no-undef
 global.TextDecoder = TextDecoder; // eslint-disable-line no-undef

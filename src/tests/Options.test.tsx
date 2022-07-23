@@ -8,7 +8,7 @@ import { buildSource, getInputByLabel, runPendingTimers, selectMachine, setSourc
 
 describe("Options", () => {
 
-  beforeEach(async () => {
+  beforeEach(() => {
     render(<App/>);
     setSourceCode("");
   });

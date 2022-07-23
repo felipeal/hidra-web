@@ -34,9 +34,10 @@ function buildRamsesMemoryFile(): Uint8Array {
 
 describe("File Actions", () => {
 
-  beforeEach(async () => {
+  beforeEach(() => {
     render(<App/>);
     setSourceCode("");
+    global.URL.createObjectURL = jest.fn().mockReturnValue("#blob-url");
   });
 
   afterEach(() => {
@@ -99,8 +100,6 @@ describe("File Actions", () => {
    ****************************************************************************/
 
   test("save: should download file", () => {
-    global.URL.createObjectURL = jest.fn();
-    jest.spyOn(URL, "createObjectURL").mockReturnValueOnce("generated-url");
     jest.spyOn(screen.getByTestId("save-file-anchor"), "click").mockImplementationOnce(jest.fn());
 
     userEvent.click(screen.getByText(/Arquivo/));
@@ -108,7 +107,7 @@ describe("File Actions", () => {
 
     const extensionRegEx = /\.ned$/;
     expect(screen.getByTestId<HTMLAnchorElement>("save-file-anchor").download).toMatch(extensionRegEx);
-    expect(screen.getByTestId<HTMLAnchorElement>("save-file-anchor").href).toMatch(/generated-url/);
+    expect(screen.getByTestId<HTMLAnchorElement>("save-file-anchor").href).toMatch(/#blob-url/);
     expect(screen.getByTestId("save-file-anchor").click).toHaveBeenCalled();
   });
 
@@ -140,8 +139,6 @@ describe("File Actions", () => {
    ****************************************************************************/
 
   test("export memory: should download file", () => {
-    global.URL.createObjectURL = jest.fn();
-    jest.spyOn(URL, "createObjectURL").mockReturnValueOnce("generated-url");
     jest.spyOn(screen.getByTestId("export-memory-anchor"), "click").mockImplementationOnce(jest.fn());
 
     userEvent.click(screen.getByText(/Arquivo/));
@@ -149,7 +146,7 @@ describe("File Actions", () => {
 
     const extensionRegEx = /\.mem$/;
     expect(screen.getByTestId<HTMLAnchorElement>("export-memory-anchor").download).toMatch(extensionRegEx);
-    expect(screen.getByTestId<HTMLAnchorElement>("export-memory-anchor").href).toMatch(/generated-url/);
+    expect(screen.getByTestId<HTMLAnchorElement>("export-memory-anchor").href).toMatch(/#blob-url/);
   });
 
   /****************************************************************************
