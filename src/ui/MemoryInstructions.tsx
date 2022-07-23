@@ -62,12 +62,12 @@ export function MemoryInstructionsForMeasurements({ headerRef, bodyRef }: {
   headerRef: RefObject<HTMLDivElement>, bodyRef: RefObject<HTMLDivElement>
 }) {
   return (<div className="memory-table">
-    <MemoryInstructionsHeader headerRef={headerRef}/>
+    <MemoryInstructionsHeader headerRef={headerRef} />
     <div className="memory-body-row" ref={bodyRef}>
       <div className="memory-body-cell">→</div>
       <div className="memory-body-cell">65535</div>
       <div className="memory-body-cell">
-        <input className="memory-value"/>
+        <input className="memory-value" />
       </div>
       <div className="memory-body-cell">IF R63 255 255</div>
     </div>

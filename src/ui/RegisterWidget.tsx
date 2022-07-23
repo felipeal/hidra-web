@@ -20,7 +20,7 @@ export default function RegisterWidget({ name, machine, displayHex, displayNegat
       <label htmlFor={`register-${name}-div`}>{name}</label>
       <input className="machine-register-display" id={`register-${name}-div`} readOnly style={{
         padding: "4px", width: "64px", marginRight: "16px"
-      }} value={value}/>
+      }} value={value} />
     </div>
   );
 }

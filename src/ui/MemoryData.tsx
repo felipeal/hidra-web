@@ -55,7 +55,7 @@ export function MemoryDataForMeasurements({ headerRef, bodyRef }: {
     <div className="memory-body-row" ref={bodyRef}>
       <div className="memory-body-cell">65535</div>
       <div className="memory-body-cell">
-        <input className="memory-value"/>
+        <input className="memory-value" />
       </div>
       <div className="memory-body-cell">W</div>
       <div className="memory-body-cell">ABCDEFABCDEF</div>

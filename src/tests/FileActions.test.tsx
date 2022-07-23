@@ -33,7 +33,7 @@ function buildRamsesMemoryFile(): Uint8Array {
 describe("File Actions", () => {
 
   beforeEach(() => {
-    render(<App/>);
+    render(<App />);
     setSourceCode("");
     global.URL.createObjectURL = jest.fn().mockReturnValue("#blob-url");
   });

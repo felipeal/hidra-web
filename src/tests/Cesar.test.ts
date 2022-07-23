@@ -1,4 +1,4 @@
-/* eslint-disable no-multi-spaces */
+/* eslint-disable no-multi-spaces, array-bracket-spacing */
 
 import { AssemblerErrorCode } from "../core/AssemblerError";
 import { CesarAssembler } from "../core/CesarAssembler";

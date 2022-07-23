@@ -306,7 +306,7 @@ export class Cesar extends Machine {
   //////////////////////////////////////////////////
 
   private executeJMPInstruction(argument: RegisterModeArgument): void {
-    const [ _, jumpAddress ] = this.readOperand(argument, { addressOnly: true });
+    const [_, jumpAddress] = this.readOperand(argument, { addressOnly: true });
 
     // Jump = NOP when mode = REGISTER
     if (jumpAddress !== undefined) {
@@ -322,7 +322,7 @@ export class Cesar extends Machine {
   }
 
   private executeJSRInstruction(registerName: string, argument: RegisterModeArgument): void {
-    const [ _, subroutineAddress ] = this.readOperand(argument, { addressOnly: true });
+    const [_, subroutineAddress] = this.readOperand(argument, { addressOnly: true });
 
     // Jump = NOP when mode = REGISTER
     if (subroutineAddress !== undefined) {
@@ -343,7 +343,7 @@ export class Cesar extends Machine {
 
   private executeOneOperandArithmeticInstruction(instructionCode: InstructionCode, argument: RegisterModeArgument): void {
     // Read operand
-    const [ operand, writeAddress ] = this.readOperand(argument, { addressOnly: (instructionCode === InstructionCode.CLR) });
+    const [operand, writeAddress] = this.readOperand(argument, { addressOnly: (instructionCode === InstructionCode.CLR) });
 
     // Compute result
     const { result, carry, overflow } = this.computeOneOperandResult(instructionCode, operand ?? 0);
@@ -355,8 +355,8 @@ export class Cesar extends Machine {
 
   private executeTwoOperandsArithmeticInstruction(instructionCode: InstructionCode, source: RegisterModeArgument, destination: RegisterModeArgument): void {
     // Read operands
-    const [ sourceValue ] = this.readOperand(source);
-    const [ destinationValue, destinationAddress ] = this.readOperand(destination, { addressOnly: (instructionCode === InstructionCode.MOV) });
+    const [sourceValue] = this.readOperand(source);
+    const [destinationValue, destinationAddress] = this.readOperand(destination, { addressOnly: (instructionCode === InstructionCode.MOV) });
 
     // Compute result
     const { result, carry, overflow } = this.computeTwoOperandsResult(instructionCode, notNull(sourceValue), destinationValue ?? 0);
@@ -478,7 +478,7 @@ export class Cesar extends Machine {
 
     this.handlePostIncrement({ registerName, mode });
 
-    return [ operand, operandAddress ];
+    return [operand, operandAddress];
   }
 
   private writeResult(writeAddress: number | undefined, result: number, { registerName, mode }: RegisterModeArgument): void {

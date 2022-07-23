@@ -31,11 +31,11 @@ export function SubMenuCheckBox({ title, checked, setChecked }: { title: string,
       if (event.key === " ") {
         setChecked(!checked);
       }
-    }} onChange={() => {/* Comment to suppress warning: value is changed by parent element. */}}/>
+    }} onChange={() => {/* Comment to suppress warning: value is changed by parent element. */}} />
     <label htmlFor={`drop-down-item-${title}-input`}>{title}</label>
   </div>;
 }
 
 export function SubMenuSeparator() {
-  return <div className="navbar-submenu-separator"/>;
+  return <div className="navbar-submenu-separator" />;
 }

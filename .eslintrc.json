@@ -7,8 +7,8 @@
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:react-hooks/recommended"
+    "plugin:react-hooks/recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -30,10 +30,9 @@
   },
   "rules": {
     "indent": ["warn", 2, {
-        "SwitchCase": 1,
-        "ignoreComments": true
-      }
-    ],
+      "SwitchCase": 1,
+      "ignoreComments": true
+    }],
     "linebreak-style": ["error", "unix"],
     "quotes": ["warn", "double"],
     "semi": ["warn", "always"],
@@ -48,7 +47,10 @@
     "@typescript-eslint/no-empty-function": "warn",
     "@typescript-eslint/no-floating-promises": "error",
     "@typescript-eslint/no-empty-interface": "warn",
-    "no-multiple-empty-lines": "warn",
+    "no-multiple-empty-lines": ["warn", {
+      "max": 1,
+      "maxEOF": 0
+    }],
     "no-debugger":"warn",
     "comma-dangle": "warn",
     "space-before-blocks": "warn",
@@ -67,6 +69,7 @@
     "space-unary-ops": "warn",
     "space-in-parens": "warn",
     "comma-spacing": "warn",
+    "array-bracket-spacing": "warn",
     "no-whitespace-before-property": "warn",
     "eol-last": "warn",
     "no-multi-spaces": "warn",
@@ -77,15 +80,17 @@
     "object-curly-spacing": ["warn", "always"],
     "no-empty": "warn",
     "no-var": "warn",
-    "max-len": ["warn", { "code": 160 }]
+    "max-len": ["warn", {
+      "code": 160
+    }],
+    "react/jsx-tag-spacing": "warn",
+    "react/jsx-curly-spacing": "warn"
   },
-  "overrides": [
-    {
-      "files": [ "*.ts" ],
-      "excludedFiles": "src/tests/**",
-      "rules": {
-        "@typescript-eslint/explicit-function-return-type": "warn"
-      }
+  "overrides": [{
+    "files": ["*.ts"],
+    "excludedFiles": "src/tests/**",
+    "rules": {
+      "@typescript-eslint/explicit-function-return-type": "warn"
     }
-  ]
+  }]
 }

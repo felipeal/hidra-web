@@ -391,27 +391,27 @@ export default function App({ isCesarEnabled = false }: { isCesarEnabled?: boole
       }}>
         <span style={{ padding: "8px" }}>Hidra</span>
         <Menu title="Arquivo">
-          <SubMenuItem title="Abrir" callback={actionOpenFile}/>
-          <SubMenuItem title="Salvar" callback={actionSaveFile}/>
-          <SubMenuSeparator/>
-          <SubMenuItem title="Importar memória" callback={actionImportMemory}/>
-          <SubMenuItem title="Exportar memória" callback={actionExportMemory}/>
+          <SubMenuItem title="Abrir" callback={actionOpenFile} />
+          <SubMenuItem title="Salvar" callback={actionSaveFile} />
+          <SubMenuSeparator />
+          <SubMenuItem title="Importar memória" callback={actionImportMemory} />
+          <SubMenuItem title="Exportar memória" callback={actionExportMemory} />
         </Menu>
         <Menu title="Opções">
           <SubMenuCheckBox title="Exibir valores hexadecimais" checked={displayHex} setChecked={(checked) => {
             setDisplayHex(checked);
             setDisplayNegative(false);
-          }}/>
+          }} />
           <SubMenuCheckBox title="Interpretar dados negativos" checked={displayNegative} setChecked={(checked) => {
             setDisplayNegative(checked);
             setDisplayHex(false);
-          }}/>
-          <SubMenuCheckBox title="Exibir coluna de caracteres" checked={displayChars} setChecked={setDisplayChars}/>
-          <SubMenuSeparator/>
-          <SubMenuCheckBox title="Tela segue execução" checked={displayFollowPC} setChecked={setDisplayFollowPC}/>
-          {showWIP && <SubMenuCheckBox title="Quebra de linha" checked={displayWrap} setChecked={setDisplayWrap}/>}
+          }} />
+          <SubMenuCheckBox title="Exibir coluna de caracteres" checked={displayChars} setChecked={setDisplayChars} />
+          <SubMenuSeparator />
+          <SubMenuCheckBox title="Tela segue execução" checked={displayFollowPC} setChecked={setDisplayFollowPC} />
+          {showWIP && <SubMenuCheckBox title="Quebra de linha" checked={displayWrap} setChecked={setDisplayWrap} />}
         </Menu>
-        <div style={{ flex: 1 }}/>
+        <div style={{ flex: 1 }} />
         <a href="https://github.com/felipeal/hidra-web" target="_blank" rel="noreferrer" className="navbar-item" style={{
           padding: "8px", textDecoration: "unset"
         }}>GitHub</a>
@@ -487,7 +487,7 @@ export default function App({ isCesarEnabled = false }: { isCesarEnabled?: boole
           {/* Display */}
           {isCesar && <fieldset className="hide-if-busy">
             <legend>Display</legend>
-            <CesarDisplay machine={machine}/>
+            <CesarDisplay machine={machine} />
           </fieldset>}
 
           {/* Information */}
@@ -578,7 +578,7 @@ export default function App({ isCesarEnabled = false }: { isCesarEnabled?: boole
           <input type="file" ref={openFileInput} style={{ display: "none" }} data-testid="open-file-input" onChange={onFileReceived} />
           <a ref={saveFileAnchor} style={{ display: "none" }} data-testid="save-file-anchor" />
           <input type="file" ref={importMemoryInput} style={{ display: "none" }} data-testid="import-memory-input" onChange={onMemoryReceived} />
-          <a ref={exportMemoryAnchor} style={{ display: "none" }} data-testid="export-memory-anchor"/>
+          <a ref={exportMemoryAnchor} style={{ display: "none" }} data-testid="export-memory-anchor" />
 
         </div>
 
