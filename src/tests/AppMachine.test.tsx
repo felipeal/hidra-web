@@ -12,7 +12,7 @@ import {
 describe("App: Machine Area", () => {
 
   beforeEach(() => {
-    render(<App/>);
+    render(<App isCesarEnabled={true} />);
     setSourceCode("");
   });
 

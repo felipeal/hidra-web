@@ -69,7 +69,7 @@ function initialState(): [Machine, Assembler] {
   return [initialMachine, initialAssembler];
 }
 
-export default function App() {
+export default function App({ isCesarEnabled = false }: { isCesarEnabled?: boolean } = {}) {
   const [[machine, assembler], setState] = useState(initialState());
   const [buildErrors, setBuildErrors] = useState([] as BuildError[]);
   const [isRunning, setRunning] = useState(machine.isRunning());
@@ -445,7 +445,7 @@ export default function App() {
           <select className="hide-if-busy" value={machine.getName()} data-testid="machine-select" onChange={
             (event: ChangeEvent<HTMLSelectElement>) => actionSelectMachine(event.target.value)
           }>
-            {getMachineNames().map((name, index) => {
+            {getMachineNames({ isCesarEnabled }).map((name, index) => {
               return <option key={index} value={name}>{name}</option>;
             })}
           </select>
