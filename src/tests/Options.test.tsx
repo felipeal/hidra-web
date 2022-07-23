@@ -1,4 +1,4 @@
-import { } from "./utils/jsdomSetup";
+import "./utils/jsdomSetup";
 
 import React from "react";
 import { render, screen, within } from "@testing-library/react";

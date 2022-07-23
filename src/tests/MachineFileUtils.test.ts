@@ -1,5 +1,6 @@
-import { } from "./utils/jsdomSetup";
+import "./utils/jsdomSetup";
 
+import "./utils/CustomExtends";
 import { FileError, FileErrorCode } from "../core/FileError";
 import { Machine } from "../core/Machine";
 import { Ahmes } from "../core/machines/Ahmes";
@@ -10,7 +11,6 @@ import {
   buildMachineBasedOnFileName, buildMachineBasedOnIdentifier, exportMemory, generateFileNameForMachine, importMemory
 } from "../ui/utils/MachineFileUtils";
 import { buildMachine, getMachineNames } from "../ui/utils/MachineUtils";
-import { } from "./utils/CustomExtends";
 import { mockBinaryFile } from "./utils/MockFile";
 
 function valueToUint8(value: number | string): number {

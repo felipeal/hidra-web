@@ -1,4 +1,4 @@
-import { } from "./utils/CustomExtends";
+import "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
 import { Volta } from "../core/machines/Volta";
 import { expectNextOperandAddressAndStep, makeFunction_expectBuildSuccess, makeFunction_expectRunState } from "./utils/MachineTestFunctions";

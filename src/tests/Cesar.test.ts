@@ -1,6 +1,6 @@
 /* eslint-disable no-multi-spaces */
 
-import { } from "./utils/CustomExtends";
+import "./utils/CustomExtends";
 import {
   makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings, makeFunction_expectRunState
 } from "./utils/MachineTestFunctions";

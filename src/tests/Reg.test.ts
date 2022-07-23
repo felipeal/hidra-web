@@ -1,8 +1,8 @@
+import "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
 import { AssemblerErrorCode } from "../core/AssemblerError";
 import { Reg } from "../core/machines/Reg";
 import { range } from "../core/utils/FunctionUtils";
-import { } from "./utils/CustomExtends";
 import {
   makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings, makeFunction_expectRunState
 } from "./utils/MachineTestFunctions";

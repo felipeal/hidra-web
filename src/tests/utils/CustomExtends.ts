@@ -32,4 +32,4 @@ expect.extend({
   }
 });
 
-export { };
+export default { };
