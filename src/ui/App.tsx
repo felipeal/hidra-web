@@ -91,6 +91,13 @@ export default function App({ isCesarEnabled = false }: { isCesarEnabled?: boole
     return machine.subscribeToEvent("RUNNING", (value) => setRunning(Boolean(value)));
   }, [machine, assembler]);
 
+  const isCesar = Cesar.isCesar(machine);
+
+  // Reenable Cesar if a .ced file is loaded
+  if (isCesar) {
+    isCesarEnabled = true;
+  }
+
   /****************************************************************************
    * Machine actions
    ****************************************************************************/
@@ -320,8 +327,6 @@ export default function App({ isCesarEnabled = false }: { isCesarEnabled?: boole
   /****************************************************************************
    * Layout measurements
    ****************************************************************************/
-
-  const isCesar = Cesar.isCesar(machine);
 
   const { width: scrollbarWidth } = useScrollbarSize();
 
