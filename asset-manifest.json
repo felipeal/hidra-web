@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/hidra-web/static/css/main.6294d95c.css",
+    "main.js": "/hidra-web/static/js/main.8b602b22.js",
+    "static/js/787.54d7742e.chunk.js": "/hidra-web/static/js/787.54d7742e.chunk.js",
+    "index.html": "/hidra-web/index.html",
+    "main.6294d95c.css.map": "/hidra-web/static/css/main.6294d95c.css.map",
+    "main.8b602b22.js.map": "/hidra-web/static/js/main.8b602b22.js.map",
+    "787.54d7742e.chunk.js.map": "/hidra-web/static/js/787.54d7742e.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6294d95c.css",
+    "static/js/main.8b602b22.js"
+  ]
+}
