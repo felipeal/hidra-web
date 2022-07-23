@@ -1,13 +1,13 @@
 /* eslint-disable no-multi-spaces */
 
-import { Machine } from "../Machine";
-import { Register } from "../Register";
+import { AddressingMode, AddressingModeCode } from "../AddressingMode";
 import { Flag, FlagCode } from "../Flag";
 import { Instruction, InstructionCode } from "../Instruction";
-import { AddressingMode, AddressingModeCode } from "../AddressingMode";
-import { RegExpMatcher } from "../utils/RegExpMatcher";
-import { assertUnreachable, isOneOf, notNull } from "../utils/FunctionUtils";
+import { Machine } from "../Machine";
+import { Register } from "../Register";
 import { unsignedByteToSigned, unsignedWordToSigned } from "../utils/Conversions";
+import { assertUnreachable, isOneOf, notNull } from "../utils/FunctionUtils";
+import { RegExpMatcher } from "../utils/RegExpMatcher";
 
 const {
   REGISTER, REGISTER_POST_INC, REGISTER_PRE_DEC, REGISTER_INDEXED,

@@ -1,5 +1,3 @@
-import "./jsdomSetup";
-
 import { act, createEvent, fireEvent, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import CodeMirror from "codemirror";

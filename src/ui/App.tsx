@@ -1,3 +1,4 @@
+// Libraries
 import Tippy from "@tippyjs/react";
 import codemirror from "codemirror";
 import React, { ChangeEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -5,6 +6,7 @@ import useScrollbarSize from "react-scrollbar-size";
 import "tippy.js/dist/tippy.css";
 import "tippy.js/themes/light-border.css";
 
+// UI
 import CesarDisplay from "./CesarDisplay";
 import CodeEditor, { hasBreakpointAtLine } from "./CodeEditor";
 import FlagWidget from "./FlagWidget";
@@ -15,10 +17,15 @@ import { MemoryStack, MemoryStackForMeasurements } from "./MemoryStack";
 import { Menu, SubMenuCheckBox, SubMenuItem, SubMenuSeparator } from "./Menus";
 import RegisterWidget from "./RegisterWidget";
 
+// Utils
+import { charToAsciiValue } from "../core/utils/Conversions";
+import { rethrowUnless } from "../core/utils/FunctionUtils";
+import { isInputElementActive } from "./utils/FocusHandler";
 import { calculateTableDimensions as measureTableDimensions, TableDimensions, toPx } from "./utils/LayoutUtils";
 import { buildAssemblerBasedOnMachine, buildMachineBasedOnFileName, exportMemory, generateFileNameForMachine, importMemory } from "./utils/MachineFileUtils";
 import { buildMachine, getMachineNames, resetPCAndSP } from "./utils/MachineUtils";
 
+// Core
 import { Assembler } from "../core/Assembler";
 import { BuildError } from "../core/AssemblerError";
 import { FileError } from "../core/FileError";
@@ -27,9 +34,6 @@ import { Cesar } from "../core/machines/Cesar";
 import { Neander } from "../core/machines/Neander";
 import { Volta } from "../core/machines/Volta";
 import { Texts } from "../core/Texts";
-import { charToAsciiValue } from "../core/utils/Conversions";
-import { rethrowUnless } from "../core/utils/FunctionUtils";
-import { isInputElementActive } from "./utils/FocusHandler";
 
 declare global {
   // Required for CodeMirror persistence between hot reloads

@@ -1,8 +1,8 @@
-import { Machine } from "../Machine";
-import { Register } from "../Register";
+import { AddressingMode, AddressingModeCode } from "../AddressingMode";
 import { Flag, FlagCode } from "../Flag";
 import { Instruction, InstructionCode } from "../Instruction";
-import { AddressingMode, AddressingModeCode } from "../AddressingMode";
+import { Machine } from "../Machine";
+import { Register } from "../Register";
 
 export class Cromag extends Machine {
 

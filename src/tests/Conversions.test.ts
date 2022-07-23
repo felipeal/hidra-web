@@ -1,7 +1,7 @@
 import {
-  addressToHex, bitPatternToUnsignedByte, asciiValueToString, codeStringToNumber, immediateValuesToNegative, instructionStringToDisplayMode, numbersToHex,
-  registerValueToString, uncheckedByteStringToNumber, unsignedByteToBitPattern, unsignedByteToSigned, unsignedByteToString, unsignedNumberToHex,
-  unsignedNumberToHexCodeString, unsignedWordToSigned, charToAsciiValue
+  addressToHex, asciiValueToString, bitPatternToUnsignedByte, charToAsciiValue, codeStringToNumber, immediateValuesToNegative, instructionStringToDisplayMode,
+  numbersToHex, registerValueToString, uncheckedByteStringToNumber, unsignedByteToBitPattern, unsignedByteToSigned, unsignedByteToString, unsignedNumberToHex,
+  unsignedNumberToHexCodeString, unsignedWordToSigned
 } from "../core/utils/Conversions";
 
 describe("Conversions", () => {

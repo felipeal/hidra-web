@@ -1,9 +1,10 @@
-import "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
 import { AssemblerErrorCode } from "../core/AssemblerError";
 import { Pericles } from "../core/machines/Pericles";
-import { expectNextOperandAddressAndStep, makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings,
-  makeFunction_expectRunState } from "./utils/MachineTestFunctions";
+import {
+  expectNextOperandAddressAndStep, makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings,
+  makeFunction_expectRunState
+} from "./utils/MachineTestFunctions";
 
 const machine = new Pericles();
 const assembler = new Assembler(machine);

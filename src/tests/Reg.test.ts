@@ -1,4 +1,3 @@
-import "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
 import { AssemblerErrorCode } from "../core/AssemblerError";
 import { Reg } from "../core/machines/Reg";

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { registerValueToString } from "../core/utils/Conversions";
+import React, { useEffect, useState } from "react";
 import { Machine } from "../core/Machine";
+import { registerValueToString } from "../core/utils/Conversions";
 
 export default function RegisterWidget({ name, machine, displayHex, displayNegative }:
   { name: string, machine: Machine, displayHex: boolean, displayNegative: boolean }

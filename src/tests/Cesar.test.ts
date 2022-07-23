@@ -1,13 +1,12 @@
 /* eslint-disable no-multi-spaces */
 
-import "./utils/CustomExtends";
+import { AssemblerErrorCode } from "../core/AssemblerError";
+import { CesarAssembler } from "../core/CesarAssembler";
+import { Cesar } from "../core/machines/Cesar";
+import { assert } from "../core/utils/FunctionUtils";
 import {
   makeFunction_expectBuildError, makeFunction_expectBuildSuccess, makeFunction_expectInstructionStrings, makeFunction_expectRunState
 } from "./utils/MachineTestFunctions";
-import { Cesar } from "../core/machines/Cesar";
-import { CesarAssembler } from "../core/CesarAssembler";
-import { AssemblerErrorCode } from "../core/AssemblerError";
-import { assert } from "../core/utils/FunctionUtils";
 
 const machine = new Cesar();
 const assembler = new CesarAssembler(machine);

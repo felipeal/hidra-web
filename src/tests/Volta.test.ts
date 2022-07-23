@@ -1,8 +1,7 @@
-import "./utils/CustomExtends";
 import { Assembler } from "../core/Assembler";
 import { Volta } from "../core/machines/Volta";
-import { expectNextOperandAddressAndStep, makeFunction_expectBuildSuccess, makeFunction_expectRunState } from "./utils/MachineTestFunctions";
 import { range } from "../core/utils/FunctionUtils";
+import { expectNextOperandAddressAndStep, makeFunction_expectBuildSuccess, makeFunction_expectRunState } from "./utils/MachineTestFunctions";
 
 const machine = new Volta();
 const assembler = new Assembler(machine);

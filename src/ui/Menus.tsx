@@ -1,5 +1,5 @@
-import React from "react";
 import Tippy from "@tippyjs/react";
+import React from "react";
 import { hideAll as tippyHideAll } from "tippy.js";
 import { hideOnPopperBlur } from "./extensions/hideOnPopperBlur";
 

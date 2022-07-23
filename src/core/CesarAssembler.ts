@@ -1,9 +1,9 @@
+import { AddressingMode, AddressingModeCode } from "./AddressingMode";
+import { Assembler } from "./Assembler";
 import { AssemblerError, AssemblerErrorCode } from "./AssemblerError";
 import { Instruction, InstructionCode } from "./Instruction";
-import { AddressingMode, AddressingModeCode } from "./AddressingMode";
-import { assertUnreachable, removeItem } from "./utils/FunctionUtils";
 import { codeStringToNumber } from "./utils/Conversions";
-import { Assembler } from "./Assembler";
+import { assertUnreachable, removeItem } from "./utils/FunctionUtils";
 
 export class CesarAssembler extends Assembler {
 

@@ -1,10 +1,10 @@
-import { Machine } from "../Machine";
-import { Register } from "../Register";
-import { Instruction, InstructionCode } from "../Instruction";
 import { AddressingMode, AddressingModeCode } from "../AddressingMode";
 import { Byte } from "../Byte";
-import { buildArray, range, isPowerOfTwo, assert } from "../utils/FunctionUtils";
+import { Instruction, InstructionCode } from "../Instruction";
+import { Machine } from "../Machine";
+import { Register } from "../Register";
 import { unsignedByteToSigned as toSigned } from "../utils/Conversions";
+import { assert, buildArray, isPowerOfTwo, range } from "../utils/FunctionUtils";
 
 export class Volta extends Machine {
 

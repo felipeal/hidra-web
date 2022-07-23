@@ -1,6 +1,6 @@
-import { Machine } from "../../core/Machine";
-import { Assembler } from "../../core/Assembler";
 import CodeMirror from "codemirror";
+import { Assembler } from "../../core/Assembler";
+import { Machine } from "../../core/Machine";
 
 export function defineCodeMirrorMode(machine: Machine): void {
   CodeMirror.defineMode(machine.getName(), () => {

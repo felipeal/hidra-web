@@ -1,11 +1,11 @@
-import { Register, RegisterInfo } from "./Register";
-import { Flag, FlagCode } from "./Flag";
-import { Instruction } from "./Instruction";
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
 import { Byte } from "./Byte";
-import { buildArray, range, assert, isPowerOfTwo } from "./utils/FunctionUtils";
-import { EventCallback, UnsubscribeCallback } from "./utils/EventUtils";
+import { Flag, FlagCode } from "./Flag";
+import { Instruction } from "./Instruction";
+import { Register, RegisterInfo } from "./Register";
 import { bitPatternToUnsignedByte } from "./utils/Conversions";
+import { EventCallback, UnsubscribeCallback } from "./utils/EventUtils";
+import { assert, buildArray, isPowerOfTwo, range } from "./utils/FunctionUtils";
 
 interface MachineSettings {
   name: string,

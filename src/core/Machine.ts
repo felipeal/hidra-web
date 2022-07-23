@@ -1,7 +1,7 @@
-import { MachineState } from "./MachineState";
+import { AddressingMode, AddressingModeCode } from "./AddressingMode";
 import { FlagCode } from "./Flag";
 import { Instruction, InstructionCode } from "./Instruction";
-import { AddressingMode, AddressingModeCode } from "./AddressingMode";
+import { MachineState } from "./MachineState";
 import { unsignedByteToBitPattern, unsignedByteToSigned as toSigned } from "./utils/Conversions";
 import { assert, assertUnreachable } from "./utils/FunctionUtils";
 

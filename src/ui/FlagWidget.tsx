@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Machine } from "../core/Machine";
 
 export default function FlagWidget({ name, machine }: { name: string, machine: Machine }) {

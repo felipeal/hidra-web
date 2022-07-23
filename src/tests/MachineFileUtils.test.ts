@@ -1,6 +1,3 @@
-import "./utils/jsdomSetup";
-
-import "./utils/CustomExtends";
 import { FileError, FileErrorCode } from "../core/FileError";
 import { Machine } from "../core/Machine";
 import { Ahmes } from "../core/machines/Ahmes";

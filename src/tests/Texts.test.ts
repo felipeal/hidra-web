@@ -1,15 +1,15 @@
 import { AddressingModeCode } from "../core/AddressingMode";
 import { Assembler } from "../core/Assembler";
 import { AssemblerErrorCode } from "../core/AssemblerError";
-import { Texts } from "../core/Texts";
+import { FileErrorCode } from "../core/FileError";
 import { Neander } from "../core/machines/Neander";
 import { Pericles } from "../core/machines/Pericles";
 import { Queops } from "../core/machines/Queops";
 import { Ramses } from "../core/machines/Ramses";
 import { Volta } from "../core/machines/Volta";
+import { Texts } from "../core/Texts";
 import { buildMachine, getMachineNames } from "../ui/utils/MachineUtils";
 import { expectDistinctStrings } from "./utils/StringTestFunctions";
-import { FileErrorCode } from "../core/FileError";
 
 describe("Texts", () => {
 

@@ -1,5 +1,9 @@
-import React, { useEffect, useRef } from "react";
 import CodeMirror, { Editor, LineHandle } from "codemirror";
+import React, { useEffect, useRef } from "react";
+import { Assembler } from "../core/Assembler";
+import { Machine } from "../core/Machine";
+import { scrollToPCSourceLine } from "./utils/FocusHandler";
+import { defineCodeMirrorMode } from "./utils/SyntaxHighlighter";
 
 // Search / Replace add-on
 import "codemirror/addon/search/search";
@@ -7,11 +11,6 @@ import "codemirror/addon/search/searchcursor";
 import "codemirror/addon/search/jump-to-line";
 import "codemirror/addon/dialog/dialog";
 import "codemirror/addon/dialog/dialog.css";
-
-import { Machine } from "../core/Machine";
-import { Assembler } from "../core/Assembler";
-import { defineCodeMirrorMode } from "./utils/SyntaxHighlighter";
-import { scrollToPCSourceLine } from "./utils/FocusHandler";
 
 function makeBreakpointMarker() {
   return Object.assign(document.createElement("div"), { className: "breakpoint-marker", innerHTML: "●" }) as HTMLDivElement;

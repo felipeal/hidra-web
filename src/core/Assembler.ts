@@ -1,13 +1,13 @@
-import { AssemblerError, AssemblerErrorCode, BuildError } from "./AssemblerError";
-import { Register } from "./Register";
-import { Instruction } from "./Instruction";
 import { AddressingModeCode } from "./AddressingMode";
-import { buildArray, range, assert, rethrowUnless } from "./utils/FunctionUtils";
-import { EventCallback, UnsubscribeCallback } from "./utils/EventUtils";
-import { RegExpMatcher } from "./utils/RegExpMatcher";
+import { AssemblerError, AssemblerErrorCode, BuildError } from "./AssemblerError";
 import { Byte } from "./Byte";
+import { Instruction } from "./Instruction";
 import { Machine } from "./Machine";
+import { Register } from "./Register";
 import { charToAsciiValue, codeStringToNumber } from "./utils/Conversions";
+import { EventCallback, UnsubscribeCallback } from "./utils/EventUtils";
+import { assert, buildArray, range, rethrowUnless } from "./utils/FunctionUtils";
+import { RegExpMatcher } from "./utils/RegExpMatcher";
 
 export class Assembler {
 

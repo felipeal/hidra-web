@@ -1,8 +1,6 @@
-import "./utils/jsdomSetup";
-
-import { makeFunction_processToken } from "../ui/utils/SyntaxHighlighter";
-import { Neander } from "../core/machines/Neander";
 import CodeMirror from "codemirror";
+import { Neander } from "../core/machines/Neander";
+import { makeFunction_processToken } from "../ui/utils/SyntaxHighlighter";
 
 let processToken: (stream: CodeMirror.StringStream) => string | null;
 

@@ -1,7 +1,6 @@
 import fs from "fs";
 import { Machine } from "../core/Machine";
 import { notNull } from "../core/utils/FunctionUtils";
-
 import { buildAssemblerBasedOnMachine, buildMachineBasedOnFileName, hasZeroPaddedExports, removeZeroPadding } from "../ui/utils/MachineFileUtils";
 
 const resourcesPath = "src/tests/resources";

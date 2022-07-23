@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 
-import { resolve } from "path";
 import { exec } from "child_process";
+import { resolve } from "path";
 
 const reportPath = resolve("./coverage/lcov-report/index.html");
 
