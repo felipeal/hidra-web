@@ -1,10 +1,10 @@
 import { AddressingMode, AddressingModeCode } from "./AddressingMode";
 import { Byte } from "./Byte";
+import { EventPublisher } from "./EventPublisher";
 import { Flag, FlagCode } from "./Flag";
 import { Instruction } from "./Instruction";
 import { Register, RegisterInfo } from "./Register";
 import { bitPatternToUnsignedByte } from "./utils/Conversions";
-import { EventCallback, UnsubscribeCallback } from "./utils/EventUtils";
 import { assert, buildArray, isPowerOfTwo, range } from "./utils/FunctionUtils";
 
 interface MachineSettings {
@@ -23,7 +23,7 @@ interface MachineSettings {
   immediateNumBytes?: number
 }
 
-export abstract class MachineState {
+export abstract class MachineState extends EventPublisher {
 
   // Machine setttings (always assigned in constructor)
   private name!: string;
@@ -48,9 +48,9 @@ export abstract class MachineState {
   private accessCount = 0;
   private memoryMask!: number; // Memory address mask, populated by setMemorySize
 
-  private eventSubscriptions: Record<string, EventCallback[]> = {};
-
   constructor(settings: MachineSettings) {
+    super();
+
     // Assign settings
     Object.assign(this, settings);
     this.setMemorySize(settings.memorySize);
@@ -358,21 +358,6 @@ export abstract class MachineState {
   public clearCounters(): void {
     this.setInstructionCount(0);
     this.setAccessCount(0);
-  }
-
-  //////////////////////////////////////////////////
-  // Events
-  //////////////////////////////////////////////////
-
-  // Returns unsubscribe callback
-  public subscribeToEvent(event: string, callback: EventCallback): UnsubscribeCallback {
-    this.eventSubscriptions[event] = this.eventSubscriptions[event] ?? [];
-    this.eventSubscriptions[event].push(callback);
-    return () => this.eventSubscriptions[event] = this.eventSubscriptions[event].filter((f) => f !== callback);
-  }
-
-  protected publishEvent(event: string, value: unknown): void {
-    this.eventSubscriptions[event]?.forEach(callback => callback(value));
   }
 
 }

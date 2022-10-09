@@ -1,15 +1,15 @@
 import { AddressingModeCode } from "./AddressingMode";
 import { AssemblerError, AssemblerErrorCode, BuildError } from "./AssemblerError";
 import { Byte } from "./Byte";
+import { EventPublisher } from "./EventPublisher";
 import { Instruction } from "./Instruction";
 import { Machine } from "./Machine";
 import { Register } from "./Register";
 import { charToAsciiValue, codeStringToNumber } from "./utils/Conversions";
-import { EventCallback, UnsubscribeCallback } from "./utils/EventUtils";
 import { assert, buildArray, range, rethrowUnless } from "./utils/FunctionUtils";
 import { RegExpMatcher } from "./utils/RegExpMatcher";
 
-export class Assembler {
+export class Assembler extends EventPublisher {
 
   // Patterns
   public static readonly WHITESPACE = /\s+/;
@@ -32,9 +32,9 @@ export class Assembler {
   protected addressCorrespondingLabel: string[];
   protected labelPCMap: Map<string, number> = new Map();
   protected reservedKeywords: Set<string>;
-  protected eventSubscriptions: Record<string, EventCallback[]> = {};
 
   constructor(machine: Machine) {
+    super();
     this.machine = machine;
 
     // Initialize memory arrays
@@ -668,20 +668,6 @@ export class Assembler {
 
   protected incrementPCValue(units = 1): void {
     this.pcValue += units;
-  }
-
-  //////////////////////////////////////////////////
-  // Events
-  //////////////////////////////////////////////////
-
-  public subscribeToEvent(event: string, callback: EventCallback): UnsubscribeCallback {
-    this.eventSubscriptions[event] = this.eventSubscriptions[event] ?? [];
-    this.eventSubscriptions[event].push(callback);
-    return () => this.eventSubscriptions[event] = this.eventSubscriptions[event].filter((f) => f !== callback);
-  }
-
-  protected publishEvent(event: string, value: unknown): void {
-    this.eventSubscriptions[event]?.forEach(callback => callback(value));
   }
 
 }
