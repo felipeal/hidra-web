@@ -96,6 +96,7 @@ export default function App({ isCesarEnabled = false }: { isCesarEnabled?: boole
   }, [machine, assembler]);
 
   const isCesar = Cesar.isCesar(machine);
+  const stepsPerUpdate = isCesar ? 17 : 1; // Uses a sufficiently high prime number so that PC doesn't seem stuck on loops
 
   // Reenable Cesar if a .ced file is loaded
   if (isCesar) {
@@ -124,10 +125,16 @@ export default function App({ isCesarEnabled = false }: { isCesarEnabled?: boole
       isCesar && enableCesarKeyListener();
       const nextStep = function () {
         if (machine.isRunning()) {
-          machine.step();
-          if (hasBreakpointAtLine(assembler.getPCCorrespondingSourceLine())) {
-            machine.setRunning(false);
+
+          machine.beginPublishQueue();
+          for (let stepCount = stepsPerUpdate; (stepCount > 0) && machine.isRunning(); stepCount--) {
+            machine.step();
+            if (hasBreakpointAtLine(assembler.getPCCorrespondingSourceLine())) {
+              machine.setRunning(false);
+            }
           }
+          machine.firePublishQueue();
+
           stepTimeout = setTimeout(nextStep, 0);
         } else {
           machine.updateInstructionStrings();
